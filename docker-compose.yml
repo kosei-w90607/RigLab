@@ -38,7 +38,8 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./frontend:/app
-    command: yarn start
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
     ports:
       - "8080:3000"
     hostname: front
