@@ -1,0 +1,15 @@
+class CreatePartsOs < ActiveRecord::Migration[7.1]
+  def change
+    create_table :parts_os do |t|
+      t.string :name, null: false
+      t.string :maker, null: false
+      t.integer :price, null: false, default: 0
+      t.json :specs
+
+      t.timestamps
+    end
+
+    add_index :parts_os, :maker
+    add_index :parts_os, :price
+  end
+end
