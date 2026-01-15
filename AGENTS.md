@@ -2,7 +2,7 @@
 
 ## プロジェクト概要
 
-- **技術スタック**: Rails 7.1 (API) + React 18 + Vite (Frontend)
+- **技術スタック**: Rails 7.1 (API) + Next.js 15 App Router (Frontend)
 - **モード**: Solo (Claude Code 単独開発)
 - **開発手法**: TDD + Tidy First
 
@@ -59,7 +59,7 @@ Plans.md のタスクを TDD で実装する。
 ```
 pc_RigLab/
 ├── backend/          # Rails API
-├── frontend/         # React + Vite
+├── frontend/         # Next.js 15
 ├── .claude/          # Claude Code 設定
 │   ├── CLAUDE.md     # 基本設定
 │   ├── rules/        # 品質ルール
