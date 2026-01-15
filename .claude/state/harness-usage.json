@@ -1,14 +1,14 @@
 {
   "version": "1.0",
-  "updatedAt": "2026-01-12T12:59:56.005Z",
+  "updatedAt": "2026-01-15T12:27:50.480Z",
   "skills": {},
   "commands": {},
   "agents": {},
   "hooks": {
     "session-init": {
-      "triggered": 10,
+      "triggered": 14,
       "blocked": 0,
-      "lastTriggered": "2026-01-12T12:59:56.005Z"
+      "lastTriggered": "2026-01-15T12:27:50.480Z"
     }
   }
 }
