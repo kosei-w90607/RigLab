@@ -23,10 +23,10 @@ PC初心者から自作経験者まで、誰でも簡単にPC構成を作成・�
 
 | 層 | 技術 |
 |----|------|
-| Frontend | React 18 + Vite + Tailwind CSS + MUI |
+| Frontend | Next.js 15 (App Router) + Tailwind CSS + DaisyUI |
 | Backend | Ruby on Rails 7.1 (API mode) |
 | Database | MySQL 8.0 |
-| Authentication | Devise Token Auth |
+| Authentication | Devise Token Auth + NextAuth.js |
 | Infrastructure | Docker Compose |
 
 ## クイックスタート
@@ -46,6 +46,7 @@ cd pc_RigLab
 
 # 環境変数ファイルを作成
 cp backend/.env.example backend/.env.local
+cp frontend/.env.example frontend/.env.local
 
 # Dockerコンテナを起動
 docker compose up -d
@@ -58,8 +59,8 @@ docker compose exec back rails db:create db:migrate db:seed
 
 | サービス | URL |
 |---------|-----|
-| フロントエンド | http://localhost:8080 |
-| バックエンドAPI | http://localhost:3030 |
+| フロントエンド | http://localhost:3000 |
+| バックエンドAPI | http://localhost:3001 |
 
 ## ドキュメント
 
