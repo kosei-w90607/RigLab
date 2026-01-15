@@ -2,36 +2,19 @@
 
 ## 現在のフェーズ
 
-**Phase 0: 環境整備** - 開発基盤の構築
+**Phase 1: バックエンド基盤** - モデル・マイグレーション
 
 ---
 
-## Phase 0: 環境整備
+## Phase 0: 環境整備 ✅
 
 ### 完了済み
 - [x] harness-init によるワークフローファイル導入
-
-### 進行中
-（なし）
-
-### 未着手
-
-- [ ] I-04: backend/.env.example 作成
-  - 詳細: 環境変数のサンプルファイル作成
-  - 参照: docs/07_setup-guide.md
-
-- [ ] I-05: frontend/.env.example 作成
-  - 詳細: NEXT_PUBLIC_API_URL等の設定
-  - 参照: docs/07_setup-guide.md
-
-- [ ] I-06: frontend/next.config.ts 設定
-  - 詳細: API proxyなどの設定
-
-- [ ] I-07: frontend/tailwind.config.ts 設定
-  - 詳細: カスタムカラー、フォント設定
-
-- [ ] I-08: frontend/tsconfig.json 確認・調整
-  - 詳細: パスエイリアス設定
+- [x] I-04: backend/.env.example 作成 (PR #7)
+- [x] I-05: frontend/.env.example 作成 (PR #7)
+- [x] I-06: frontend/next.config.ts 設定 (PR #7)
+- [x] I-07: frontend/tailwind.config.ts 設定 (PR #7)
+- [x] I-08: frontend/tsconfig.json 確認・調整 (PR #7)
 
 ---
 
@@ -294,10 +277,10 @@
 
 | フェーズ | タスク数 | 完了 | 進捗率 |
 |----------|---------|------|--------|
-| Phase 0: 環境整備 | 6 | 1 | 17% |
+| Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
 | Phase 1: バックエンド基盤 | 20 | 0 | 0% |
 | Phase 2: バックエンドAPI | 8 | 0 | 0% |
 | Phase 3: フロントエンド基盤 | 19 | 0 | 0% |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **1** | **1%** |
+| **合計** | **72** | **6** | **8%** |
