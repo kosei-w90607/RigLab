@@ -68,9 +68,9 @@
 
 ### 2.3 カスタム構成API
 
-- [ ] B-23: Api::V1::BuildsController 実装
+- [x] B-23: Api::V1::BuildsController 実装 (PR #12)
   - テスト: spec/requests/api/v1/builds_spec.rb
-  - エンドポイント: CRUD /api/v1/builds
+  - エンドポイント: CRUD /api/v1/builds, GET /api/v1/builds/shared/:share_token
 
 - [ ] B-41: CompatibilityCheckService 実装
   - テスト: spec/services/compatibility_check_service_spec.rb
@@ -247,8 +247,85 @@
 |----------|---------|------|--------|
 | Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
-| Phase 2: バックエンドAPI | 8 | 3 | 38% |
+| Phase 2: バックエンドAPI | 8 | 4 | 50% |
 | Phase 3: フロントエンド基盤 | 19 | 0 | 0% |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **29** | **40%** |
+| **合計** | **72** | **30** | **42%** |
+
+---
+
+## 技術的負債（認証システム移行時に解消）
+
+認証システムを **DeviseTokenAuth → NextAuth.js + JWT検証** に移行する際に、以下の項目を修正する。
+
+### TD-001: ApplicationController 認証メソッドエイリアス
+
+**ファイル:** `backend/app/controllers/application_controller.rb`
+
+**現状:**
+```ruby
+# Deviseのネームスペース付きメソッドを一般的な名前でも使えるようにする
+alias_method :authenticate_user!, :authenticate_api_v1_user!
+alias_method :current_user, :current_api_v1_user
+alias_method :user_signed_in?, :api_v1_user_signed_in?
+```
+
+**原因:** DeviseTokenAuthが `namespace :api do namespace :v1 do` 内でマウントされているため、メソッド名が `authenticate_api_v1_user!` になる。本来の仕様（NextAuth.js + JWT検証）では不要。
+
+**移行時の対応:**
+1. DeviseTokenAuth関連のgem・設定を削除
+2. シンプルなJWT検証ロジックに置き換え
+3. このエイリアスを削除し、適切な認証メソッドを実装
+
+---
+
+### TD-002: User モデルの DeviseTokenAuth 依存
+
+**ファイル:** `backend/app/models/user.rb`
+
+**現状:**
+```ruby
+devise :database_authenticatable, :registerable,
+       :recoverable, :rememberable, :validatable, :confirmable
+include DeviseTokenAuth::Concerns::User
+```
+
+**移行時の対応:**
+1. Devise関連の設定を削除
+2. パスワードハッシュはbcryptで直接管理（またはNextAuth側で完結）
+3. 必要に応じてUsersテーブルのカラム整理
+
+---
+
+### TD-003: routes.rb の DeviseTokenAuth マウント
+
+**ファイル:** `backend/config/routes.rb`
+
+**現状:**
+```ruby
+mount_devise_token_auth_for 'User', at: 'auth', controllers: {
+  registrations: 'api/v1/auth/registrations',
+  sessions: 'api/v1/auth/sessions',
+  passwords: 'api/v1/auth/passwords'
+}
+```
+
+**移行時の対応:**
+1. このマウントを削除
+2. 必要に応じてJWT検証用のエンドポイントを新設
+3. 既存の auth コントローラーを削除または書き換え
+
+---
+
+### 移行チェックリスト
+
+- [ ] DeviseTokenAuth gem を削除
+- [ ] devise gem を削除（必要に応じて）
+- [ ] ApplicationController のエイリアスを削除
+- [ ] JWT検証ロジックを実装（`before_action :verify_jwt`等）
+- [ ] User モデルから Devise 設定を削除
+- [ ] routes.rb から DeviseTokenAuth マウントを削除
+- [ ] 認証コントローラー（api/v1/auth/*）を整理
+- [ ] フロントエンドに NextAuth.js を導入
+- [ ] 全テストが通ることを確認
