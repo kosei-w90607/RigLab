@@ -72,9 +72,9 @@
   - テスト: spec/requests/api/v1/builds_spec.rb
   - エンドポイント: CRUD /api/v1/builds, GET /api/v1/builds/shared/:share_token
 
-- [ ] B-41: CompatibilityCheckService 実装
+- [x] B-41: CompatibilityCheckService 実装 (PR #13)
   - テスト: spec/services/compatibility_check_service_spec.rb
-  - 詳細: パーツ互換性チェックロジック
+  - 詳細: パーツ互換性チェックロジック（CPU/メモリ/マザーボード/GPU/ケースの互換性）
 
 ### 2.4 管理者API
 
@@ -247,11 +247,11 @@
 |----------|---------|------|--------|
 | Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
-| Phase 2: バックエンドAPI | 8 | 4 | 50% |
+| Phase 2: バックエンドAPI | 8 | 5 | 63% |
 | Phase 3: フロントエンド基盤 | 19 | 0 | 0% |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **30** | **42%** |
+| **合計** | **72** | **31** | **43%** |
 
 ---
 
