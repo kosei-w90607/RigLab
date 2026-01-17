@@ -21,6 +21,10 @@ Rails.application.routes.draw do
 
       # Presets API
       resources :presets, only: %i[index show]
+
+      # Builds API (カスタム構成)
+      resources :builds, only: %i[index show create update destroy]
+      get 'builds/shared/:share_token', to: 'builds#shared', as: :shared_build
     end
   end
 end
