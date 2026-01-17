@@ -78,12 +78,13 @@
 
 ### 2.4 管理者API
 
-- [ ] B-30: Api::V1::Admin::PartsController 実装
-  - テスト: spec/requests/api/v1/admin/parts_spec.rb
+- [x] B-30: Api::V1::Admin::PartsController 実装 (PR #14)
+  - テスト: spec/requests/api/v1/admin/parts_spec.rb (15 tests)
   - エンドポイント: CRUD（管理者認証必須）
+  - 追加: ユーザーにroleカラム追加（user/admin）
 
-- [ ] B-31: Api::V1::Admin::PresetsController 実装
-  - テスト: spec/requests/api/v1/admin/presets_spec.rb
+- [x] B-31: Api::V1::Admin::PresetsController 実装 (PR #14)
+  - テスト: spec/requests/api/v1/admin/presets_spec.rb (14 tests)
 
 ---
 
@@ -247,11 +248,11 @@
 |----------|---------|------|--------|
 | Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
-| Phase 2: バックエンドAPI | 8 | 5 | 63% |
+| Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
 | Phase 3: フロントエンド基盤 | 19 | 0 | 0% |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **31** | **43%** |
+| **合計** | **72** | **34** | **47%** |
 
 ---
 

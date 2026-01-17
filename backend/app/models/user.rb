@@ -7,4 +7,12 @@ class User < ApplicationRecord
   include DeviseTokenAuth::Concerns::User
 
   has_many :pc_custom_sets, dependent: :destroy
+
+  ROLES = %w[user admin].freeze
+
+  validates :role, presence: true, inclusion: { in: ROLES }
+
+  def admin?
+    role == 'admin'
+  end
 end
