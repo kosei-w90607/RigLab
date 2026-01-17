@@ -7,11 +7,10 @@ FactoryBot.define do
     password { 'password123' }
     password_confirmation { 'password123' }
     confirmed_at { Time.current }
+    role { 'user' }
 
     trait :admin do
-      after(:create) do |user|
-        user.update(admin: true) if user.respond_to?(:admin=)
-      end
+      role { 'admin' }
     end
   end
 end
