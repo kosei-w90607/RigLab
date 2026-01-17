@@ -31,6 +31,14 @@ Use these skills for detailed workflows:
 @docs/07_setup-guide.md
 @docs/08_deploy-guide.md
 
+# Task Completion Rules
+
+タスク完了時のルール:
+
+1. **Plans.md 更新必須**: タスクが完了したら、必ず `Plans.md` のチェックボックスを `[x]` に更新し、PR番号を記載する
+2. **進捗サマリー更新**: フェーズ完了時は進捗サマリーの数値も更新する
+3. **成果物リスト同期**: 実装完了した成果物は `docs/02_deliverables.md` の状態も更新する
+
 # Documentation Rules
 
 ドキュメント作成時のルール:

@@ -2,7 +2,7 @@
 
 ## 現在のフェーズ
 
-**Phase 1: バックエンド基盤** - モデル・マイグレーション
+**Phase 2: バックエンドAPI** - コントローラー・サービス実装
 
 ---
 
@@ -18,65 +18,33 @@
 
 ---
 
-## Phase 1: バックエンド基盤（モデル・マイグレーション）
+## Phase 1: バックエンド基盤（モデル・マイグレーション） ✅
 
 ### 1.1 パーツテーブル
 
-- [ ] B-51: parts_cpus マイグレーション作成
-  - テスト: spec/models/parts_cpu_spec.rb
-  - 参照: docs/06_database-design.md
-
-- [ ] B-02: PartsCpu モデル実装
-  - バリデーション、アソシエーション
-
-- [ ] B-52: parts_gpus マイグレーション作成
-  - テスト: spec/models/parts_gpu_spec.rb
-
-- [ ] B-03: PartsGpu モデル実装
-
-- [ ] B-53: parts_memories マイグレーション作成
-  - テスト: spec/models/parts_memory_spec.rb
-
-- [ ] B-04: PartsMemory モデル実装
-
-- [ ] B-54: parts_storages マイグレーション作成
-  - テスト: spec/models/parts_storage_spec.rb
-
-- [ ] B-05: PartsStorage モデル実装
-
-- [ ] B-55: parts_os マイグレーション作成
-  - テスト: spec/models/parts_os_spec.rb
-
-- [ ] B-06: PartsOs モデル実装
-
-- [ ] B-56: parts_motherboards マイグレーション作成
-  - テスト: spec/models/parts_motherboard_spec.rb
-
-- [ ] B-07: PartsMotherboard モデル実装
-
-- [ ] B-57: parts_psus マイグレーション作成
-  - テスト: spec/models/parts_psu_spec.rb
-
-- [ ] B-08: PartsPsu モデル実装
-
-- [ ] B-58: parts_cases マイグレーション作成
-  - テスト: spec/models/parts_case_spec.rb
-
-- [ ] B-09: PartsCase モデル実装
+- [x] B-51: parts_cpus マイグレーション作成 (PR #8)
+- [x] B-02: PartsCpu モデル実装 (PR #8)
+- [x] B-52: parts_gpus マイグレーション作成 (PR #8)
+- [x] B-03: PartsGpu モデル実装 (PR #8)
+- [x] B-53: parts_memories マイグレーション作成 (PR #8)
+- [x] B-04: PartsMemory モデル実装 (PR #8)
+- [x] B-54: parts_storages マイグレーション作成 (PR #8)
+- [x] B-05: PartsStorage モデル実装 (PR #8)
+- [x] B-55: parts_os マイグレーション作成 (PR #8)
+- [x] B-06: PartsOs モデル実装 (PR #8)
+- [x] B-56: parts_motherboards マイグレーション作成 (PR #8)
+- [x] B-07: PartsMotherboard モデル実装 (PR #8)
+- [x] B-57: parts_psus マイグレーション作成 (PR #8)
+- [x] B-08: PartsPsu モデル実装 (PR #8)
+- [x] B-58: parts_cases マイグレーション作成 (PR #8)
+- [x] B-09: PartsCase モデル実装 (PR #8)
 
 ### 1.2 構成テーブル
 
-- [ ] B-59: pc_entrust_sets マイグレーション作成
-  - テスト: spec/models/pc_entrust_set_spec.rb
-
-- [ ] B-10: PcEntrustSet モデル実装
-  - アソシエーション: belongs_to各パーツ
-
-- [ ] B-60: pc_custom_sets マイグレーション作成
-  - テスト: spec/models/pc_custom_set_spec.rb
-
-- [ ] B-11: PcCustomSet モデル実装
-  - アソシエーション: belongs_to user, 各パーツ
+- [x] B-59: pc_entrust_sets マイグレーション作成 (PR #8)
+- [x] B-10: PcEntrustSet モデル実装 (PR #8)
+- [x] B-60: pc_custom_sets マイグレーション作成 (PR #8)
+- [x] B-11: PcCustomSet モデル実装 (PR #8)
 
 ---
 
@@ -278,9 +246,9 @@
 | フェーズ | タスク数 | 完了 | 進捗率 |
 |----------|---------|------|--------|
 | Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
-| Phase 1: バックエンド基盤 | 20 | 0 | 0% |
+| Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
 | Phase 2: バックエンドAPI | 8 | 0 | 0% |
 | Phase 3: フロントエンド基盤 | 19 | 0 | 0% |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **6** | **8%** |
+| **合計** | **72** | **26** | **36%** |
