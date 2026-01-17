@@ -6,7 +6,7 @@ services:
       TZ: Asia/Tokyo
       LANG: C.UTF-8
     ports:
-      - "4306:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
 
@@ -21,7 +21,7 @@ services:
     volumes:
       - ./backend:/app
     ports:
-      - "3030:3000"
+      - "3001:3000"
     environment:
       TZ: Asia/Tokyo
       RAILS_ENV: development
@@ -41,7 +41,7 @@ services:
       - /app/node_modules
     command: npm run dev -- --host 0.0.0.0
     ports:
-      - "8080:3000"
+      - "3000:3000"
     hostname: front
 volumes:
   mysql_data:
