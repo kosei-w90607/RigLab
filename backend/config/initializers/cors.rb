@@ -1,13 +1,17 @@
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins 'http://localhost:8080'
+    if Rails.env.test?
+      origins '*'
+    else
+      origins 'http://localhost:8080'
+    end
 
     resource '*',
              headers: :any,
              expose: ["access-token", "expiry", "token-type", "uid", "client"],
              methods: %i[get post put patch delete options head],
-             credentials: true
+             credentials: !Rails.env.test?
 
-    Rails.logger.info 'CORS headers added for origin http://localhost:8080'
+    Rails.logger.info 'CORS headers configured' unless Rails.env.test?
   end
 end

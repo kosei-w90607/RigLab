@@ -52,15 +52,15 @@
 
 ### 2.1 パーツAPI
 
-- [ ] B-21: Api::V1::PartsController 実装
+- [x] B-21: Api::V1::PartsController 実装 (PR #10)
   - テスト: spec/requests/api/v1/parts_spec.rb
   - エンドポイント: GET /api/v1/parts, /api/v1/parts/:id
 
 ### 2.2 おまかせ構成API
 
-- [ ] B-22: Api::V1::PresetsController 実装
+- [x] B-22: Api::V1::PresetsController 実装 (PR #10)
   - テスト: spec/requests/api/v1/presets_spec.rb
-  - エンドポイント: GET /api/v1/presets, POST /api/v1/presets/recommend
+  - エンドポイント: GET /api/v1/presets, GET /api/v1/presets/:id
 
 - [ ] B-40: PartsRecommendationService 実装
   - テスト: spec/services/parts_recommendation_service_spec.rb
@@ -247,8 +247,8 @@
 |----------|---------|------|--------|
 | Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
-| Phase 2: バックエンドAPI | 8 | 0 | 0% |
+| Phase 2: バックエンドAPI | 8 | 2 | 25% |
 | Phase 3: フロントエンド基盤 | 19 | 0 | 0% |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **26** | **36%** |
+| **合計** | **72** | **28** | **39%** |
