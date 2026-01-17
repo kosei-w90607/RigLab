@@ -51,7 +51,7 @@ DeviseTokenAuth.setup do |config|
     :'token-type' => 'token-type'
   }
 
-  config.default_confirm_success_url = 'http://localhost:8080/dashboard'
+  config.default_confirm_success_url = 'http://localhost:3000/dashboard'
 
   # Makes it possible to use custom uid column
   # config.other_uid = "foo"

@@ -223,6 +223,11 @@ GET /api/v1/parts
 GET /api/v1/parts/:id
 ```
 
+**クエリパラメータ:**
+| パラメータ | 型 | 必須 | 説明 |
+|-----------|-----|------|------|
+| category | string | ✓ | カテゴリ (cpu, gpu, memory, storage, os, motherboard, psu, case) |
+
 **レスポンス (200):**
 ```json
 {
@@ -634,3 +639,4 @@ DELETE /api/v1/admin/presets/:id
 |------|------|
 | 2025-01-12 | 初版作成 |
 | 2025-01-15 | ストレージ3スロット対応: storage_idをstorage1_id, storage2_id, storage3_idに変更 |
+| 2025-01-17 | パーツ詳細取得にcategoryパラメータを必須追加（理由: DB設計上パーツが8テーブルに分散しており、IDのみでは一意特定不可のため） |

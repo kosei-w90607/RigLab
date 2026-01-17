@@ -110,8 +110,8 @@
 | # | 成果物 | ファイルパス | 状態 |
 |---|--------|-------------|------|
 | B-20 | 認証コントローラー | `backend/app/controllers/api/v1/auth/*` | 🔄 既存 |
-| B-21 | パーツコントローラー | `backend/app/controllers/api/v1/parts_controller.rb` | ⬜ 未着手 |
-| B-22 | おまかせ構成コントローラー | `backend/app/controllers/api/v1/presets_controller.rb` | ⬜ 未着手 |
+| B-21 | パーツコントローラー | `backend/app/controllers/api/v1/parts_controller.rb` | ✅ 完了 |
+| B-22 | おまかせ構成コントローラー | `backend/app/controllers/api/v1/presets_controller.rb` | ✅ 完了 |
 | B-23 | カスタム構成コントローラー | `backend/app/controllers/api/v1/builds_controller.rb` | ⬜ 未着手 |
 
 ### 3.3 管理者用コントローラー

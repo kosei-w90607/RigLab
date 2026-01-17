@@ -15,6 +15,12 @@ Rails.application.routes.draw do
       }
 
       get 'dashboard', to: 'dashboard#index'
+
+      # Parts API
+      resources :parts, only: %i[index show]
+
+      # Presets API
+      resources :presets, only: %i[index show]
     end
   end
 end
