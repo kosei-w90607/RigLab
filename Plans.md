@@ -92,16 +92,16 @@
 
 ### 3.1 共通コンポーネント
 
-- [ ] F-01: frontend/app/layout.tsx
+- [x] F-01: frontend/app/layout.tsx
   - 詳細: ルートレイアウト、メタデータ、Provider設定
 
-- [ ] F-32: frontend/app/providers.tsx
+- [x] F-32: frontend/app/providers.tsx
   - 詳細: SessionProvider、その他Context
 
-- [ ] F-02: frontend/app/components/Header.tsx
+- [x] F-02: frontend/app/components/Header.tsx
   - 参照: docs/04_wireframes.md
 
-- [ ] F-03: frontend/app/components/Footer.tsx
+- [x] F-03: frontend/app/components/Footer.tsx
 
 - [ ] F-04: frontend/app/loading.tsx
   - 詳細: グローバルローディング表示
@@ -249,10 +249,10 @@
 | Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
 | Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
-| Phase 3: フロントエンド基盤 | 19 | 0 | 0% |
+| Phase 3: フロントエンド基盤 | 19 | 4 | 21% |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **34** | **47%** |
+| **合計** | **72** | **38** | **53%** |
 
 ---
 
