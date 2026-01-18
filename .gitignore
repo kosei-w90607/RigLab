@@ -11,3 +11,9 @@
 .claude/state/
 **/.claude/logs/
 **/.claude/state/
+
+# MCP configuration (personal dev settings)
+.mcp.json
+
+# Playwright MCP output
+.playwright-mcp/
