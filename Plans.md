@@ -141,16 +141,16 @@
 
 ### 3.3 ユーティリティ
 
-- [ ] F-30: frontend/lib/api.ts
+- [x] F-30: frontend/lib/api.ts (PR #18)
   - 詳細: API クライアント（fetch wrapper）
 
-- [ ] F-31: frontend/app/api/auth/[...nextauth]/route.ts
+- [x] F-31: frontend/app/api/auth/[...nextauth]/route.ts (PR #18)
   - 詳細: NextAuth.js設定
 
-- [ ] F-33: frontend/types/index.ts
+- [x] F-33: frontend/types/index.ts (PR #18)
   - 詳細: 型定義（Part, Build, User等）
 
-- [ ] F-34: frontend/env.d.ts
+- [x] F-34: frontend/env.d.ts (PR #18)
   - 詳細: 環境変数の型定義
 
 ---
@@ -249,10 +249,10 @@
 | Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
 | Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
-| Phase 3: フロントエンド基盤 | 19 | 15 | 79% |
+| Phase 3: フロントエンド基盤 | 19 | 19 | 100% ✅ |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **49** | **68%** |
+| **合計** | **72** | **53** | **74%** |
 
 ---
 
@@ -329,4 +329,5 @@ mount_devise_token_auth_for 'User', at: 'auth', controllers: {
 - [ ] routes.rb から DeviseTokenAuth マウントを削除
 - [ ] 認証コントローラー（api/v1/auth/*）を整理
 - [ ] フロントエンドに NextAuth.js を導入
+- [ ] NextAuth.js v4 → v5 へアップグレード
 - [ ] 全テストが通ることを確認
