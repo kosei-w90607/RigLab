@@ -1,0 +1,51 @@
+import type { Metadata } from 'next'
+import { Providers } from './providers'
+import { Header } from './components/Header'
+import { Footer } from './components/Footer'
+import './globals.css'
+
+export const metadata: Metadata = {
+  title: {
+    template: '%s | RigLab',
+    default: 'RigLab - あなただけのPC構成を見つけよう',
+  },
+  description:
+    'RigLabは予算と用途から最適なPC構成を提案するサービスです。おまかせで選ぶ、自分で選ぶ、2つの方法であなただけの理想のPCを見つけましょう。',
+  keywords: ['PC構成', '自作PC', 'パーツ選び', 'ゲーミングPC', '予算'],
+  authors: [{ name: 'RigLab' }],
+  openGraph: {
+    type: 'website',
+    locale: 'ja_JP',
+    url: 'https://riglab.example.com',
+    siteName: 'RigLab',
+    title: 'RigLab - あなただけのPC構成を見つけよう',
+    description:
+      'RigLabは予算と用途から最適なPC構成を提案するサービスです。',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'RigLab - あなただけのPC構成を見つけよう',
+    description:
+      'RigLabは予算と用途から最適なPC構成を提案するサービスです。',
+  },
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="ja">
+      <body>
+        <Providers>
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </Providers>
+      </body>
+    </html>
+  )
+}
