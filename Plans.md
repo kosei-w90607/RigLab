@@ -103,13 +103,13 @@
 
 - [x] F-03: frontend/app/components/Footer.tsx
 
-- [ ] F-04: frontend/app/loading.tsx
+- [x] F-04: frontend/app/loading.tsx
   - 詳細: グローバルローディング表示
 
-- [ ] F-05: frontend/app/error.tsx
+- [x] F-05: frontend/app/error.tsx
   - 詳細: エラーバウンダリ
 
-- [ ] F-06: frontend/app/not-found.tsx
+- [x] F-06: frontend/app/not-found.tsx
   - 詳細: 404ページ
 
 ### 3.2 UIコンポーネント
@@ -249,10 +249,10 @@
 | Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
 | Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
-| Phase 3: フロントエンド基盤 | 19 | 4 | 21% |
+| Phase 3: フロントエンド基盤 | 19 | 7 | 37% |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **38** | **53%** |
+| **合計** | **72** | **41** | **57%** |
 
 ---
 
