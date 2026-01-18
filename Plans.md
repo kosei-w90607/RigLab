@@ -329,4 +329,5 @@ mount_devise_token_auth_for 'User', at: 'auth', controllers: {
 - [ ] routes.rb から DeviseTokenAuth マウントを削除
 - [ ] 認証コントローラー（api/v1/auth/*）を整理
 - [ ] フロントエンドに NextAuth.js を導入
+- [ ] NextAuth.js v4 → v5 へアップグレード
 - [ ] 全テストが通ることを確認
