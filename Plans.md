@@ -114,29 +114,29 @@
 
 ### 3.2 UIコンポーネント
 
-- [ ] F-40: Button コンポーネント
+- [x] F-40: Button コンポーネント (PR #17)
   - パス: frontend/app/components/ui/Button.tsx
   - 参照: docs/04_wireframes.md Section 6
 
-- [ ] F-41: Input コンポーネント
+- [x] F-41: Input コンポーネント (PR #17)
   - パス: frontend/app/components/ui/Input.tsx
 
-- [ ] F-42: Select コンポーネント
+- [x] F-42: Select コンポーネント (PR #17)
   - パス: frontend/app/components/ui/Select.tsx
 
-- [ ] F-43: Card コンポーネント
+- [x] F-43: Card コンポーネント (PR #17)
   - パス: frontend/app/components/ui/Card.tsx
 
-- [ ] F-44: Modal コンポーネント
+- [x] F-44: Modal コンポーネント (PR #17)
   - パス: frontend/app/components/ui/Modal.tsx
 
-- [ ] F-45: Skeleton コンポーネント
+- [x] F-45: Skeleton コンポーネント (PR #17)
   - パス: frontend/app/components/ui/Skeleton.tsx
 
-- [ ] F-46: ConfirmDialog コンポーネント
+- [x] F-46: ConfirmDialog コンポーネント (PR #17)
   - パス: frontend/app/components/ui/ConfirmDialog.tsx
 
-- [ ] F-47: Toast コンポーネント
+- [x] F-47: Toast コンポーネント (PR #17)
   - パス: frontend/app/components/ui/Toast.tsx
 
 ### 3.3 ユーティリティ
@@ -249,10 +249,10 @@
 | Phase 0: 環境整備 | 6 | 6 | 100% ✅ |
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
 | Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
-| Phase 3: フロントエンド基盤 | 19 | 7 | 37% |
+| Phase 3: フロントエンド基盤 | 19 | 15 | 79% |
 | Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **41** | **57%** |
+| **合計** | **72** | **49** | **68%** |
 
 ---
 
