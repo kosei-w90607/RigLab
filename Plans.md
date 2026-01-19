@@ -159,10 +159,10 @@
 
 ### 4.1 認証画面
 
-- [ ] F-16: frontend/app/signin/page.tsx
+- [x] F-16: frontend/app/signin/page.tsx (PR #20)
   - 参照: docs/04_wireframes.md
 
-- [ ] F-17: frontend/app/signup/page.tsx
+- [x] F-17: frontend/app/signup/page.tsx (PR #20)
 
 ### 4.2 メイン画面
 
@@ -191,6 +191,29 @@
 
 - [ ] F-19: frontend/app/share/opengraph-image.tsx
   - 詳細: OG画像動的生成
+
+---
+
+## Phase 5.5: 認証統合（DeviseTokenAuth → NextAuth.js + JWT）✅
+
+### 5.5.1 バックエンド
+
+- [x] A-01: JwtAuthenticatable concern作成 (PR #20)
+  - パス: backend/app/controllers/concerns/jwt_authenticatable.rb
+  - 詳細: JWT検証、authenticate_user!、require_admin!メソッド
+- [x] A-02: ApplicationController 認証メソッド置換 (PR #20)
+- [x] A-03: User モデルから Devise 依存削除 (PR #20)
+- [x] A-04: routes.rb から DeviseTokenAuth 削除 (PR #20)
+- [x] A-05: Gemfile から DeviseTokenAuth/Devise 削除 (PR #20)
+
+### 5.5.2 フロントエンド
+
+- [x] A-10: NextAuth.js CredentialsProvider 実装 (PR #20)
+  - パス: frontend/lib/auth.ts
+- [x] A-11: サインインページ作成 (PR #20)
+  - パス: frontend/app/signin/page.tsx
+- [x] A-12: サインアップページ作成 (PR #20)
+  - パス: frontend/app/signup/page.tsx
 
 ---
 
@@ -250,9 +273,10 @@
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
 | Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
 | Phase 3: フロントエンド基盤 | 19 | 19 | 100% ✅ |
-| Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
+| Phase 4: ユーザー向け画面 | 11 | 2 | 18% |
+| Phase 5.5: 認証統合 | 8 | 8 | 100% ✅ |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **53** | **74%** |
+| **合計** | **80** | **63** | **79%** |
 
 ---
 
@@ -321,13 +345,13 @@ mount_devise_token_auth_for 'User', at: 'auth', controllers: {
 
 ### 移行チェックリスト
 
-- [ ] DeviseTokenAuth gem を削除
-- [ ] devise gem を削除（必要に応じて）
-- [ ] ApplicationController のエイリアスを削除
-- [ ] JWT検証ロジックを実装（`before_action :verify_jwt`等）
-- [ ] User モデルから Devise 設定を削除
-- [ ] routes.rb から DeviseTokenAuth マウントを削除
-- [ ] 認証コントローラー（api/v1/auth/*）を整理
-- [ ] フロントエンドに NextAuth.js を導入
-- [ ] NextAuth.js v4 → v5 へアップグレード
+- [x] DeviseTokenAuth gem を削除 (PR #20)
+- [x] devise gem を削除 (PR #20)
+- [x] ApplicationController のエイリアスを削除 (PR #20)
+- [x] JWT検証ロジックを実装（JwtAuthenticatable concern） (PR #20)
+- [x] User モデルから Devise 設定を削除 (PR #20)
+- [x] routes.rb から DeviseTokenAuth マウントを削除 (PR #20)
+- [x] 認証コントローラー（api/v1/auth/*）を整理 (PR #20)
+- [x] フロントエンドに NextAuth.js を導入 (PR #18, #20)
+- [ ] NextAuth.js v4 → v5 へアップグレード（将来課題）
 - [ ] 全テストが通ることを確認
