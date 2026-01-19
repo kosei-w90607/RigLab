@@ -1,8 +1,10 @@
 class ApplicationController < ActionController::API
-  include DeviseTokenAuth::Concerns::SetUserByToken
+  # Use JWT-based authentication for NextAuth.js integration
+  include JwtAuthenticatable
 
-  # Deviseのネームスペース付きメソッドを一般的な名前でも使えるようにする
-  alias_method :authenticate_user!, :authenticate_api_v1_user!
-  alias_method :current_user, :current_api_v1_user
-  alias_method :user_signed_in?, :api_v1_user_signed_in?
+  # Legacy DeviseTokenAuth support (to be removed)
+  # include DeviseTokenAuth::Concerns::SetUserByToken
+  # alias_method :authenticate_user!, :authenticate_api_v1_user!
+  # alias_method :current_user, :current_api_v1_user
+  # alias_method :user_signed_in?, :api_v1_user_signed_in?
 end

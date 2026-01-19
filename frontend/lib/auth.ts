@@ -18,12 +18,14 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const response = await fetch(`${API_BASE_URL}/auth/sign_in`, {
+          const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: credentials.email,
-              password: credentials.password,
+              user: {
+                email: credentials.email,
+                password: credentials.password,
+              },
             }),
           })
 
@@ -32,22 +34,13 @@ export const authOptions: NextAuthOptions = {
           }
 
           const data = await response.json()
-          const accessToken = response.headers.get('access-token')
-          const client = response.headers.get('client')
-          const uid = response.headers.get('uid')
 
-          if (!accessToken || !client || !uid) {
-            return null
-          }
-
+          // Return user object that will be available in JWT callback
           return {
-            id: String(data.data.id),
-            name: data.data.name,
-            email: data.data.email,
-            role: data.data.role,
-            accessToken,
-            client,
-            uid,
+            id: data.id,
+            name: data.name,
+            email: data.email,
+            role: data.role,
           }
         } catch {
           return null
@@ -57,22 +50,22 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // Initial sign in - add user data to token
       if (user) {
         token.id = user.id
         token.role = user.role
-        token.accessToken = user.accessToken
-        token.client = user.client
-        token.uid = user.uid
+        token.email = user.email
+        token.name = user.name
       }
       return token
     },
     async session({ session, token }) {
+      // Send properties to the client
       if (token && session.user) {
         session.user.id = token.id as string
         session.user.role = token.role as User['role']
-        session.accessToken = token.accessToken as string
-        session.client = token.client as string
-        session.uid = token.uid as string
+        session.user.email = token.email as string
+        session.user.name = token.name as string
       }
       return session
     },
@@ -82,5 +75,8 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  // JWT is signed with NEXTAUTH_SECRET env var
+  // The same secret must be set in Rails backend for verification
 }
