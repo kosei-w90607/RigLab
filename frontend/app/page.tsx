@@ -4,9 +4,9 @@ import { Button } from './components/ui/Button'
 
 export default function Home() {
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100 flex flex-col">
       {/* Hero Section */}
-      <section className="flex-1 flex flex-col items-center justify-center px-4 py-16 md:py-24 bg-gradient-to-b from-gray-50 to-white">
+      <section className="flex-1 flex flex-col items-center justify-center px-4 py-16 md:py-24">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             RigLab
