@@ -7,7 +7,10 @@ class User < ApplicationRecord
   validates :email, presence: true, uniqueness: true,
                     format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, presence: true, inclusion: { in: ROLES }
-  validates :password, length: { minimum: 6 }, if: -> { password.present? }
+  validates :password, length: { minimum: 8 },
+                       format: { with: /\A(?=.*[a-zA-Z])(?=.*[0-9])/,
+                                 message: 'は英字と数字を両方含めてください' },
+                       if: -> { password.present? }
 
   # Callbacks
   before_save :encrypt_password, if: -> { password.present? }

@@ -36,8 +36,10 @@ export default function SignUpPage() {
 
     if (!password) {
       newErrors.password = 'パスワードを入力してください'
-    } else if (password.length < 6) {
-      newErrors.password = '6文字以上で入力してください'
+    } else if (password.length < 8) {
+      newErrors.password = '8文字以上で入力してください'
+    } else if (!/^(?=.*[a-zA-Z])(?=.*[0-9])/.test(password)) {
+      newErrors.password = '英字と数字を両方含めてください'
     }
 
     if (!passwordConfirmation) {
@@ -149,7 +151,7 @@ export default function SignUpPage() {
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="6文字以上"
+            placeholder="英数字8文字以上"
             autoComplete="new-password"
             error={errors.password}
             disabled={isLoading}
