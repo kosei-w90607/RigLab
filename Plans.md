@@ -155,41 +155,41 @@
 
 ---
 
-## Phase 4: ユーザー向け画面
+## Phase 4: ユーザー向け画面 ✅
 
 ### 4.1 認証画面
 
-- [ ] F-16: frontend/app/signin/page.tsx
+- [x] F-16: frontend/app/signin/page.tsx (PR #19)
   - 参照: docs/04_wireframes.md
 
-- [ ] F-17: frontend/app/signup/page.tsx
+- [x] F-17: frontend/app/signup/page.tsx (PR #19)
 
 ### 4.2 メイン画面
 
-- [ ] F-10: frontend/app/page.tsx
+- [x] F-10: frontend/app/page.tsx (PR #19)
   - 詳細: トップページ
 
-- [ ] F-11: frontend/app/builder/page.tsx
+- [x] F-11: frontend/app/builder/page.tsx (PR #19)
   - 詳細: おまかせ構成入力
 
-- [ ] F-12: frontend/app/builder/result/page.tsx
+- [x] F-12: frontend/app/builder/result/page.tsx (PR #19)
   - 詳細: おまかせ構成結果
 
-- [ ] F-13: frontend/app/configurator/page.tsx
+- [x] F-13: frontend/app/configurator/page.tsx (PR #19)
   - 詳細: カスタム構成
 
-- [ ] F-14: frontend/app/builds/[id]/page.tsx
+- [x] F-14: frontend/app/builds/[id]/page.tsx (PR #19)
   - 詳細: 構成詳細
 
-- [ ] F-15: frontend/app/dashboard/page.tsx
+- [x] F-15: frontend/app/dashboard/page.tsx (PR #19)
   - 詳細: ユーザーダッシュボード
 
 ### 4.3 共有機能
 
-- [ ] F-18: frontend/app/share/page.tsx
+- [x] F-18: frontend/app/share/page.tsx (PR #19)
   - 詳細: 共有構成ページ
 
-- [ ] F-19: frontend/app/share/opengraph-image.tsx
+- [x] F-19: frontend/app/share/opengraph-image.tsx (PR #19)
   - 詳細: OG画像動的生成
 
 ---
@@ -222,6 +222,58 @@
 
 ---
 
+## Phase 5.5: 認証統合
+
+DeviseTokenAuth → NextAuth.js + JWT検証 への移行。技術的負債を解消する。
+
+### 5.5.1 バックエンド（JWT検証）
+
+- [ ] A-01: JwtAuthenticatable concern 作成
+  - パス: backend/app/controllers/concerns/jwt_authenticatable.rb
+  - 詳細: JWT検証ロジック（verify_jwt, current_user）
+
+- [ ] A-02: ApplicationController 認証メソッド置換
+  - 詳細: DeviseTokenAuthエイリアス → JwtAuthenticatable include
+
+- [ ] A-03: User モデルから Devise 依存削除
+  - 詳細: devise設定削除、DeviseTokenAuth::Concerns::User削除
+
+- [ ] A-04: routes.rb から DeviseTokenAuth マウント削除
+  - 詳細: mount_devise_token_auth_for を削除
+
+- [ ] A-05: Gemfile から DeviseTokenAuth/Devise 削除
+  - 詳細: gem削除 → bundle install
+
+- [ ] A-06: 認証関連マイグレーション整理
+  - 詳細: 不要なDevise系カラムの削除（必要に応じて）
+
+### 5.5.2 フロントエンド（NextAuth.js統合）
+
+- [ ] A-10: NextAuth.js CredentialsProvider 実装
+  - パス: frontend/app/api/auth/[...nextauth]/route.ts
+  - 詳細: Rails API と連携したログイン処理
+
+- [ ] A-11: サインインページ API連携
+  - パス: frontend/app/signin/page.tsx
+  - 詳細: signIn() 呼び出し、エラーハンドリング
+
+- [ ] A-12: サインアップページ API連携
+  - パス: frontend/app/signup/page.tsx
+  - 詳細: ユーザー登録API呼び出し → 自動ログイン
+
+- [ ] A-13: NextAuth.js v4 → v5 アップグレード
+  - 詳細: Auth.js への移行（オプション、時間があれば）
+
+### 5.5.3 テスト・検証
+
+- [ ] A-20: 認証フロー E2Eテスト
+  - 詳細: サインアップ → ログイン → 保護ページアクセス
+
+- [ ] A-21: 既存テストの修正
+  - 詳細: DeviseTokenAuth依存のテストをJWT方式に修正
+
+---
+
 ## TDD ワークフロー
 
 「go」と言うと、次の未完了タスクのテストを書き、実装します。
@@ -250,15 +302,17 @@
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
 | Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
 | Phase 3: フロントエンド基盤 | 19 | 19 | 100% ✅ |
-| Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
+| Phase 4: ユーザー向け画面 | 11 | 11 | 100% ✅ |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **53** | **74%** |
+| Phase 5.5: 認証統合 | 12 | 0 | 0% |
+| **合計** | **84** | **64** | **76%** |
 
 ---
 
-## 技術的負債（認証システム移行時に解消）
+## 技術的負債（Phase 5.5 で解消予定）
 
 認証システムを **DeviseTokenAuth → NextAuth.js + JWT検証** に移行する際に、以下の項目を修正する。
+→ **Phase 5.5: 認証統合** で対応。
 
 ### TD-001: ApplicationController 認証メソッドエイリアス
 
