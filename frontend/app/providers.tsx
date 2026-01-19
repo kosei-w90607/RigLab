@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
+import { SessionProvider } from 'next-auth/react'
 
 interface ProvidersProps {
   children: ReactNode
@@ -8,8 +9,7 @@ interface ProvidersProps {
 
 /**
  * Global providers wrapper for the application.
- * Add SessionProvider, ThemeProvider, etc. here as needed.
  */
 export function Providers({ children }: ProvidersProps) {
-  return <>{children}</>
+  return <SessionProvider>{children}</SessionProvider>
 }
