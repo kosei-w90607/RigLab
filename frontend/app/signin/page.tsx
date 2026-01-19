@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { Card } from '@/app/components/ui/Card'
+import { Input } from '@/app/components/ui/Input'
+import { Button } from '@/app/components/ui/Button'
 
 export default function SignInPage() {
   const router = useRouter()
@@ -13,12 +16,12 @@ export default function SignInPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-    setLoading(true)
+    setIsLoading(true)
 
     try {
       const result = await signIn('credentials', {
@@ -34,72 +37,74 @@ export default function SignInPage() {
         router.refresh()
       }
     } catch {
-      setError('ログインに失敗しました')
+      setError('ログインに失敗しました。再度お試しください。')
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex-1 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-8">ログイン</h1>
+    <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <Card padding="lg" shadow="md" className="w-full max-w-md">
+        <h1 className="text-2xl font-bold text-center text-gray-900 mb-8">
+          ログイン
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
+            <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
               {error}
             </div>
           )}
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              メールアドレス
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="example@email.com"
-            />
-          </div>
+          <Input
+            label="メールアドレス"
+            type="email"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="example@email.com"
+            autoComplete="email"
+            required
+            disabled={isLoading}
+          />
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              パスワード
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="パスワードを入力"
-            />
-          </div>
+          <Input
+            label="パスワード"
+            type="password"
+            name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="パスワードを入力"
+            autoComplete="current-password"
+            required
+            disabled={isLoading}
+          />
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            variant="primary"
+            size="lg"
+            className="w-full"
+            isLoading={isLoading}
+            disabled={isLoading}
           >
-            {loading ? 'ログイン中...' : 'ログイン'}
-          </button>
+            {isLoading ? 'ログイン中...' : 'ログイン'}
+          </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 pt-6 border-t border-gray-200 text-center">
           <p className="text-sm text-gray-600">
-            アカウントをお持ちでない方は{' '}
-            <Link href="/signup" className="text-blue-600 hover:underline">
-              新規登録
-            </Link>
+            アカウントをお持ちでない方は
           </p>
+          <Link
+            href="/signup"
+            className="mt-2 inline-block text-custom-blue hover:underline font-medium"
+          >
+            新規登録
+          </Link>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }

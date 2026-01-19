@@ -4,6 +4,9 @@ import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Card } from '@/app/components/ui/Card'
+import { Input } from '@/app/components/ui/Input'
+import { Button } from '@/app/components/ui/Button'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
 
@@ -14,28 +17,52 @@ export default function SignUpPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [generalError, setGeneralError] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!name.trim()) {
+      newErrors.name = 'ユーザー名を入力してください'
+    }
+
+    if (!email.trim()) {
+      newErrors.email = 'メールアドレスを入力してください'
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'メールアドレスの形式が正しくありません'
+    }
+
+    if (!password) {
+      newErrors.password = 'パスワードを入力してください'
+    } else if (password.length < 6) {
+      newErrors.password = '6文字以上で入力してください'
+    }
+
+    if (!passwordConfirmation) {
+      newErrors.passwordConfirmation = 'パスワード（確認）を入力してください'
+    } else if (password !== passwordConfirmation) {
+      newErrors.passwordConfirmation = 'パスワードが一致しません'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setError('')
+    setGeneralError('')
 
-    if (password !== passwordConfirmation) {
-      setError('パスワードが一致しません')
+    if (!validate()) {
       return
     }
 
-    if (password.length < 6) {
-      setError('パスワードは6文字以上で入力してください')
-      return
-    }
-
-    setLoading(true)
+    setIsLoading(true)
 
     try {
-      // Register user
-      const registerResponse = await fetch(`${API_BASE_URL}/auth/register`, {
+      // Register user via new JWT API
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -47,13 +74,17 @@ export default function SignUpPage() {
         }),
       })
 
-      if (!registerResponse.ok) {
-        const data = await registerResponse.json()
-        setError(data.errors?.join(', ') || '登録に失敗しました')
+      if (!response.ok) {
+        const data = await response.json()
+        if (data.errors) {
+          setGeneralError(Array.isArray(data.errors) ? data.errors.join(', ') : data.errors)
+        } else {
+          setGeneralError('登録に失敗しました。入力内容を確認してください。')
+        }
         return
       }
 
-      // Auto-login after registration
+      // 登録成功後、自動ログイン
       const result = await signIn('credentials', {
         email,
         password,
@@ -61,109 +92,105 @@ export default function SignUpPage() {
       })
 
       if (result?.error) {
-        setError('登録は完了しましたが、自動ログインに失敗しました。ログインページからログインしてください。')
+        // 登録は成功したがログインに失敗した場合
+        router.push('/signin?registered=true')
       } else {
         router.push('/')
         router.refresh()
       }
     } catch {
-      setError('登録に失敗しました')
+      setGeneralError('登録に失敗しました。再度お試しください。')
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex-1 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-8">新規登録</h1>
+    <div className="flex-1 flex items-center justify-center px-4 py-12">
+      <Card padding="lg" shadow="md" className="w-full max-w-md">
+        <h1 className="text-2xl font-bold text-center text-gray-900 mb-8">
+          新規登録
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg">
-              {error}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {generalError && (
+            <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+              {generalError}
             </div>
           )}
 
-          <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              名前
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="山田太郎"
-            />
-          </div>
+          <Input
+            label="ユーザー名"
+            type="text"
+            name="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="ユーザー名を入力"
+            autoComplete="username"
+            error={errors.name}
+            disabled={isLoading}
+          />
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              メールアドレス
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="example@email.com"
-            />
-          </div>
+          <Input
+            label="メールアドレス"
+            type="email"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="example@email.com"
+            autoComplete="email"
+            error={errors.email}
+            disabled={isLoading}
+          />
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              パスワード
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="6文字以上"
-            />
-          </div>
+          <Input
+            label="パスワード"
+            type="password"
+            name="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="6文字以上"
+            autoComplete="new-password"
+            error={errors.password}
+            disabled={isLoading}
+          />
 
-          <div>
-            <label htmlFor="passwordConfirmation" className="block text-sm font-medium text-gray-700 mb-1">
-              パスワード（確認）
-            </label>
-            <input
-              id="passwordConfirmation"
-              type="password"
-              value={passwordConfirmation}
-              onChange={(e) => setPasswordConfirmation(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              placeholder="パスワードを再入力"
-            />
-          </div>
+          <Input
+            label="パスワード（確認）"
+            type="password"
+            name="passwordConfirmation"
+            value={passwordConfirmation}
+            onChange={(e) => setPasswordConfirmation(e.target.value)}
+            placeholder="パスワードを再入力"
+            autoComplete="new-password"
+            error={errors.passwordConfirmation}
+            disabled={isLoading}
+          />
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            variant="primary"
+            size="lg"
+            className="w-full"
+            isLoading={isLoading}
+            disabled={isLoading}
           >
-            {loading ? '登録中...' : '登録する'}
-          </button>
+            {isLoading ? '登録中...' : '登録する'}
+          </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 pt-6 border-t border-gray-200 text-center">
           <p className="text-sm text-gray-600">
-            すでにアカウントをお持ちの方は{' '}
-            <Link href="/signin" className="text-blue-600 hover:underline">
-              ログイン
-            </Link>
+            すでにアカウントをお持ちの方は
           </p>
+          <Link
+            href="/signin"
+            className="mt-2 inline-block text-custom-blue hover:underline font-medium"
+          >
+            ログイン
+          </Link>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }

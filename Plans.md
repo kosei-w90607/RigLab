@@ -2,7 +2,7 @@
 
 ## 現在のフェーズ
 
-**Phase 2: バックエンドAPI** - コントローラー・サービス実装
+**Phase 5: 管理者画面** - 管理者向けUI実装
 
 ---
 
@@ -48,7 +48,7 @@
 
 ---
 
-## Phase 2: バックエンドAPI
+## Phase 2: バックエンドAPI ✅
 
 ### 2.1 パーツAPI
 
@@ -88,7 +88,7 @@
 
 ---
 
-## Phase 3: フロントエンド基盤
+## Phase 3: フロントエンド基盤 ✅
 
 ### 3.1 共通コンポーネント
 
@@ -155,41 +155,41 @@
 
 ---
 
-## Phase 4: ユーザー向け画面
+## Phase 4: ユーザー向け画面 ✅
 
 ### 4.1 認証画面
 
-- [x] F-16: frontend/app/signin/page.tsx (PR #20)
+- [x] F-16: frontend/app/signin/page.tsx (PR #19, #20)
   - 参照: docs/04_wireframes.md
 
-- [x] F-17: frontend/app/signup/page.tsx (PR #20)
+- [x] F-17: frontend/app/signup/page.tsx (PR #19, #20)
 
 ### 4.2 メイン画面
 
-- [ ] F-10: frontend/app/page.tsx
+- [x] F-10: frontend/app/page.tsx (PR #19)
   - 詳細: トップページ
 
-- [ ] F-11: frontend/app/builder/page.tsx
+- [x] F-11: frontend/app/builder/page.tsx (PR #19)
   - 詳細: おまかせ構成入力
 
-- [ ] F-12: frontend/app/builder/result/page.tsx
+- [x] F-12: frontend/app/builder/result/page.tsx (PR #19)
   - 詳細: おまかせ構成結果
 
-- [ ] F-13: frontend/app/configurator/page.tsx
+- [x] F-13: frontend/app/configurator/page.tsx (PR #19)
   - 詳細: カスタム構成
 
-- [ ] F-14: frontend/app/builds/[id]/page.tsx
+- [x] F-14: frontend/app/builds/[id]/page.tsx (PR #19)
   - 詳細: 構成詳細
 
-- [ ] F-15: frontend/app/dashboard/page.tsx
+- [x] F-15: frontend/app/dashboard/page.tsx (PR #19)
   - 詳細: ユーザーダッシュボード
 
 ### 4.3 共有機能
 
-- [ ] F-18: frontend/app/share/page.tsx
+- [x] F-18: frontend/app/share/page.tsx (PR #19)
   - 詳細: 共有構成ページ
 
-- [ ] F-19: frontend/app/share/opengraph-image.tsx
+- [x] F-19: frontend/app/share/opengraph-image.tsx (PR #19)
   - 詳細: OG画像動的生成
 
 ---
@@ -210,10 +210,15 @@
 
 - [x] A-10: NextAuth.js CredentialsProvider 実装 (PR #20)
   - パス: frontend/lib/auth.ts
-- [x] A-11: サインインページ作成 (PR #20)
+- [x] A-11: サインインページ API連携 (PR #20)
   - パス: frontend/app/signin/page.tsx
-- [x] A-12: サインアップページ作成 (PR #20)
+- [x] A-12: サインアップページ API連携 (PR #20)
   - パス: frontend/app/signup/page.tsx
+
+### 5.5.3 将来課題
+
+- [ ] A-13: NextAuth.js v4 → v5 アップグレード
+  - 詳細: Auth.js への移行（オプション）
 
 ---
 
@@ -273,75 +278,16 @@
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
 | Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
 | Phase 3: フロントエンド基盤 | 19 | 19 | 100% ✅ |
-| Phase 4: ユーザー向け画面 | 11 | 2 | 18% |
+| Phase 4: ユーザー向け画面 | 11 | 11 | 100% ✅ |
 | Phase 5.5: 認証統合 | 8 | 8 | 100% ✅ |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **80** | **63** | **79%** |
+| **合計** | **80** | **72** | **90%** |
 
 ---
 
-## 技術的負債（認証システム移行時に解消）
+## 技術的負債（Phase 5.5 で解消済み）✅
 
-認証システムを **DeviseTokenAuth → NextAuth.js + JWT検証** に移行する際に、以下の項目を修正する。
-
-### TD-001: ApplicationController 認証メソッドエイリアス
-
-**ファイル:** `backend/app/controllers/application_controller.rb`
-
-**現状:**
-```ruby
-# Deviseのネームスペース付きメソッドを一般的な名前でも使えるようにする
-alias_method :authenticate_user!, :authenticate_api_v1_user!
-alias_method :current_user, :current_api_v1_user
-alias_method :user_signed_in?, :api_v1_user_signed_in?
-```
-
-**原因:** DeviseTokenAuthが `namespace :api do namespace :v1 do` 内でマウントされているため、メソッド名が `authenticate_api_v1_user!` になる。本来の仕様（NextAuth.js + JWT検証）では不要。
-
-**移行時の対応:**
-1. DeviseTokenAuth関連のgem・設定を削除
-2. シンプルなJWT検証ロジックに置き換え
-3. このエイリアスを削除し、適切な認証メソッドを実装
-
----
-
-### TD-002: User モデルの DeviseTokenAuth 依存
-
-**ファイル:** `backend/app/models/user.rb`
-
-**現状:**
-```ruby
-devise :database_authenticatable, :registerable,
-       :recoverable, :rememberable, :validatable, :confirmable
-include DeviseTokenAuth::Concerns::User
-```
-
-**移行時の対応:**
-1. Devise関連の設定を削除
-2. パスワードハッシュはbcryptで直接管理（またはNextAuth側で完結）
-3. 必要に応じてUsersテーブルのカラム整理
-
----
-
-### TD-003: routes.rb の DeviseTokenAuth マウント
-
-**ファイル:** `backend/config/routes.rb`
-
-**現状:**
-```ruby
-mount_devise_token_auth_for 'User', at: 'auth', controllers: {
-  registrations: 'api/v1/auth/registrations',
-  sessions: 'api/v1/auth/sessions',
-  passwords: 'api/v1/auth/passwords'
-}
-```
-
-**移行時の対応:**
-1. このマウントを削除
-2. 必要に応じてJWT検証用のエンドポイントを新設
-3. 既存の auth コントローラーを削除または書き換え
-
----
+認証システムを **DeviseTokenAuth → NextAuth.js + JWT検証** に移行完了。
 
 ### 移行チェックリスト
 
@@ -354,4 +300,3 @@ mount_devise_token_auth_for 'User', at: 'auth', controllers: {
 - [x] 認証コントローラー（api/v1/auth/*）を整理 (PR #20)
 - [x] フロントエンドに NextAuth.js を導入 (PR #18, #20)
 - [ ] NextAuth.js v4 → v5 へアップグレード（将来課題）
-- [ ] 全テストが通ることを確認
