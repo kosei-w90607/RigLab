@@ -155,41 +155,41 @@
 
 ---
 
-## Phase 4: ユーザー向け画面
+## Phase 4: ユーザー向け画面 ✅
 
 ### 4.1 認証画面
 
-- [ ] F-16: frontend/app/signin/page.tsx
+- [x] F-16: frontend/app/signin/page.tsx (PR #19)
   - 参照: docs/04_wireframes.md
 
-- [ ] F-17: frontend/app/signup/page.tsx
+- [x] F-17: frontend/app/signup/page.tsx (PR #19)
 
 ### 4.2 メイン画面
 
-- [ ] F-10: frontend/app/page.tsx
+- [x] F-10: frontend/app/page.tsx (PR #19)
   - 詳細: トップページ
 
-- [ ] F-11: frontend/app/builder/page.tsx
+- [x] F-11: frontend/app/builder/page.tsx (PR #19)
   - 詳細: おまかせ構成入力
 
-- [ ] F-12: frontend/app/builder/result/page.tsx
+- [x] F-12: frontend/app/builder/result/page.tsx (PR #19)
   - 詳細: おまかせ構成結果
 
-- [ ] F-13: frontend/app/configurator/page.tsx
+- [x] F-13: frontend/app/configurator/page.tsx (PR #19)
   - 詳細: カスタム構成
 
-- [ ] F-14: frontend/app/builds/[id]/page.tsx
+- [x] F-14: frontend/app/builds/[id]/page.tsx (PR #19)
   - 詳細: 構成詳細
 
-- [ ] F-15: frontend/app/dashboard/page.tsx
+- [x] F-15: frontend/app/dashboard/page.tsx (PR #19)
   - 詳細: ユーザーダッシュボード
 
 ### 4.3 共有機能
 
-- [ ] F-18: frontend/app/share/page.tsx
+- [x] F-18: frontend/app/share/page.tsx (PR #19)
   - 詳細: 共有構成ページ
 
-- [ ] F-19: frontend/app/share/opengraph-image.tsx
+- [x] F-19: frontend/app/share/opengraph-image.tsx (PR #19)
   - 詳細: OG画像動的生成
 
 ---
@@ -250,9 +250,9 @@
 | Phase 1: バックエンド基盤 | 20 | 20 | 100% ✅ |
 | Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
 | Phase 3: フロントエンド基盤 | 19 | 19 | 100% ✅ |
-| Phase 4: ユーザー向け画面 | 11 | 0 | 0% |
+| Phase 4: ユーザー向け画面 | 11 | 11 | 100% ✅ |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| **合計** | **72** | **53** | **74%** |
+| **合計** | **72** | **64** | **89%** |
 
 ---
 
