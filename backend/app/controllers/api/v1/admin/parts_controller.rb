@@ -74,27 +74,27 @@ module Api
         end
 
         def part_params
-          permitted = params.permit(
-            :name, :maker, :price,
-            # CPU
-            :socket, :tdp, :memory_type,
-            # GPU
-            :length_mm,
-            # Memory
-            # Storage
-            :storage_type, :capacity_gb, :interface,
-            # OS
-            :version, :edition,
-            # Motherboard
-            :form_factor,
-            # PSU
-            :wattage,
-            # Case
-            :max_gpu_length_mm,
-            # Specs (JSON)
-            specs: {}
-          )
-          permitted
+          # 基本パラメータ
+          base_params = params.permit(:name, :maker, :price)
+
+          # カテゴリ固有のパラメータをspecsに変換
+          spec_keys = %i[
+            socket tdp memory_type length_mm capacity_gb interface
+            storage_type version edition form_factor wattage max_gpu_length_mm
+          ]
+
+          specs = {}
+          spec_keys.each do |key|
+            specs[key] = params[key] if params[key].present?
+          end
+
+          # 既存のspecsパラメータがあればマージ
+          if params[:specs].present?
+            specs.merge!(params[:specs].to_unsafe_h)
+          end
+
+          base_params[:specs] = specs if specs.present?
+          base_params
         end
 
         def serialize_part(part)

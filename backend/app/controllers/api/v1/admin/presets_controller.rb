@@ -6,7 +6,11 @@ module Api
       class PresetsController < ApplicationController
         before_action :authenticate_user!
         before_action :require_admin!
-        before_action :set_preset, only: %i[update destroy]
+        before_action :set_preset, only: %i[show update destroy]
+
+        def show
+          render json: { data: serialize_preset(@preset) }
+        end
 
         def create
           preset = PcEntrustSet.new(preset_params)
