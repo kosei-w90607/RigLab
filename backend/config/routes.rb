@@ -30,7 +30,7 @@ Rails.application.routes.draw do
       # Admin API
       namespace :admin do
         resources :parts, only: %i[create update destroy]
-        resources :presets, only: %i[create update destroy]
+        resources :presets, only: %i[show create update destroy]
       end
     end
   end

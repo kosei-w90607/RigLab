@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
 import { Skeleton } from '@/app/components/ui/Skeleton'
 import { PresetForm } from '../_components/PresetForm'
 import { api, ApiResponse } from '@/lib/api'
@@ -12,19 +13,21 @@ interface PresetData {
   budget_range: string
   use_case: string
   parts: {
-    cpu?: { id: number }
-    gpu?: { id: number }
-    memory?: { id: number }
-    storage1?: { id: number }
-    storage2?: { id: number }
-    motherboard?: { id: number }
-    psu?: { id: number }
-    case?: { id: number }
-    os?: { id: number }
+    cpu_id: number | null
+    gpu_id: number | null
+    memory_id: number | null
+    storage1_id: number | null
+    storage2_id: number | null
+    storage3_id: number | null
+    motherboard_id: number | null
+    psu_id: number | null
+    case_id: number | null
+    os_id: number | null
   }
 }
 
 export default function EditPresetPage({ params }: { params: Promise<{ id: string }> }) {
+  const { data: session } = useSession()
   const [preset, setPreset] = useState<PresetData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -35,12 +38,15 @@ export default function EditPresetPage({ params }: { params: Promise<{ id: strin
   }, [params])
 
   useEffect(() => {
-    if (!resolvedParams) return
+    if (!resolvedParams || !session?.accessToken) return
 
     async function fetchPreset() {
-      if (!resolvedParams) return
+      if (!resolvedParams || !session?.accessToken) return
       try {
-        const data = await api.get<ApiResponse<PresetData>>(`/presets/${resolvedParams.id}`)
+        const data = await api.get<ApiResponse<PresetData>>(
+          `/admin/presets/${resolvedParams.id}`,
+          session.accessToken
+        )
         setPreset(data.data)
       } catch (err) {
         console.error('プリセットの取得に失敗:', err)
@@ -51,7 +57,7 @@ export default function EditPresetPage({ params }: { params: Promise<{ id: strin
     }
 
     fetchPreset()
-  }, [resolvedParams])
+  }, [resolvedParams, session?.accessToken])
 
   if (loading) {
     return (
@@ -93,15 +99,15 @@ export default function EditPresetPage({ params }: { params: Promise<{ id: strin
     name: preset.name,
     budget_range: preset.budget_range,
     use_case: preset.use_case,
-    cpu_id: preset.parts.cpu?.id || null,
-    gpu_id: preset.parts.gpu?.id || null,
-    memory_id: preset.parts.memory?.id || null,
-    storage1_id: preset.parts.storage1?.id || null,
-    storage2_id: preset.parts.storage2?.id || null,
-    motherboard_id: preset.parts.motherboard?.id || null,
-    psu_id: preset.parts.psu?.id || null,
-    case_id: preset.parts.case?.id || null,
-    os_id: preset.parts.os?.id || null,
+    cpu_id: preset.parts.cpu_id,
+    gpu_id: preset.parts.gpu_id,
+    memory_id: preset.parts.memory_id,
+    storage1_id: preset.parts.storage1_id,
+    storage2_id: preset.parts.storage2_id,
+    motherboard_id: preset.parts.motherboard_id,
+    psu_id: preset.parts.psu_id,
+    case_id: preset.parts.case_id,
+    os_id: preset.parts.os_id,
   }
 
   return (

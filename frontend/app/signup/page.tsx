@@ -8,8 +8,6 @@ import { Card } from '@/app/components/ui/Card'
 import { Input } from '@/app/components/ui/Input'
 import { Button } from '@/app/components/ui/Button'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
-
 export default function SignUpPage() {
   const router = useRouter()
 
@@ -63,8 +61,8 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      // Register user via new JWT API
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      // Register user via new JWT API (uses Next.js rewrite proxy)
+      const response = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
