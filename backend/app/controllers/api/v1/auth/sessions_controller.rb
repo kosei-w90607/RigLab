@@ -7,7 +7,7 @@ module Api
         skip_before_action :set_current_user_from_jwt, only: [:create]
 
         # POST /api/v1/auth/login
-        # Authenticate user and return user data for NextAuth.js
+        # ユーザー認証してNextAuth.js用のユーザー情報を返す
         def create
           user = User.authenticate(login_params[:email], login_params[:password])
 
@@ -24,7 +24,7 @@ module Api
         end
 
         # GET /api/v1/auth/me
-        # Get current user info (requires JWT)
+        # 現在のユーザー情報を取得（JWT認証必須）
         def me
           authenticate_user!
           return if performed?

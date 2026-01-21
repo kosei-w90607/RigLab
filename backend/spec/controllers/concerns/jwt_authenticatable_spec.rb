@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe JwtAuthenticatable, type: :controller do
-  # Create a test controller that includes the concern
+  # concernをincludeしたテスト用コントローラーを作成
   controller(ApplicationController) do
     include JwtAuthenticatable
 
@@ -59,8 +59,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
   end
 
   describe '#current_user' do
-    context 'with valid JWT' do
-      it 'sets current_user from token' do
+    context '有効なJWTがある場合' do
+      it 'トークンからcurrent_userを設定する' do
         token = generate_jwt(user)
         request.headers['Authorization'] = "Bearer #{token}"
 
@@ -73,8 +73,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
       end
     end
 
-    context 'without JWT' do
-      it 'current_user is nil' do
+    context 'JWTがない場合' do
+      it 'current_userはnilになる' do
         get :index
 
         expect(response).to have_http_status(:ok)
@@ -84,8 +84,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
       end
     end
 
-    context 'with invalid JWT' do
-      it 'current_user is nil' do
+    context '無効なJWTの場合' do
+      it 'current_userはnilになる' do
         request.headers['Authorization'] = 'Bearer invalid-token'
 
         get :index
@@ -96,8 +96,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
       end
     end
 
-    context 'with expired JWT' do
-      it 'current_user is nil' do
+    context '期限切れのJWTの場合' do
+      it 'current_userはnilになる' do
         token = generate_jwt(user, exp: 1.hour.ago)
         request.headers['Authorization'] = "Bearer #{token}"
 
@@ -108,8 +108,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
       end
     end
 
-    context 'with wrong secret' do
-      it 'current_user is nil' do
+    context '間違ったシークレットで署名されたJWTの場合' do
+      it 'current_userはnilになる' do
         token = generate_jwt(user, secret: 'wrong-secret')
         request.headers['Authorization'] = "Bearer #{token}"
 
@@ -122,8 +122,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
   end
 
   describe '#authenticate_user!' do
-    context 'when authenticated' do
-      it 'allows access' do
+    context '認証済みの場合' do
+      it 'アクセスを許可する' do
         token = generate_jwt(user)
         request.headers['Authorization'] = "Bearer #{token}"
 
@@ -135,8 +135,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
       end
     end
 
-    context 'when not authenticated' do
-      it 'returns 401' do
+    context '未認証の場合' do
+      it '401を返す' do
         get :protected_action
 
         expect(response).to have_http_status(:unauthorized)
@@ -147,8 +147,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
   end
 
   describe '#require_admin!' do
-    context 'when admin user' do
-      it 'allows access' do
+    context '管理者ユーザーの場合' do
+      it 'アクセスを許可する' do
         token = generate_jwt(admin_user)
         request.headers['Authorization'] = "Bearer #{token}"
 
@@ -160,8 +160,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
       end
     end
 
-    context 'when regular user' do
-      it 'returns 403' do
+    context '一般ユーザーの場合' do
+      it '403を返す' do
         token = generate_jwt(user)
         request.headers['Authorization'] = "Bearer #{token}"
 
@@ -173,8 +173,8 @@ RSpec.describe JwtAuthenticatable, type: :controller do
       end
     end
 
-    context 'when not authenticated' do
-      it 'returns 401' do
+    context '未認証の場合' do
+      it '401を返す' do
         get :admin_action
 
         expect(response).to have_http_status(:unauthorized)

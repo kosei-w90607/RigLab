@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-# JWT-based authentication concern for NextAuth.js integration
-# Replaces DeviseTokenAuth for simpler JWT verification
+# JWT認証concern（NextAuth.js連携用）
 module JwtAuthenticatable
   extend ActiveSupport::Concern
 
@@ -11,7 +10,7 @@ module JwtAuthenticatable
 
   private
 
-  # Extract and verify JWT from Authorization header
+  # AuthorizationヘッダーからJWTを取得・検証してユーザーを設定
   def set_current_user_from_jwt
     @current_user = nil
     token = extract_token_from_header
@@ -23,24 +22,24 @@ module JwtAuthenticatable
     @current_user = User.find_by(id: payload['sub'])
   end
 
-  # Get current authenticated user
+  # 現在の認証済みユーザーを取得
   def current_user
     @current_user
   end
 
-  # Check if user is signed in
+  # ユーザーがログイン中かどうか
   def user_signed_in?
     current_user.present?
   end
 
-  # Require authentication - returns 401 if not authenticated
+  # 認証必須（未認証なら401を返す）
   def authenticate_user!
     return if user_signed_in?
 
     render json: { error: 'Unauthorized' }, status: :unauthorized
   end
 
-  # Require admin role
+  # 管理者権限必須（権限なしなら403を返す）
   def require_admin!
     authenticate_user!
     return if performed?
@@ -49,7 +48,7 @@ module JwtAuthenticatable
     render json: { error: 'Forbidden' }, status: :forbidden
   end
 
-  # Extract Bearer token from Authorization header
+  # AuthorizationヘッダーからBearerトークンを抽出
   def extract_token_from_header
     auth_header = request.headers['Authorization']
     return nil unless auth_header&.start_with?('Bearer ')
@@ -57,8 +56,7 @@ module JwtAuthenticatable
     auth_header.split(' ').last
   end
 
-  # Decode and verify JWT token
-  # NextAuth.js signs JWTs with the NEXTAUTH_SECRET
+  # JWTをデコード・検証（NextAuth.jsはNEXTAUTH_SECRETで署名）
   def decode_jwt(token)
     secret = jwt_secret
     return nil unless secret
@@ -66,19 +64,18 @@ module JwtAuthenticatable
     JWT.decode(
       token,
       secret,
-      true, # verify signature
+      true,
       {
         algorithm: 'HS256',
         verify_expiration: true
       }
     ).first
   rescue JWT::DecodeError, JWT::ExpiredSignature, JWT::VerificationError => e
-    Rails.logger.warn "JWT verification failed: #{e.message}"
+    Rails.logger.warn "JWT検証失敗: #{e.message}"
     nil
   end
 
-  # JWT secret from environment
-  # Should match NEXTAUTH_SECRET in frontend
+  # JWT署名用シークレット（フロントエンドのNEXTAUTH_SECRETと同じ値）
   def jwt_secret
     ENV.fetch('NEXTAUTH_SECRET', nil)
   end

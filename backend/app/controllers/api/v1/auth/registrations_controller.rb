@@ -7,11 +7,11 @@ module Api
         skip_before_action :set_current_user_from_jwt
 
         # POST /api/v1/auth/register
-        # Create new user account
+        # 新規ユーザーアカウント作成
         def create
           user = User.new(registration_params)
-          user.role = 'user' # Force default role
-          user.confirmed_at = Time.current # Auto-confirm for now (TODO: email verification)
+          user.role = 'user' # デフォルトロールを強制
+          user.confirmed_at = Time.current # 自動確認（TODO: メール認証）
 
           if user.save
             render json: {
