@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'Api::V1::Builds' do
   let(:user) { create(:user) }
   let(:other_user) { create(:user) }
-  let(:auth_headers) { user.create_new_auth_token }
+  let(:auth_headers) { jwt_auth_headers(user) }
 
   describe 'GET /api/v1/builds' do
     context '認証済みユーザーの場合' do

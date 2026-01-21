@@ -7,9 +7,30 @@ import Link from 'next/link'
 import { Card } from '@/app/components/ui/Card'
 import { Button } from '@/app/components/ui/Button'
 import { Skeleton } from '@/app/components/ui/Skeleton'
+import { Modal } from '@/app/components/ui/Modal'
 import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
 import type { PcCustomSet } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
+
+// API response type (snake_case from Rails)
+interface ApiBuildSummary {
+  id: number
+  name: string
+  total_price: number
+  created_at: string
+  updated_at: string
+}
+
+// Transform API response to frontend type
+function transformBuild(apiBuild: ApiBuildSummary): PcCustomSet {
+  return {
+    id: apiBuild.id,
+    name: apiBuild.name,
+    totalPrice: apiBuild.total_price,
+    createdAt: apiBuild.created_at,
+    updatedAt: apiBuild.updated_at,
+  } as PcCustomSet
+}
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('ja-JP', {
@@ -29,12 +50,14 @@ function formatDate(dateString: string): string {
 function BuildCard({
   build,
   onDelete,
+  onShare,
 }: {
   build: PcCustomSet
   onDelete: (id: number) => void
+  onShare: (build: PcCustomSet) => void
 }) {
   return (
-    <Card padding="lg" shadow="sm" className="mb-4">
+    <Card padding="lg" shadow="sm" className="mb-4 hover:shadow-md transition-shadow">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex-1">
           <h3 className="text-lg font-bold text-gray-900 truncate" title={build.name}>
@@ -48,19 +71,40 @@ function BuildCard({
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <Link href={`/builds/${build.id}`}>
-          <Button variant="secondary" size="sm">詳細</Button>
+          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-custom-blue rounded-lg hover:bg-cyan-500 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+            詳細
+          </button>
         </Link>
         <Link href={`/configurator?edit=${build.id}`}>
-          <Button variant="ghost" size="sm">編集</Button>
+          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            編集
+          </button>
         </Link>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onDelete(build.id)}
-          className="text-red-600 hover:bg-red-50"
+        <button
+          onClick={() => onShare(build)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
         >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+          共有
+        </button>
+        <button
+          onClick={() => onDelete(build.id)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
           削除
-        </Button>
+        </button>
       </div>
     </Card>
   )
@@ -83,7 +127,7 @@ function SkeletonCard() {
   )
 }
 
-function EmptyState() {
+function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
   return (
     <Card padding="lg" shadow="sm" className="text-center py-12">
       <div className="text-4xl mb-4">📦</div>
@@ -93,10 +137,61 @@ function EmptyState() {
       <p className="text-gray-500 mb-6">
         PC構成を作成して保存しましょう
       </p>
-      <Link href="/configurator">
-        <Button variant="primary">構成を作成する</Button>
-      </Link>
+      <Button variant="primary" onClick={onCreateClick}>
+        構成を作成する
+      </Button>
     </Card>
+  )
+}
+
+function CreateBuildModal({
+  isOpen,
+  onClose,
+}: {
+  isOpen: boolean
+  onClose: () => void
+}) {
+  const router = useRouter()
+
+  const handleSelect = (path: string) => {
+    onClose()
+    router.push(path)
+  }
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="構成方法を選択">
+      <div className="space-y-4">
+        <button
+          onClick={() => handleSelect('/builder')}
+          className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-custom-blue hover:bg-blue-50 transition-colors text-left"
+        >
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">🎯</div>
+            <div>
+              <h3 className="font-bold text-gray-900 mb-1">おまかせ構成</h3>
+              <p className="text-sm text-gray-600">
+                用途と予算を入力するだけで、AIが最適なパーツ構成を提案します。初心者におすすめ。
+              </p>
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={() => handleSelect('/configurator')}
+          className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-custom-blue hover:bg-blue-50 transition-colors text-left"
+        >
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">🔧</div>
+            <div>
+              <h3 className="font-bold text-gray-900 mb-1">カスタム構成</h3>
+              <p className="text-sm text-gray-600">
+                パーツを1つずつ自分で選びます。こだわりの構成を作りたい方向け。
+              </p>
+            </div>
+          </div>
+        </button>
+      </div>
+    </Modal>
   )
 }
 
@@ -111,6 +206,7 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
   // Redirect to signin if not authenticated
   useEffect(() => {
@@ -128,11 +224,11 @@ export default function DashboardPage() {
       setError(null)
 
       try {
-        const response = await api.get<{ data: PcCustomSet[] }>(
+        const response = await api.get<{ data: ApiBuildSummary[] }>(
           '/builds',
           session.accessToken
         )
-        setBuilds(response.data)
+        setBuilds(response.data.map(transformBuild))
       } catch (err) {
         if (err instanceof ApiClientError) {
           setError(err.message)
@@ -168,6 +264,25 @@ export default function DashboardPage() {
     }
   }
 
+  const handleShare = async (build: PcCustomSet) => {
+    const shareUrl = `${window.location.origin}/builds/${build.id}`
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: build.name,
+          text: `${build.name} - ${formatPrice(build.totalPrice)}`,
+          url: shareUrl,
+        })
+      } else {
+        await navigator.clipboard.writeText(shareUrl)
+        alert('URLをコピーしました')
+      }
+    } catch {
+      // User cancelled share
+    }
+  }
+
   // Show loading while checking auth
   if (status === 'loading') {
     return (
@@ -194,9 +309,9 @@ export default function DashboardPage() {
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             ダッシュボード
           </h1>
-          <Link href="/configurator">
-            <Button variant="primary">新しい構成を作る</Button>
-          </Link>
+          <Button variant="primary" onClick={() => setShowCreateModal(true)}>
+            新しい構成を作る
+          </Button>
         </div>
 
         {/* Error State */}
@@ -227,13 +342,14 @@ export default function DashboardPage() {
             </p>
 
             {builds.length === 0 ? (
-              <EmptyState />
+              <EmptyState onCreateClick={() => setShowCreateModal(true)} />
             ) : (
               builds.map((build) => (
                 <BuildCard
                   key={build.id}
                   build={build}
                   onDelete={setDeleteTarget}
+                  onShare={handleShare}
                 />
               ))
             )}
@@ -252,6 +368,12 @@ export default function DashboardPage() {
         cancelLabel="キャンセル"
         variant="danger"
         isLoading={isDeleting}
+      />
+
+      {/* Create Build Modal */}
+      <CreateBuildModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
       />
     </div>
   )

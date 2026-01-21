@@ -59,7 +59,7 @@ class User < ApplicationRecord
   end
 
   def set_default_provider_and_uid
-    self.provider ||= 'email'
-    self.uid ||= email
+    self.provider = 'email' if provider.blank?
+    self.uid = email if uid.blank?
   end
 end

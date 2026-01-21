@@ -8,10 +8,89 @@ import { Card } from '@/app/components/ui/Card'
 import { Button } from '@/app/components/ui/Button'
 import { Skeleton } from '@/app/components/ui/Skeleton'
 import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
-import type { PcCustomSet, PcEntrustSet } from '@/types'
+import type { PcCustomSet, PcEntrustSet, BasePart } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
 
 type BuildData = PcCustomSet | PcEntrustSet
+
+// API response types (snake_case from Rails)
+interface ApiPart {
+  id: number
+  name: string
+  maker: string
+  price: number
+}
+
+interface ApiPartEntry {
+  category: string
+  part: ApiPart
+}
+
+interface ApiBuildDetail {
+  id: number
+  name: string
+  total_price: number
+  share_token: string
+  parts: ApiPartEntry[]
+  user: { id: number; name: string } | null
+  created_at: string
+  updated_at: string
+}
+
+// Transform API part to frontend part type
+function transformPart(apiPart: ApiPart): BasePart {
+  return {
+    id: apiPart.id,
+    name: apiPart.name,
+    maker: apiPart.maker,
+    price: apiPart.price,
+    specs: {},
+    createdAt: '',
+    updatedAt: '',
+  }
+}
+
+// Transform API response to frontend type
+function transformBuildDetail(api: ApiBuildDetail): PcCustomSet {
+  // Build a map of parts by category
+  const partsByCategory: Record<string, BasePart[]> = {}
+
+  for (const entry of api.parts) {
+    if (!partsByCategory[entry.category]) {
+      partsByCategory[entry.category] = []
+    }
+    partsByCategory[entry.category].push(transformPart(entry.part))
+  }
+
+  // Get first part of category or create placeholder
+  const getPart = (category: string, index = 0): BasePart => {
+    const parts = partsByCategory[category] || []
+    return parts[index] || { id: 0, name: '未選択', maker: '', price: 0, specs: {}, createdAt: '', updatedAt: '' }
+  }
+
+  // Storage parts are all in 'storage' category as array
+  const storageParts = partsByCategory['storage'] || []
+
+  return {
+    id: api.id,
+    userId: api.user?.id || 0,
+    name: api.name,
+    shareToken: api.share_token,
+    cpu: getPart('cpu') as PcCustomSet['cpu'],
+    gpu: getPart('gpu') as PcCustomSet['gpu'],
+    memory: getPart('memory') as PcCustomSet['memory'],
+    storage1: (storageParts[0] || getPart('storage')) as PcCustomSet['storage1'],
+    storage2: storageParts[1] ? storageParts[1] as PcCustomSet['storage2'] : null,
+    storage3: storageParts[2] ? storageParts[2] as PcCustomSet['storage3'] : null,
+    os: getPart('os') as PcCustomSet['os'],
+    motherboard: getPart('motherboard') as PcCustomSet['motherboard'],
+    psu: getPart('psu') as PcCustomSet['psu'],
+    case: getPart('case') as PcCustomSet['case'],
+    totalPrice: api.total_price,
+    createdAt: api.created_at,
+    updatedAt: api.updated_at,
+  }
+}
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('ja-JP', {
@@ -85,8 +164,9 @@ export default function BuildDetailPage() {
 
       try {
         const endpoint = isPreset ? `/presets/${id}` : `/builds/${id}`
-        const response = await api.get<{ data: BuildData }>(endpoint)
-        setBuild(response.data)
+        const token = session?.accessToken
+        const response = await api.get<{ data: ApiBuildDetail }>(endpoint, token)
+        setBuild(transformBuildDetail(response.data))
       } catch (err) {
         if (err instanceof ApiClientError) {
           setError(err.message)
@@ -98,8 +178,10 @@ export default function BuildDetailPage() {
       }
     }
 
-    fetchBuild()
-  }, [id, isPreset])
+    if (session?.accessToken || isPreset) {
+      fetchBuild()
+    }
+  }, [id, isPreset, session?.accessToken])
 
   const handleShare = async () => {
     if (!build) return

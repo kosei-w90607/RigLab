@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe 'Api::V1::Admin::Parts' do
   let(:admin_user) { create(:user, :admin) }
   let(:normal_user) { create(:user) }
-  let(:admin_headers) { admin_user.create_new_auth_token }
-  let(:user_headers) { normal_user.create_new_auth_token }
+  let(:admin_headers) { jwt_auth_headers(admin_user) }
+  let(:user_headers) { jwt_auth_headers(normal_user) }
 
   describe 'POST /api/v1/admin/parts' do
     let(:valid_cpu_params) do

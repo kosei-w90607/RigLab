@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 
 interface NavLinkProps {
   href: string
@@ -27,8 +28,8 @@ function NavLink({ href, children }: NavLinkProps) {
 }
 
 export function Header() {
-  // TODO: Replace with actual auth state from SessionProvider
-  const isLoggedIn = false
+  const { data: session, status } = useSession()
+  const isLoggedIn = status === 'authenticated' && !!session
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -44,9 +45,17 @@ export function Header() {
             <NavLink href="/builder">Builder</NavLink>
             <NavLink href="/configurator">Configurator</NavLink>
             {isLoggedIn ? (
-              <NavLink href="/dashboard">Dashboard</NavLink>
+              <>
+                <NavLink href="/dashboard">Dashboard</NavLink>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
+                >
+                  ログアウト
+                </button>
+              </>
             ) : (
-              <NavLink href="/signin">SignIn</NavLink>
+              <NavLink href="/signin">ログイン</NavLink>
             )}
           </div>
 

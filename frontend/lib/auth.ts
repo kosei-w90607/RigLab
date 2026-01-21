@@ -1,8 +1,26 @@
 import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
+import * as jose from 'jose'
 import type { User } from '@/types'
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || 'development-secret-key-for-riglab'
+
+// Generate HS256 JWT for Rails backend compatibility
+async function generateAccessToken(payload: {
+  sub: string
+  email: string
+  name: string
+  role: string
+}): Promise<string> {
+  const secret = new TextEncoder().encode(NEXTAUTH_SECRET)
+  const jwt = await new jose.SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('24h')
+    .sign(secret)
+  return jwt
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -66,12 +84,21 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as User['role']
         session.user.email = token.email as string
         session.user.name = token.name as string
+
+        // Generate HS256 JWT for Rails backend API calls
+        session.accessToken = await generateAccessToken({
+          sub: token.id as string,
+          email: token.email as string,
+          name: token.name as string,
+          role: token.role as string,
+        })
       }
       return session
     },
   },
   pages: {
     signIn: '/signin',
+    error: '/signin',
   },
   session: {
     strategy: 'jwt',

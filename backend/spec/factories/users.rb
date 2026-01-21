@@ -4,8 +4,9 @@ FactoryBot.define do
   factory :user do
     sequence(:name) { |n| "User #{n}" }
     sequence(:email) { |n| "user#{n}@example.com" }
+    sequence(:uid) { |n| "user#{n}@example.com" }
+    provider { 'email' }
     password { 'password123' }
-    password_confirmation { 'password123' }
     confirmed_at { Time.current }
     role { 'user' }
 

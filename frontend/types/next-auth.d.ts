@@ -9,6 +9,7 @@ declare module 'next-auth' {
       email: string
       role: AppUser['role']
     }
+    accessToken?: string
   }
 
   interface User {
