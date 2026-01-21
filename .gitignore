@@ -6,14 +6,23 @@
 # OS files
 .DS_Store
 
-# Claude Code (session-specific files)
+# Claude Code (session-specific / personal dev settings)
 .claude/logs/
 .claude/state/
+.claude/settings.json
+.claude/settings.local.json
+.claude/commands/
+.claude/skills/
 **/.claude/logs/
 **/.claude/state/
+
+# Agents (session-specific)
+.agents/
 
 # MCP configuration (personal dev settings)
 .mcp.json
 
-# Playwright MCP output
+# Playwright (test output)
 .playwright-mcp/
+frontend/playwright-report/
+frontend/test-results/
