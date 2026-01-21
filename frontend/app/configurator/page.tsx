@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card } from '@/app/components/ui/Card'
 import { Button } from '@/app/components/ui/Button'
 import { Select } from '@/app/components/ui/Select'
@@ -20,6 +20,30 @@ import type {
   PartsCase,
 } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
+
+// API response types for edit mode
+interface ApiPart {
+  id: number
+  name: string
+  maker: string
+  price: number
+}
+
+interface ApiPartEntry {
+  category: string
+  part: ApiPart
+}
+
+interface ApiBuildDetail {
+  id: number
+  name: string
+  total_price: number
+  share_token: string
+  parts: ApiPartEntry[]
+  user: { id: number; name: string } | null
+  created_at: string
+  updated_at: string
+}
 
 interface PartsData {
   cpus: PartsCpu[]
@@ -69,6 +93,8 @@ export default function ConfiguratorPage() {
   const sessionResult = useSession()
   const session = sessionResult?.data
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const editId = searchParams.get('edit')
 
   const [parts, setParts] = useState<PartsData | null>(null)
   const [selected, setSelected] = useState<SelectedParts>({
@@ -86,6 +112,7 @@ export default function ConfiguratorPage() {
     case: null,
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingBuild, setIsLoadingBuild] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isSharing, setIsSharing] = useState(false)
   const [showSaveModal, setShowSaveModal] = useState(false)
@@ -97,11 +124,11 @@ export default function ConfiguratorPage() {
     const fetchParts = async () => {
       try {
         const [cpuRes, gpuRes, memoryRes, storageRes, osRes] = await Promise.all([
-          api.get<{ data: PartsCpu[] }>('/parts?type=cpu'),
-          api.get<{ data: PartsGpu[] }>('/parts?type=gpu'),
-          api.get<{ data: PartsMemory[] }>('/parts?type=memory'),
-          api.get<{ data: PartsStorage[] }>('/parts?type=storage'),
-          api.get<{ data: PartsOs[] }>('/parts?type=os'),
+          api.get<{ data: PartsCpu[] }>('/parts?category=cpu'),
+          api.get<{ data: PartsGpu[] }>('/parts?category=gpu'),
+          api.get<{ data: PartsMemory[] }>('/parts?category=memory'),
+          api.get<{ data: PartsStorage[] }>('/parts?category=storage'),
+          api.get<{ data: PartsOs[] }>('/parts?category=os'),
         ])
 
         setParts({
@@ -124,6 +151,62 @@ export default function ConfiguratorPage() {
 
     fetchParts()
   }, [])
+
+  // Fetch existing build when editing
+  useEffect(() => {
+    const fetchBuildForEdit = async () => {
+      if (!editId || !parts || !session?.accessToken) return
+
+      setIsLoadingBuild(true)
+      try {
+        const response = await api.get<{ data: ApiBuildDetail }>(
+          `/builds/${editId}`,
+          session.accessToken
+        )
+        const buildData = response.data
+
+        // Set build name
+        setBuildName(buildData.name)
+
+        // Build a map of parts by category from API response
+        const partsByCategory: Record<string, ApiPart[]> = {}
+        for (const entry of buildData.parts) {
+          if (!partsByCategory[entry.category]) {
+            partsByCategory[entry.category] = []
+          }
+          partsByCategory[entry.category].push(entry.part)
+        }
+
+        // Find and set selected parts from the loaded parts lists
+        const findPart = <T extends { id: number }>(list: T[], apiPart: ApiPart | undefined): T | null => {
+          if (!apiPart) return null
+          return list.find(p => p.id === apiPart.id) || null
+        }
+
+        const storageParts = partsByCategory['storage'] || []
+
+        setSelected({
+          cpu: findPart(parts.cpus, partsByCategory['cpu']?.[0]),
+          gpu: findPart(parts.gpus, partsByCategory['gpu']?.[0]),
+          memory: findPart(parts.memories, partsByCategory['memory']?.[0]),
+          storage1: findPart(parts.storages, storageParts[0]),
+          storage2: findPart(parts.storages, storageParts[1]),
+          storage3: findPart(parts.storages, storageParts[2]),
+          os: findPart(parts.oses, partsByCategory['os']?.[0]),
+        })
+      } catch (err) {
+        if (err instanceof ApiClientError) {
+          setError(err.message)
+        } else {
+          setError('構成の取得に失敗しました')
+        }
+      } finally {
+        setIsLoadingBuild(false)
+      }
+    }
+
+    fetchBuildForEdit()
+  }, [editId, parts, session?.accessToken])
 
   // Fetch recommended parts when CPU or Memory changes
   const fetchRecommendations = useCallback(async () => {
@@ -222,10 +305,9 @@ export default function ConfiguratorPage() {
 
     setIsSaving(true)
     try {
-      const response = await api.post<{ data: { id: number } }>(
-        '/builds',
-        {
-          name: buildName,
+      const payload = {
+        name: buildName,
+        parts: {
           cpu_id: selected.cpu!.id,
           gpu_id: selected.gpu!.id,
           memory_id: selected.memory!.id,
@@ -234,11 +316,26 @@ export default function ConfiguratorPage() {
           storage3_id: selected.storage3?.id,
           os_id: selected.os!.id,
         },
-        session?.accessToken
-      )
+      }
+
+      if (editId) {
+        // Update existing build
+        await api.put<{ data: { id: number } }>(
+          `/builds/${editId}`,
+          payload,
+          session?.accessToken
+        )
+      } else {
+        // Create new build
+        await api.post<{ data: { id: number } }>(
+          '/builds',
+          payload,
+          session?.accessToken
+        )
+      }
 
       setShowSaveModal(false)
-      router.push(`/builds/${response.data.id}`)
+      router.push('/dashboard')
     } catch (err) {
       if (err instanceof ApiClientError) {
         alert(err.message)
@@ -267,10 +364,12 @@ export default function ConfiguratorPage() {
     <div className="flex-1 px-4 py-8 md:py-12">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-          カスタム構成
+          {editId ? '構成を編集' : 'カスタム構成'}
         </h1>
         <p className="text-gray-600 mb-8">
-          パーツを自由に選んで、あなただけのPC構成を作成しましょう
+          {editId
+            ? '保存済みの構成を編集しています'
+            : 'パーツを自由に選んで、あなただけのPC構成を作成しましょう'}
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -495,9 +594,9 @@ export default function ConfiguratorPage() {
                     variant="primary"
                     className="w-full"
                     onClick={() => setShowSaveModal(true)}
-                    disabled={!canSave}
+                    disabled={!canSave || isLoadingBuild}
                   >
-                    この構成を保存
+                    {editId ? 'この構成を更新' : 'この構成を保存'}
                   </Button>
                 ) : (
                   <p className="text-xs text-gray-500 text-center">
@@ -514,7 +613,7 @@ export default function ConfiguratorPage() {
       <Modal
         isOpen={showSaveModal}
         onClose={() => setShowSaveModal(false)}
-        title="構成を保存"
+        title={editId ? '構成を更新' : '構成を保存'}
       >
         <div className="space-y-4">
           <Input
@@ -533,7 +632,7 @@ export default function ConfiguratorPage() {
               isLoading={isSaving}
               disabled={!buildName.trim()}
             >
-              保存する
+              {editId ? '更新する' : '保存する'}
             </Button>
           </div>
         </div>

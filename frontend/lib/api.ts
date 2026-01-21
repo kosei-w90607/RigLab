@@ -1,4 +1,8 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
+// Client-side: use relative URL (proxied by Next.js rewrites)
+// Server-side: use full URL (for SSR/API routes)
+const API_BASE_URL = typeof window === 'undefined'
+  ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1')
+  : '/api/v1'
 
 export interface ApiErrorDetail {
   field: string

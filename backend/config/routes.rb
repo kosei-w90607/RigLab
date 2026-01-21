@@ -8,11 +8,12 @@ Rails.application.routes.draw do
       resources :users, only: %i[new create destroy]
       resources :password_resets, only: %i[new create edit update]
 
-      mount_devise_token_auth_for 'User', at: 'auth', controllers: {
-        registrations: 'api/v1/auth/registrations',
-        sessions: 'api/v1/auth/sessions',
-        passwords: 'api/v1/auth/passwords'
-      }
+      # 認証エンドポイント（NextAuth.js連携）
+      namespace :auth do
+        post 'login', to: 'sessions#create'
+        post 'register', to: 'registrations#create'
+        get 'me', to: 'sessions#me'
+      end
 
       get 'dashboard', to: 'dashboard#index'
 

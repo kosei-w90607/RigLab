@@ -25,6 +25,7 @@ services:
     environment:
       TZ: Asia/Tokyo
       RAILS_ENV: development
+      NEXTAUTH_SECRET: development-secret-key-for-riglab
     depends_on:
       - db
     hostname: back
@@ -45,6 +46,13 @@ services:
       - "3000:3000"
     environment:
       - HOSTNAME=0.0.0.0
+      - NEXT_PUBLIC_API_URL=http://back:3000/api/v1
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXTAUTH_SECRET=development-secret-key-for-riglab
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     hostname: front
+    depends_on:
+      - back
 volumes:
   mysql_data:

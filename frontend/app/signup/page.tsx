@@ -38,6 +38,8 @@ export default function SignUpPage() {
       newErrors.password = 'パスワードを入力してください'
     } else if (password.length < 8) {
       newErrors.password = '8文字以上で入力してください'
+    } else if (!/^(?=.*[a-zA-Z])(?=.*[0-9])/.test(password)) {
+      newErrors.password = '英字と数字を両方含めてください'
     }
 
     if (!passwordConfirmation) {
@@ -61,21 +63,23 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${API_BASE_URL}/auth`, {
+      // Register user via new JWT API
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name,
-          email,
-          password,
-          password_confirmation: passwordConfirmation,
+          user: {
+            name,
+            email,
+            password,
+          },
         }),
       })
 
       if (!response.ok) {
         const data = await response.json()
-        if (data.errors?.full_messages) {
-          setGeneralError(data.errors.full_messages.join(', '))
+        if (data.errors) {
+          setGeneralError(Array.isArray(data.errors) ? data.errors.join(', ') : data.errors)
         } else {
           setGeneralError('登録に失敗しました。入力内容を確認してください。')
         }
@@ -147,7 +151,7 @@ export default function SignUpPage() {
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="8文字以上"
+            placeholder="英数字8文字以上"
             autoComplete="new-password"
             error={errors.password}
             disabled={isLoading}

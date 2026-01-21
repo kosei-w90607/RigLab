@@ -2,7 +2,7 @@
 
 ## 現在のフェーズ
 
-**Phase 2: バックエンドAPI** - コントローラー・サービス実装
+**Phase 5: 管理者画面** - 管理者向けUI実装
 
 ---
 
@@ -48,7 +48,7 @@
 
 ---
 
-## Phase 2: バックエンドAPI
+## Phase 2: バックエンドAPI ✅
 
 ### 2.1 パーツAPI
 
@@ -88,7 +88,7 @@
 
 ---
 
-## Phase 3: フロントエンド基盤
+## Phase 3: フロントエンド基盤 ✅
 
 ### 3.1 共通コンポーネント
 
@@ -159,10 +159,10 @@
 
 ### 4.1 認証画面
 
-- [x] F-16: frontend/app/signin/page.tsx (PR #19)
+- [x] F-16: frontend/app/signin/page.tsx (PR #19, #20)
   - 参照: docs/04_wireframes.md
 
-- [x] F-17: frontend/app/signup/page.tsx (PR #19)
+- [x] F-17: frontend/app/signup/page.tsx (PR #19, #20)
 
 ### 4.2 メイン画面
 
@@ -194,6 +194,34 @@
 
 ---
 
+## Phase 5.5: 認証統合（DeviseTokenAuth → NextAuth.js + JWT）✅
+
+### 5.5.1 バックエンド
+
+- [x] A-01: JwtAuthenticatable concern作成 (PR #20)
+  - パス: backend/app/controllers/concerns/jwt_authenticatable.rb
+  - 詳細: JWT検証、authenticate_user!、require_admin!メソッド
+- [x] A-02: ApplicationController 認証メソッド置換 (PR #20)
+- [x] A-03: User モデルから Devise 依存削除 (PR #20)
+- [x] A-04: routes.rb から DeviseTokenAuth 削除 (PR #20)
+- [x] A-05: Gemfile から DeviseTokenAuth/Devise 削除 (PR #20)
+
+### 5.5.2 フロントエンド
+
+- [x] A-10: NextAuth.js CredentialsProvider 実装 (PR #20)
+  - パス: frontend/lib/auth.ts
+- [x] A-11: サインインページ API連携 (PR #20)
+  - パス: frontend/app/signin/page.tsx
+- [x] A-12: サインアップページ API連携 (PR #20)
+  - パス: frontend/app/signup/page.tsx
+
+### 5.5.3 将来課題
+
+- [ ] A-13: NextAuth.js v4 → v5 アップグレード
+  - 詳細: Auth.js への移行（オプション）
+
+---
+
 ## Phase 5: 管理者画面
 
 - [ ] F-21: frontend/app/admin/layout.tsx
@@ -219,58 +247,6 @@
 
 - [ ] F-27: frontend/app/admin/presets/[id]/page.tsx
   - 詳細: プリセット編集
-
----
-
-## Phase 5.5: 認証統合
-
-DeviseTokenAuth → NextAuth.js + JWT検証 への移行。技術的負債を解消する。
-
-### 5.5.1 バックエンド（JWT検証）
-
-- [ ] A-01: JwtAuthenticatable concern 作成
-  - パス: backend/app/controllers/concerns/jwt_authenticatable.rb
-  - 詳細: JWT検証ロジック（verify_jwt, current_user）
-
-- [ ] A-02: ApplicationController 認証メソッド置換
-  - 詳細: DeviseTokenAuthエイリアス → JwtAuthenticatable include
-
-- [ ] A-03: User モデルから Devise 依存削除
-  - 詳細: devise設定削除、DeviseTokenAuth::Concerns::User削除
-
-- [ ] A-04: routes.rb から DeviseTokenAuth マウント削除
-  - 詳細: mount_devise_token_auth_for を削除
-
-- [ ] A-05: Gemfile から DeviseTokenAuth/Devise 削除
-  - 詳細: gem削除 → bundle install
-
-- [ ] A-06: 認証関連マイグレーション整理
-  - 詳細: 不要なDevise系カラムの削除（必要に応じて）
-
-### 5.5.2 フロントエンド（NextAuth.js統合）
-
-- [ ] A-10: NextAuth.js CredentialsProvider 実装
-  - パス: frontend/app/api/auth/[...nextauth]/route.ts
-  - 詳細: Rails API と連携したログイン処理
-
-- [ ] A-11: サインインページ API連携
-  - パス: frontend/app/signin/page.tsx
-  - 詳細: signIn() 呼び出し、エラーハンドリング
-
-- [ ] A-12: サインアップページ API連携
-  - パス: frontend/app/signup/page.tsx
-  - 詳細: ユーザー登録API呼び出し → 自動ログイン
-
-- [ ] A-13: NextAuth.js v4 → v5 アップグレード
-  - 詳細: Auth.js への移行（オプション、時間があれば）
-
-### 5.5.3 テスト・検証
-
-- [ ] A-20: 認証フロー E2Eテスト
-  - 詳細: サインアップ → ログイン → 保護ページアクセス
-
-- [ ] A-21: 既存テストの修正
-  - 詳細: DeviseTokenAuth依存のテストをJWT方式に修正
 
 ---
 
@@ -303,85 +279,24 @@ DeviseTokenAuth → NextAuth.js + JWT検証 への移行。技術的負債を解
 | Phase 2: バックエンドAPI | 8 | 8 | 100% ✅ |
 | Phase 3: フロントエンド基盤 | 19 | 19 | 100% ✅ |
 | Phase 4: ユーザー向け画面 | 11 | 11 | 100% ✅ |
+| Phase 5.5: 認証統合 | 8 | 8 | 100% ✅ |
 | Phase 5: 管理者画面 | 8 | 0 | 0% |
-| Phase 5.5: 認証統合 | 12 | 0 | 0% |
-| **合計** | **84** | **64** | **76%** |
+| **合計** | **80** | **72** | **90%** |
 
 ---
 
-## 技術的負債（Phase 5.5 で解消予定）
+## 技術的負債（Phase 5.5 で解消済み）✅
 
-認証システムを **DeviseTokenAuth → NextAuth.js + JWT検証** に移行する際に、以下の項目を修正する。
-→ **Phase 5.5: 認証統合** で対応。
-
-### TD-001: ApplicationController 認証メソッドエイリアス
-
-**ファイル:** `backend/app/controllers/application_controller.rb`
-
-**現状:**
-```ruby
-# Deviseのネームスペース付きメソッドを一般的な名前でも使えるようにする
-alias_method :authenticate_user!, :authenticate_api_v1_user!
-alias_method :current_user, :current_api_v1_user
-alias_method :user_signed_in?, :api_v1_user_signed_in?
-```
-
-**原因:** DeviseTokenAuthが `namespace :api do namespace :v1 do` 内でマウントされているため、メソッド名が `authenticate_api_v1_user!` になる。本来の仕様（NextAuth.js + JWT検証）では不要。
-
-**移行時の対応:**
-1. DeviseTokenAuth関連のgem・設定を削除
-2. シンプルなJWT検証ロジックに置き換え
-3. このエイリアスを削除し、適切な認証メソッドを実装
-
----
-
-### TD-002: User モデルの DeviseTokenAuth 依存
-
-**ファイル:** `backend/app/models/user.rb`
-
-**現状:**
-```ruby
-devise :database_authenticatable, :registerable,
-       :recoverable, :rememberable, :validatable, :confirmable
-include DeviseTokenAuth::Concerns::User
-```
-
-**移行時の対応:**
-1. Devise関連の設定を削除
-2. パスワードハッシュはbcryptで直接管理（またはNextAuth側で完結）
-3. 必要に応じてUsersテーブルのカラム整理
-
----
-
-### TD-003: routes.rb の DeviseTokenAuth マウント
-
-**ファイル:** `backend/config/routes.rb`
-
-**現状:**
-```ruby
-mount_devise_token_auth_for 'User', at: 'auth', controllers: {
-  registrations: 'api/v1/auth/registrations',
-  sessions: 'api/v1/auth/sessions',
-  passwords: 'api/v1/auth/passwords'
-}
-```
-
-**移行時の対応:**
-1. このマウントを削除
-2. 必要に応じてJWT検証用のエンドポイントを新設
-3. 既存の auth コントローラーを削除または書き換え
-
----
+認証システムを **DeviseTokenAuth → NextAuth.js + JWT検証** に移行完了。
 
 ### 移行チェックリスト
 
-- [ ] DeviseTokenAuth gem を削除
-- [ ] devise gem を削除（必要に応じて）
-- [ ] ApplicationController のエイリアスを削除
-- [ ] JWT検証ロジックを実装（`before_action :verify_jwt`等）
-- [ ] User モデルから Devise 設定を削除
-- [ ] routes.rb から DeviseTokenAuth マウントを削除
-- [ ] 認証コントローラー（api/v1/auth/*）を整理
-- [ ] フロントエンドに NextAuth.js を導入
-- [ ] NextAuth.js v4 → v5 へアップグレード
-- [ ] 全テストが通ることを確認
+- [x] DeviseTokenAuth gem を削除 (PR #20)
+- [x] devise gem を削除 (PR #20)
+- [x] ApplicationController のエイリアスを削除 (PR #20)
+- [x] JWT検証ロジックを実装（JwtAuthenticatable concern） (PR #20)
+- [x] User モデルから Devise 設定を削除 (PR #20)
+- [x] routes.rb から DeviseTokenAuth マウントを削除 (PR #20)
+- [x] 認証コントローラー（api/v1/auth/*）を整理 (PR #20)
+- [x] フロントエンドに NextAuth.js を導入 (PR #18, #20)
+- [ ] NextAuth.js v4 → v5 へアップグレード（将来課題）
