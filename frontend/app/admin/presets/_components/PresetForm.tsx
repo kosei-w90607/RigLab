@@ -125,17 +125,26 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
     const selectedCpu = partsOptions.cpu.find(p => p.id === formData.cpu_id)
     const selectedGpu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
     const selectedMotherboard = partsOptions.motherboard?.find(p => p.id === formData.motherboard_id)
+    const selectedMemory = partsOptions.memory?.find(p => p.id === formData.memory_id)
 
-    // メモリ: CPUのmemoryTypeでフィルタ
+    // CPUの対応メモリタイプを配列化（DDR4,DDR5 → ['DDR4', 'DDR5']）
+    const cpuMemoryTypes = selectedCpu?.memoryType?.split(',') || []
+
+    // メモリ: CPUの対応memoryTypeでフィルタ（複数タイプ対応）
     const filteredMemories = selectedCpu
-      ? partsOptions.memory?.filter(m => m.memoryType === selectedCpu.memoryType) || []
+      ? partsOptions.memory?.filter(m => cpuMemoryTypes.includes(m.memoryType || '')) || []
       : partsOptions.memory || []
 
-    // マザーボード: CPUのsocketとmemoryTypeでフィルタ
+    // マザーボード: CPUのsocketでフィルタ + メモリが選択されていればそのタイプで絞り込み
+    const targetMemoryType = selectedMemory?.memoryType
     const filteredMotherboards = selectedCpu
-      ? partsOptions.motherboard?.filter(
-          mb => mb.socket === selectedCpu.socket && mb.memoryType === selectedCpu.memoryType
-        ) || []
+      ? partsOptions.motherboard?.filter(mb => {
+          if (mb.socket !== selectedCpu.socket) return false
+          if (targetMemoryType) {
+            return mb.memoryType === targetMemoryType
+          }
+          return cpuMemoryTypes.includes(mb.memoryType || '')
+        }) || []
       : partsOptions.motherboard || []
 
     // ケース: GPUのlengthMmとマザーボードのフォームファクタでフィルタ
@@ -164,7 +173,7 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
       motherboard: filteredMotherboards,
       case: filteredCases,
     })
-  }, [formData.cpu_id, formData.gpu_id, formData.motherboard_id, partsOptions])
+  }, [formData.cpu_id, formData.gpu_id, formData.memory_id, formData.motherboard_id, partsOptions])
 
   // 互換性チェック
   useEffect(() => {
@@ -186,11 +195,12 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
       })
     }
 
-    // CPU - メモリタイプ互換性
-    if (cpu && memory && cpu.memoryType !== memory.memoryType) {
+    // CPU - メモリタイプ互換性（複数タイプ対応）
+    const cpuMemTypes = cpu?.memoryType?.split(',') || []
+    if (cpu && memory && !cpuMemTypes.includes(memory.memoryType || '')) {
       warnings.push({
         type: 'error',
-        message: `メモリタイプ不一致: CPU(${cpu.memoryType}) ≠ メモリ(${memory.memoryType})`
+        message: `メモリタイプ不一致: CPU(${cpu.memoryType?.replace(',', '/')}) ≠ メモリ(${memory.memoryType})`
       })
     }
 
@@ -301,16 +311,54 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
     label: `${part.name} (${part.maker}) - ¥${part.price.toLocaleString()}`,
   })
 
+  // PSU推奨ワット数の計算
+  const canSelectPsu = formData.cpu_id && formData.gpu_id
+  const selectedCpuForPsu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
+  const selectedGpuForPsu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
+  const recommendedWattage = canSelectPsu && selectedCpuForPsu?.tdp && selectedGpuForPsu?.tdp
+    ? Math.ceil((selectedCpuForPsu.tdp + selectedGpuForPsu.tdp) * 1.5 + 100)
+    : null
+
+  // 推奨W以上のPSUのみ表示
+  const filteredPsus = recommendedWattage
+    ? partsOptions.psu?.filter(p => p.wattage && p.wattage >= recommendedWattage)
+    : partsOptions.psu
+
+  // パーツ選択フィールドの定義（選択順序制御付き）
   const partSelectFields = [
-    { key: 'cpu_id', label: 'CPU', category: 'cpu' },
-    { key: 'gpu_id', label: 'GPU', category: 'gpu' },
-    { key: 'memory_id', label: 'メモリ', category: 'memory' },
-    { key: 'storage1_id', label: 'ストレージ1', category: 'storage' },
-    { key: 'storage2_id', label: 'ストレージ2 (任意)', category: 'storage' },
-    { key: 'motherboard_id', label: 'マザーボード', category: 'motherboard' },
-    { key: 'psu_id', label: '電源', category: 'psu' },
-    { key: 'case_id', label: 'ケース', category: 'case' },
-    { key: 'os_id', label: 'OS', category: 'os' },
+    { key: 'cpu_id', label: 'CPU', category: 'cpu', disabled: false, hint: '' },
+    { key: 'gpu_id', label: 'GPU', category: 'gpu', disabled: false, hint: '' },
+    {
+      key: 'memory_id',
+      label: 'メモリ',
+      category: 'memory',
+      disabled: !formData.cpu_id,
+      hint: !formData.cpu_id ? 'CPUを先に選択してください' : ''
+    },
+    { key: 'storage1_id', label: 'ストレージ1', category: 'storage', disabled: false, hint: '' },
+    { key: 'storage2_id', label: 'ストレージ2 (任意)', category: 'storage', disabled: false, hint: '' },
+    {
+      key: 'motherboard_id',
+      label: 'マザーボード',
+      category: 'motherboard',
+      disabled: !formData.cpu_id || !formData.memory_id,
+      hint: !formData.cpu_id || !formData.memory_id ? 'CPU・メモリを先に選択してください' : ''
+    },
+    {
+      key: 'psu_id',
+      label: recommendedWattage ? `電源 - 推奨: ${recommendedWattage}W以上` : '電源',
+      category: 'psu',
+      disabled: !formData.cpu_id || !formData.gpu_id,
+      hint: !formData.cpu_id || !formData.gpu_id ? 'CPU・GPUを先に選択してください' : ''
+    },
+    {
+      key: 'case_id',
+      label: 'ケース',
+      category: 'case',
+      disabled: !formData.motherboard_id || !formData.gpu_id,
+      hint: !formData.motherboard_id || !formData.gpu_id ? 'マザーボード・GPUを先に選択してください' : ''
+    },
+    { key: 'os_id', label: 'OS', category: 'os', disabled: false, hint: '' },
   ]
 
   const hasErrors = compatibilityWarnings.some(w => w.type === 'error')
@@ -394,13 +442,17 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">パーツ構成</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {partSelectFields.map((field) => {
-            // フィルタリング対象のカテゴリはfilteredPartsを使用
-            const isFilteredCategory = ['memory', 'motherboard', 'case'].includes(field.category)
-            const parts = isFilteredCategory
-              ? filteredParts[field.category] || partsOptions[field.category] || []
-              : partsOptions[field.category] || []
+            // フィルタリング対象のカテゴリはfilteredPartsを使用、PSUは別途フィルタリング
+            let parts: Part[]
+            if (field.category === 'psu') {
+              parts = filteredPsus || partsOptions.psu || []
+            } else if (['memory', 'motherboard', 'case'].includes(field.category)) {
+              parts = filteredParts[field.category] || partsOptions[field.category] || []
+            } else {
+              parts = partsOptions[field.category] || []
+            }
             const options = [
-              { value: '', label: '選択してください' },
+              { value: '', label: field.hint || '選択してください' },
               ...parts.map(formatPartOption),
             ]
 
@@ -408,24 +460,29 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
             let labelSuffix = ''
             if (field.category === 'memory' && formData.cpu_id) {
               const cpu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
-              if (cpu?.memoryType) labelSuffix = ` (${cpu.memoryType}対応)`
+              // DDR4,DDR5 → DDR4/DDR5 に変換して表示
+              if (cpu?.memoryType) labelSuffix = ` (${cpu.memoryType.replace(',', '/')}対応)`
             }
             if (field.category === 'motherboard' && formData.cpu_id) {
               const cpu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
-              if (cpu?.socket) labelSuffix = ` (${cpu.socket}対応)`
+              const memory = partsOptions.memory?.find(p => p.id === formData.memory_id)
+              const suffixes = []
+              if (cpu?.socket) suffixes.push(cpu.socket)
+              if (memory?.memoryType) suffixes.push(memory.memoryType)
+              if (suffixes.length > 0) labelSuffix = ` (${suffixes.join('/')}対応)`
             }
             if (field.category === 'case') {
               const gpu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
               const mb = partsOptions.motherboard?.find(p => p.id === formData.motherboard_id)
               const suffixes = []
-              if (gpu?.lengthMm) suffixes.push(`GPU ${gpu.lengthMm}mm対応`)
-              if (mb?.formFactor) suffixes.push(`${mb.formFactor}対応`)
-              if (suffixes.length > 0) labelSuffix = ` (${suffixes.join(', ')})`
+              if (gpu?.lengthMm) suffixes.push(`GPU ${gpu.lengthMm}mm以上`)
+              if (mb?.formFactor) suffixes.push(`${mb.formFactor}`)
+              if (suffixes.length > 0) labelSuffix = ` (${suffixes.join('/')}対応)`
             }
 
             return (
               <div key={field.key}>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className={`block text-sm font-medium mb-1 ${field.disabled ? 'text-gray-400' : 'text-gray-700'}`}>
                   {field.label}{labelSuffix}
                 </label>
                 <Select
@@ -437,6 +494,7 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
                     )
                   }
                   options={options}
+                  disabled={field.disabled}
                 />
               </div>
             )
