@@ -55,7 +55,7 @@ RSpec.describe JwtAuthenticatable, type: :controller do
   end
 
   before do
-    allow(ENV).to receive(:fetch).with('NEXTAUTH_SECRET', nil).and_return(jwt_secret)
+    allow(ENV).to receive(:fetch).with('NEXTAUTH_SECRET', 'development-secret-key-for-riglab').and_return(jwt_secret)
   end
 
   describe '#current_user' do
@@ -141,7 +141,7 @@ RSpec.describe JwtAuthenticatable, type: :controller do
 
         expect(response).to have_http_status(:unauthorized)
         json = JSON.parse(response.body)
-        expect(json['error']).to eq('Unauthorized')
+        expect(json['error']['code']).to eq('UNAUTHORIZED')
       end
     end
   end

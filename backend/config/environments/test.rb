@@ -64,4 +64,7 @@ Rails.application.configure do
 
   # Disable host authorization for tests
   config.host_authorization = { exclude: ->(request) { true } }
+
+  # Disable Rack::Attack for tests
+  config.middleware.delete Rack::Attack
 end

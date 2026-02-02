@@ -35,6 +35,9 @@ gem 'bootsnap', '~> 1.17.0', require: false
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin Ajax possible
 gem 'rack-cors'
 
+# Rate limiting and throttling
+gem 'rack-attack', '~> 6.7'
+
 # I18n
 gem 'rails-i18n', '~> 7.0.8'
 # gem 'devise-i18n', '~> 1.12.0'  # Commented out - not using Devise

@@ -95,9 +95,25 @@ docker compose exec back rails c
 
 # マイグレーション実行
 docker compose exec back rails db:migrate
+```
 
-# テスト実行
+### テスト実行
+
+```bash
+# バックエンド単体テスト（RSpec）
 docker compose exec back bundle exec rspec
+
+# バックエンド特定テスト
+docker compose exec back bundle exec rspec spec/requests/api/v1/auth/sessions_spec.rb
+
+# フロントエンドユニットテスト
+cd frontend && npm test
+
+# E2Eテスト（Playwright）
+cd frontend && npm run test:e2e
+
+# E2Eテスト（UIモード - デバッグ用）
+cd frontend && npx playwright test --ui
 ```
 
 詳しくは[環境構築手順書](docs/07_setup-guide.md)を参照してください。

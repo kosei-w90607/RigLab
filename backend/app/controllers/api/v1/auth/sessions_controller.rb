@@ -37,6 +37,15 @@ module Api
           }, status: :ok
         end
 
+        # DELETE /api/v1/auth/sign_out
+        # サインアウト（JWT認証必須）
+        def destroy
+          authenticate_user!
+          return if performed?
+
+          render json: { message: 'サインアウトしました' }, status: :ok
+        end
+
         private
 
         def login_params
