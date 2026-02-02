@@ -17,9 +17,10 @@ test.describe('おまかせ構成フロー', () => {
 
       // 用途選択カード確認
       await expect(page.getByRole('heading', { name: '用途を選択' })).toBeVisible()
-      await expect(page.getByText('ゲーム')).toBeVisible()
-      await expect(page.getByText('クリエイティブ')).toBeVisible()
-      await expect(page.getByText('事務・普段使い')).toBeVisible()
+      // 用途ボタンはaria-pressedを持つボタンとして確認
+      await expect(page.locator('button[aria-pressed]').filter({ hasText: 'ゲーム' })).toBeVisible()
+      await expect(page.locator('button[aria-pressed]').filter({ hasText: 'クリエイティブ' })).toBeVisible()
+      await expect(page.locator('button[aria-pressed]').filter({ hasText: '事務・普段使い' })).toBeVisible()
 
       // 検索ボタン確認（初期状態はdisabled）
       const searchButton = page.getByRole('button', { name: '構成を探す' })
@@ -46,8 +47,8 @@ test.describe('おまかせ構成フロー', () => {
       const searchButton = page.getByRole('button', { name: '構成を探す' })
       await expect(searchButton).toBeDisabled()
 
-      // 用途を選択
-      await page.getByText('ゲーム').click()
+      // 用途を選択（ゲームボタンをクリック）
+      await page.locator('button[aria-pressed]').filter({ hasText: 'ゲーム' }).click()
 
       // ボタンが有効になる
       await expect(searchButton).toBeEnabled()
@@ -57,14 +58,14 @@ test.describe('おまかせ構成フロー', () => {
       await page.goto('/builder')
 
       // ゲームを選択
-      await page.getByText('ゲーム').click()
+      const gamingButton = page.locator('button[aria-pressed]').filter({ hasText: 'ゲーム' })
+      await gamingButton.click()
 
       // クリエイティブを追加選択
-      await page.getByText('クリエイティブ').click()
+      const creativeButton = page.locator('button[aria-pressed]').filter({ hasText: 'クリエイティブ' })
+      await creativeButton.click()
 
       // 両方選択状態
-      const gamingButton = page.getByRole('button', { name: /ゲーム/ }).first()
-      const creativeButton = page.getByRole('button', { name: /クリエイティブ/ })
       await expect(gamingButton).toHaveAttribute('aria-pressed', 'true')
       await expect(creativeButton).toHaveAttribute('aria-pressed', 'true')
     })
@@ -78,7 +79,7 @@ test.describe('おまかせ構成フロー', () => {
       await page.getByRole('button', { name: '15〜30万円' }).click()
 
       // 用途選択
-      await page.getByText('ゲーム').click()
+      await page.locator('button[aria-pressed]').filter({ hasText: 'ゲーム' }).click()
 
       // 検索ボタンクリック
       await page.getByRole('button', { name: '構成を探す' }).click()
@@ -93,9 +94,9 @@ test.describe('おまかせ構成フロー', () => {
       await page.goto('/builder/result?budget=100k-300k&usages=gaming')
 
       await expect(page.getByRole('heading', { name: '検索結果' })).toBeVisible()
-      // 選択条件も表示される
-      await expect(page.getByText(/ゲーム/)).toBeVisible()
-      await expect(page.getByText(/15〜30万円/)).toBeVisible()
+      // 選択条件も表示される（パンくずリストやサブタイトルで確認）
+      await expect(page.locator('text=ゲーム').first()).toBeVisible()
+      await expect(page.locator('text=15〜30万円').first()).toBeVisible()
     })
 
     test('条件を変更するリンクが動作する', async ({ page }) => {
