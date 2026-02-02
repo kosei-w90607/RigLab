@@ -106,8 +106,10 @@ docker compose exec back rails db:create
 docker compose exec back rails db:migrate
 
 # シードデータの投入（オプション）
-docker compose exec back rails db:seed
+docker compose exec back bundle exec rails db:seed
 ```
+
+> **Note**: `db:seed`は`bundle exec`を付けて実行してください。シードデータにはサンプルのパーツ、プリセット、ユーザーが含まれます。
 
 ### 3.6 動作確認
 
@@ -294,6 +296,7 @@ docker compose exec back rails db:create db:migrate db:seed
 | ログ確認 | `docker compose logs -f` |
 | Railsコンソール | `docker compose exec back rails c` |
 | DBマイグレーション | `docker compose exec back rails db:migrate` |
+| Seedデータ投入 | `docker compose exec back bundle exec rails db:seed` |
 | テスト実行 | `docker compose exec back bundle exec rspec` |
 | フロント依存追加 | `docker compose exec front npm install <pkg>` |
 | 全てリセット | `docker compose down -v && docker compose up -d` |
@@ -307,3 +310,4 @@ docker compose exec back rails db:create db:migrate db:seed
 | 2025-01-12 | 初版作成 |
 | 2025-01-15 | フロントエンドをNext.js 15 App Routerに変更（Vite→Next.js、環境変数プレフィックスをNEXT_PUBLIC_に変更） |
 | 2025-01-15 | ポート番号を標準化（front:3000, back:3001, db:3306） |
+| 2026-01-31 | Docker seedコマンドにbundle execを追記、コマンド一覧にseed追加 |

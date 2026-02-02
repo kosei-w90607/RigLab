@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Card } from '@/app/components/ui/Card'
 import { Input } from '@/app/components/ui/Input'
@@ -10,6 +10,8 @@ import { Button } from '@/app/components/ui/Button'
 
 export default function SignUpPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -92,10 +94,10 @@ export default function SignUpPage() {
       })
 
       if (result?.error) {
-        // 登録は成功したがログインに失敗した場合
-        router.push('/signin?registered=true')
+        // 登録は成功したがログインに失敗した場合（callbackUrlも引き継ぐ）
+        router.push(`/signin?registered=true&callbackUrl=${encodeURIComponent(callbackUrl)}`)
       } else {
-        router.push('/')
+        router.push(callbackUrl)
         router.refresh()
       }
     } catch {
@@ -184,7 +186,7 @@ export default function SignUpPage() {
             すでにアカウントをお持ちの方は
           </p>
           <Link
-            href="/signin"
+            href={`/signin${callbackUrl !== '/dashboard' ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`}
             className="mt-2 inline-block text-custom-blue hover:underline font-medium"
           >
             ログイン

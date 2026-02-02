@@ -11,8 +11,22 @@ export const contentType = 'image/png'
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
 
 interface Part {
+  id: number
   name: string
+  maker: string
   price: number
+}
+
+interface PartEntry {
+  category: string
+  part: Part
+}
+
+interface ShareTokenData {
+  token: string
+  total_price: number
+  parts: PartEntry[]
+  created_at: string
 }
 
 function formatPrice(price: number): string {
@@ -22,61 +36,32 @@ function formatPrice(price: number): string {
   }).format(price)
 }
 
-export default async function Image({
-  params,
-  searchParams,
-}: {
-  params: Record<string, string>
-  searchParams: Record<string, string>
-}) {
-  const cpuId = searchParams.cpu
-  const gpuId = searchParams.gpu
-  const memoryId = searchParams.memory
-  const storage1Id = searchParams.storage1
-  const osId = searchParams.os
+export default async function Image({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params
 
-  let cpu: Part | null = null
-  let gpu: Part | null = null
-  let memory: Part | null = null
-  let storage: Part | null = null
-  let os: Part | null = null
-  let totalPrice = 0
+  let data: ShareTokenData | null = null
 
   try {
-    const fetchPart = async (category: string, id: string): Promise<Part | null> => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/parts/${id}?category=${category}`)
-        if (!response.ok) return null
-        const json = await response.json()
-        return json.data
-      } catch {
-        return null
-      }
+    const response = await fetch(`${API_BASE_URL}/share_tokens/${token}`)
+    if (response.ok) {
+      const json = await response.json()
+      data = json.data
     }
-
-    const results = await Promise.all([
-      cpuId ? fetchPart('cpu', cpuId) : null,
-      gpuId ? fetchPart('gpu', gpuId) : null,
-      memoryId ? fetchPart('memory', memoryId) : null,
-      storage1Id ? fetchPart('storage', storage1Id) : null,
-      osId ? fetchPart('os', osId) : null,
-    ])
-
-    cpu = results[0]
-    gpu = results[1]
-    memory = results[2]
-    storage = results[3]
-    os = results[4]
-
-    totalPrice =
-      (cpu?.price || 0) +
-      (gpu?.price || 0) +
-      (memory?.price || 0) +
-      (storage?.price || 0) +
-      (os?.price || 0)
   } catch {
     // Use default values
   }
+
+  const getPartByCategory = (category: string): Part | undefined => {
+    if (!data) return undefined
+    return data.parts.find((e) => e.category === category)?.part
+  }
+
+  const cpu = getPartByCategory('cpu')
+  const gpu = getPartByCategory('gpu')
+  const memory = getPartByCategory('memory')
+  const storage = data?.parts.find((e) => e.category === 'storage')?.part
+  const os = getPartByCategory('os')
+  const totalPrice = data?.total_price || 0
 
   return new ImageResponse(
     (
@@ -207,6 +192,19 @@ export default async function Image({
             >
               <span style={{ color: '#6b7280', fontSize: '24px' }}>OS</span>
               <span style={{ color: '#1f2937', fontSize: '24px' }}>{os.name}</span>
+            </div>
+          )}
+          {!cpu && !gpu && !memory && !storage && !os && (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                padding: '24px 0',
+                color: '#6b7280',
+                fontSize: '24px',
+              }}
+            >
+              構成データなし
             </div>
           )}
         </div>

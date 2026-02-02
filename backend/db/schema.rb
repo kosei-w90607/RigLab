@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_17_143718) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
   create_table "parts_cases", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "maker", null: false
@@ -175,6 +175,14 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_17_143718) do
     t.index ["storage2_id"], name: "fk_rails_e5f9e648d0"
     t.index ["storage3_id"], name: "fk_rails_a29851768f"
     t.index ["use_case"], name: "index_pc_entrust_sets_on_use_case"
+  end
+
+  create_table "share_tokens", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "token", null: false
+    t.json "parts_data", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["token"], name: "index_share_tokens_on_token", unique: true
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|

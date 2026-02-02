@@ -144,6 +144,253 @@ RSpec.describe 'Api::V1::Parts' do
     end
   end
 
+  describe 'GET /api/v1/parts with compatibility filters' do
+    describe 'cpu_socket filter' do
+      before do
+        create(:parts_motherboard, socket: 'LGA1700')
+        create(:parts_motherboard, socket: 'LGA1700')
+        create(:parts_motherboard, socket: 'AM5')
+      end
+
+      it 'LGA1700でフィルタリングするとLGA1700のマザーボードのみ返す' do
+        get '/api/v1/parts', params: { category: 'motherboard', cpu_socket: 'LGA1700' }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        expect(json['data'].length).to eq(2)
+        expect(json['data'].all? { |p| p['socket'] == 'LGA1700' }).to be true
+      end
+
+      it 'AM5でフィルタリングするとAM5のマザーボードのみ返す' do
+        get '/api/v1/parts', params: { category: 'motherboard', cpu_socket: 'AM5' }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        expect(json['data'].length).to eq(1)
+        expect(json['data'].first['socket']).to eq('AM5')
+      end
+    end
+
+    describe 'memory_type filter' do
+      before do
+        create(:parts_memory, memory_type: 'DDR5')
+        create(:parts_memory, memory_type: 'DDR5')
+        create(:parts_memory, memory_type: 'DDR4')
+      end
+
+      it 'DDR5でフィルタリングするとDDR5のメモリのみ返す' do
+        get '/api/v1/parts', params: { category: 'memory', memory_type: 'DDR5' }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        expect(json['data'].length).to eq(2)
+        expect(json['data'].all? { |p| p['memory_type'] == 'DDR5' }).to be true
+      end
+
+      it 'DDR4でフィルタリングするとDDR4のメモリのみ返す' do
+        get '/api/v1/parts', params: { category: 'memory', memory_type: 'DDR4' }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        expect(json['data'].length).to eq(1)
+        expect(json['data'].first['memory_type']).to eq('DDR4')
+      end
+    end
+
+    describe 'form_factor filter' do
+      context 'ケースの場合' do
+        before do
+          create(:parts_case, form_factor: 'ATX')
+          create(:parts_case, form_factor: 'mATX')
+          create(:parts_case, form_factor: 'ITX')
+        end
+
+        it 'ATXマザボ用にフィルタするとATXケースのみ返す' do
+          get '/api/v1/parts', params: { category: 'case', form_factor: 'ATX' }
+
+          expect(response).to have_http_status(:ok)
+          json = response.parsed_body
+          expect(json['data'].length).to eq(1)
+          expect(json['data'].first['form_factor']).to eq('ATX')
+        end
+
+        it 'mATXマザボ用にフィルタするとATX/mATXケースを返す' do
+          get '/api/v1/parts', params: { category: 'case', form_factor: 'mATX' }
+
+          expect(response).to have_http_status(:ok)
+          json = response.parsed_body
+          expect(json['data'].length).to eq(2)
+          expect(json['data'].map { |p| p['form_factor'] }).to contain_exactly('ATX', 'mATX')
+        end
+
+        it 'ITXマザボ用にフィルタすると全サイズのケースを返す' do
+          get '/api/v1/parts', params: { category: 'case', form_factor: 'ITX' }
+
+          expect(response).to have_http_status(:ok)
+          json = response.parsed_body
+          expect(json['data'].length).to eq(3)
+        end
+      end
+
+      context 'マザーボードの場合' do
+        before do
+          create(:parts_motherboard, form_factor: 'ATX')
+          create(:parts_motherboard, form_factor: 'mATX')
+          create(:parts_motherboard, form_factor: 'ITX')
+        end
+
+        it 'ATXでフィルタするとATXマザーボードのみ返す' do
+          get '/api/v1/parts', params: { category: 'motherboard', form_factor: 'ATX' }
+
+          expect(response).to have_http_status(:ok)
+          json = response.parsed_body
+          expect(json['data'].length).to eq(1)
+          expect(json['data'].first['form_factor']).to eq('ATX')
+        end
+      end
+    end
+
+    describe 'min_gpu_length filter' do
+      before do
+        create(:parts_case, max_gpu_length_mm: 400, name: 'Large Case')
+        create(:parts_case, max_gpu_length_mm: 320, name: 'Medium Case')
+        create(:parts_case, max_gpu_length_mm: 250, name: 'Small Case')
+      end
+
+      it '300mm以上のGPUが収まるケースのみ返す' do
+        get '/api/v1/parts', params: { category: 'case', min_gpu_length: 300 }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        expect(json['data'].length).to eq(2)
+        expect(json['data'].all? { |p| p['max_gpu_length_mm'] >= 300 }).to be true
+      end
+
+      it '350mm以上のGPUが収まるケースのみ返す' do
+        get '/api/v1/parts', params: { category: 'case', min_gpu_length: 350 }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        expect(json['data'].length).to eq(1)
+        expect(json['data'].first['name']).to eq('Large Case')
+      end
+    end
+  end
+
+  describe 'GET /api/v1/parts/recommendations' do
+    let(:cpu) { create(:parts_cpu, socket: 'LGA1700', memory_type: 'DDR5', tdp: 125) }
+    let(:memory) { create(:parts_memory, memory_type: 'DDR5') }
+    let(:gpu) { create(:parts_gpu, tdp: 200, length_mm: 300) }
+
+    before do
+      # 互換性のあるマザーボード
+      create(:parts_motherboard, socket: 'LGA1700', memory_type: 'DDR5', form_factor: 'ATX', price: 30_000)
+      # 非互換のマザーボード
+      create(:parts_motherboard, socket: 'AM5', memory_type: 'DDR5', price: 25_000)
+
+      # 十分な容量の電源
+      create(:parts_psu, wattage: 850, price: 18_000)
+      create(:parts_psu, wattage: 650, price: 12_000)
+
+      # GPUが収まるケース
+      create(:parts_case, form_factor: 'ATX', max_gpu_length_mm: 350, price: 15_000)
+      create(:parts_case, form_factor: 'ATX', max_gpu_length_mm: 250, price: 10_000)
+    end
+
+    context '正常系: CPU + Memory のみ' do
+      it '互換性のあるマザーボードを推奨する' do
+        get '/api/v1/parts/recommendations', params: { cpu_id: cpu.id, memory_id: memory.id }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        expect(json['motherboard']).to be_present
+        expect(json['motherboard']['socket']).to eq('LGA1700')
+        expect(json['motherboard']['memory_type']).to eq('DDR5')
+      end
+
+      it 'PSUを推奨する' do
+        get '/api/v1/parts/recommendations', params: { cpu_id: cpu.id, memory_id: memory.id }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        expect(json['psu']).to be_present
+      end
+    end
+
+    context '正常系: CPU + Memory + GPU' do
+      it 'GPUのTDPを考慮した電源を推奨する' do
+        get '/api/v1/parts/recommendations', params: {
+          cpu_id: cpu.id,
+          memory_id: memory.id,
+          gpu_id: gpu.id
+        }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        # TDP 125 + 200 = 325W → 必要容量 = 325 * 1.5 + 100 = 587.5W → 650W以上
+        expect(json['psu']).to be_present
+        expect(json['psu']['wattage']).to be >= 650
+      end
+
+      it 'GPUの長さに対応したケースを推奨する' do
+        get '/api/v1/parts/recommendations', params: {
+          cpu_id: cpu.id,
+          memory_id: memory.id,
+          gpu_id: gpu.id
+        }
+
+        expect(response).to have_http_status(:ok)
+        json = response.parsed_body
+        expect(json['case']).to be_present
+        expect(json['case']['max_gpu_length_mm']).to be >= 300
+      end
+    end
+
+    context '異常系: 必須パラメータ欠如' do
+      it 'CPUがない場合は400エラーを返す' do
+        get '/api/v1/parts/recommendations', params: { memory_id: memory.id }
+
+        expect(response).to have_http_status(:bad_request)
+        json = response.parsed_body
+        expect(json['error']['code']).to eq('MISSING_PARAMS')
+      end
+
+      it 'メモリがない場合は400エラーを返す' do
+        get '/api/v1/parts/recommendations', params: { cpu_id: cpu.id }
+
+        expect(response).to have_http_status(:bad_request)
+        json = response.parsed_body
+        expect(json['error']['code']).to eq('MISSING_PARAMS')
+      end
+
+      it '両方ない場合は400エラーを返す' do
+        get '/api/v1/parts/recommendations'
+
+        expect(response).to have_http_status(:bad_request)
+        json = response.parsed_body
+        expect(json['error']['code']).to eq('MISSING_PARAMS')
+      end
+    end
+
+    context '異常系: 無効なID' do
+      it '存在しないCPU IDの場合は400エラーを返す' do
+        get '/api/v1/parts/recommendations', params: { cpu_id: 99999, memory_id: memory.id }
+
+        expect(response).to have_http_status(:bad_request)
+        json = response.parsed_body
+        expect(json['error']['code']).to eq('MISSING_PARAMS')
+      end
+
+      it '存在しないメモリIDの場合は400エラーを返す' do
+        get '/api/v1/parts/recommendations', params: { cpu_id: cpu.id, memory_id: 99999 }
+
+        expect(response).to have_http_status(:bad_request)
+        json = response.parsed_body
+        expect(json['error']['code']).to eq('MISSING_PARAMS')
+      end
+    end
+  end
+
   describe 'GET /api/v1/parts/:id' do
     context 'パーツが存在する場合' do
       let(:cpu) { create(:parts_cpu) }

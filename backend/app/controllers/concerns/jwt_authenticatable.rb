@@ -36,7 +36,12 @@ module JwtAuthenticatable
   def authenticate_user!
     return if user_signed_in?
 
-    render json: { error: 'Unauthorized' }, status: :unauthorized
+    render json: {
+      error: {
+        code: 'UNAUTHORIZED',
+        message: '認証が必要です'
+      }
+    }, status: :unauthorized
   end
 
   # 管理者権限必須（権限なしなら403を返す）
@@ -77,6 +82,6 @@ module JwtAuthenticatable
 
   # JWT署名用シークレット（フロントエンドのNEXTAUTH_SECRETと同じ値）
   def jwt_secret
-    ENV.fetch('NEXTAUTH_SECRET', nil)
+    ENV.fetch('NEXTAUTH_SECRET', 'development-secret-key-for-riglab')
   end
 end

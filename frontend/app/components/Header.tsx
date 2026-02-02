@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
@@ -7,16 +8,37 @@ import { useSession, signOut } from 'next-auth/react'
 interface NavLinkProps {
   href: string
   children: React.ReactNode
+  onClick?: () => void
 }
 
-function NavLink({ href, children }: NavLinkProps) {
+function NavLink({ href, children, onClick }: NavLinkProps) {
   const pathname = usePathname()
   const isActive = pathname === href
 
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={`px-4 py-2 rounded-lg transition-colors ${
+        isActive
+          ? 'bg-custom-blue text-white'
+          : 'text-gray-700 hover:bg-gray-100'
+      }`}
+    >
+      {children}
+    </Link>
+  )
+}
+
+function MobileNavLink({ href, children, onClick }: NavLinkProps) {
+  const pathname = usePathname()
+  const isActive = pathname === href
+
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={`block px-4 py-3 rounded-lg transition-colors ${
         isActive
           ? 'bg-custom-blue text-white'
           : 'text-gray-700 hover:bg-gray-100'
@@ -30,6 +52,9 @@ function NavLink({ href, children }: NavLinkProps) {
 export function Header() {
   const { data: session, status } = useSession()
   const isLoggedIn = status === 'authenticated' && !!session
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const closeMenu = () => setIsMenuOpen(false)
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -40,7 +65,7 @@ export function Header() {
             <span className="text-2xl font-bold text-custom-blue">RigLab</span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Navigation Links (Desktop) */}
           <div className="hidden md:flex items-center space-x-4">
             <NavLink href="/builder">Builder</NavLink>
             <NavLink href="/configurator">Configurator</NavLink>
@@ -63,25 +88,75 @@ export function Header() {
           <div className="md:hidden">
             <button
               type="button"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 rounded-md text-gray-700 hover:bg-gray-100"
-              aria-label="メニューを開く"
+              aria-label={isMenuOpen ? 'メニューを閉じる' : 'メニューを開く'}
+              aria-expanded={isMenuOpen}
             >
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
-              </svg>
+              {isMenuOpen ? (
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
+                </svg>
+              )}
             </button>
           </div>
         </div>
+
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 py-4 space-y-2">
+            <MobileNavLink href="/builder" onClick={closeMenu}>
+              Builder
+            </MobileNavLink>
+            <MobileNavLink href="/configurator" onClick={closeMenu}>
+              Configurator
+            </MobileNavLink>
+            {isLoggedIn ? (
+              <>
+                <MobileNavLink href="/dashboard" onClick={closeMenu}>
+                  Dashboard
+                </MobileNavLink>
+                <button
+                  onClick={() => {
+                    closeMenu()
+                    signOut({ callbackUrl: '/' })
+                  }}
+                  className="block w-full text-left px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
+                >
+                  ログアウト
+                </button>
+              </>
+            ) : (
+              <MobileNavLink href="/signin" onClick={closeMenu}>
+                ログイン
+              </MobileNavLink>
+            )}
+          </div>
+        )}
       </nav>
     </header>
   )

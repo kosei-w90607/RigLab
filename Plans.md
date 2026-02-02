@@ -6,6 +6,31 @@
 
 ---
 
+## 直近の作業サマリー（2026-02-02）
+
+### 完了: v1.0リリーススコープ決定・意思決定記録
+
+意思決定を `docs/09_product-review.md` セクション11.2 に記録完了。
+
+| 決定事項 | 結論 |
+|---------|------|
+| 高優先度バグ3件 | ✅ 全て修正済み（Phase 6-B, 6-E で対応済み） |
+| 中優先度機能 | v1.0に含める（sign_out, セキュリティ, UX改善） |
+| v1.0リリーススコープ | E2Eテスト + ドキュメント整備 → リリース |
+
+### 変更ファイル
+- `docs/09_product-review.md` - セクション11.2 追記（v1.0リリーススコープ決定）
+- `Plans.md` - Phase 6-J タスク追加、直近の作業サマリー更新
+
+### 次回アクション
+Phase 6-J のタスクを順に実行:
+1. J-01〜J-03: sign_out エンドポイント実装
+2. J-04〜J-06: セキュリティ強化
+3. J-07〜J-10: E2Eテスト
+4. J-11〜J-12: ドキュメント整備
+
+---
+
 ## Phase 0: 環境整備 ✅
 
 ### 完了済み
@@ -254,7 +279,148 @@
 
 > 参照: `docs/09_product-review.md`（詳細なチェックリスト）
 
-### 6.1 設計仕様との突合検証
+---
+
+### 6-A: 仕様書更新 ✅
+
+- [x] SPEC-A01: 予算帯の統一
+  - `frontend/app/admin/presets/page.tsx`: ミドル「10~20万円」→「10~30万円」
+  - `frontend/app/builder/result/page.tsx`: APIマッピング修正（entry/middle/high）
+  - `frontend/app/admin/presets/_components/PresetForm.tsx`: 予算帯修正
+- [x] SPEC-A02: `docs/01_requirements.md` 更新
+  - 互換性フィルタリング仕様の明確化
+  - 「選ばせる」UIの要件追加
+- [x] SPEC-A03: `docs/09_product-review.md` 更新
+  - Phase 6 キックオフ意思決定を記録
+  - BUG-03追加、SPEC-01修正完了、バグ認識の訂正
+
+---
+
+### 6-B: バグ修正 ✅
+
+- [x] BUG-FIX-01: ハンバーガーメニュー無反応
+  - `frontend/app/components/Header.tsx`: モバイルメニュー開閉機能を実装
+- [x] BUG-FIX-02: おまかせ構成の空検索エラー
+  - `backend/app/controllers/api/v1/presets_controller.rb`: シリアライズ修正（cpu/gpu/memory/storage1を直接返す）
+  - `frontend/app/builder/result/page.tsx`: nullセーフなPartRow実装
+  - `frontend/types/index.ts`: PcEntrustSet型をnull許容に修正
+
+---
+
+### 6-C: 互換性フィルタリング実装 ✅
+
+- [x] C-01: バックエンドAPI拡張
+  - `backend/app/controllers/api/v1/parts_controller.rb`: フィルタリングパラメータ追加
+    - `cpu_socket`: CPUソケットでフィルタリング
+    - `memory_type`: メモリタイプでフィルタリング
+    - `form_factor`: フォームファクタでフィルタリング
+    - `min_gpu_length`: GPU最小長でフィルタリング
+- [x] C-02: フロントエンドフィルタリングUI
+  - `frontend/app/configurator/page.tsx`: 互換性フィルタリング実装
+    - CPU選択後 → マザボ・メモリの選択肢をフィルタリング
+    - GPU選択後 → ケースの選択肢をフィルタリング
+    - マザボ・電源・ケースの選択UI追加
+- [x] C-03: 管理画面の互換性チェック
+  - `frontend/app/admin/presets/_components/PresetForm.tsx`: 互換性警告表示
+    - CPU-マザボソケット互換性
+    - CPU-メモリタイプ互換性
+    - GPU-ケースサイズ互換性
+    - マザボ-ケースフォームファクタ互換性
+    - 電源容量警告
+
+---
+
+### 6-D: Seedデータ整備 ✅
+
+- [x] D-01: プリセットSeedデータ作成
+  - `backend/db/seeds.rb`: 9つのプリセット追加
+    - エントリー帯（10万円）: ゲーミング/クリエイター/オフィス
+    - ミドル帯（25万円）: ゲーミング/クリエイター/オフィス
+    - ハイエンド帯（40万円）: ゲーミング/クリエイター/ワークステーション
+
+---
+
+### 6-E: OG画像対応 ✅
+
+- [x] E-01: 共有時のOG画像生成修正
+  - `frontend/app/share/opengraph-image.tsx`: APIコールにcategoryパラメータ追加
+  - `frontend/app/share/page.tsx`: 同様の修正
+
+---
+
+### 6-F: テストレビュー ✅
+
+- [x] F-01: RSpecファイル全体レビュー
+  - **発見事項**:
+    - ❌ 新フィルタリングパラメータ（cpu_socket, memory_type, form_factor, min_gpu_length）のテストが未実装
+    - ❌ GET /api/v1/parts/recommendations のAPIレベルテストがない
+    - ✅ シリアライザ構造は正しい
+    - ✅ サービス層テストは良好
+
+---
+
+### 6-G: セキュリティ（後回し）
+
+- [ ] G-01: ログイン試行制限
+- [ ] G-02: パスワード要件
+- [ ] G-03: レート制限
+
+---
+
+### 6-H: 追加タスク
+
+- [x] H-01: 新フィルタリングパラメータのテスト追加（parts_spec.rb）
+- [x] H-02: recommendations エンドポイントのAPIテスト追加
+- [ ] H-03: E2Eテスト作成（Playwright）→ 6-J-3 に移行
+
+---
+
+### 6-I: 追加バグ修正・UX改善 ✅
+
+> 参照: Phase 6-2計画
+
+- [x] I-01: 予算帯仕様修正（~10万円→~15万円）
+  - `docs/01_requirements.md`: 予算帯定義更新、改訂履歴追記
+  - `frontend/app/builder/page.tsx`: ラジオボタンラベル修正
+  - `frontend/app/builder/result/page.tsx`: budgetLabels修正
+  - `frontend/app/admin/presets/page.tsx`: BUDGET_OPTIONS修正
+  - `frontend/app/admin/presets/_components/PresetForm.tsx`: BUDGET_OPTIONS修正
+- [x] I-02: 保存ボタン実装
+  - `frontend/app/builder/result/page.tsx`: handleSave関数追加（未ログイン→ログインへ、ログイン済み→API保存）
+- [x] I-03: 用途タグ表示
+  - `frontend/app/builder/result/page.tsx`: PresetCardに用途タグ（紫色バッジ）追加
+- [x] I-04: カードUX改善
+  - `frontend/app/builder/result/page.tsx`: 「詳細を見る」ボタン削除、構成名をリンク化、ボタン右寄せ
+- [x] I-05: Docker seedコマンドのドキュメント化
+  - `docs/07_setup-guide.md`: bundle exec付きコマンド追記、コマンド一覧にseed追加
+
+---
+
+### 6-J: v1.0リリース準備
+
+#### 6-J-1: sign_out エンドポイント実装
+- [ ] J-01: Api::V1::Auth::SessionsController#destroy 実装
+- [ ] J-02: routes.rb に DELETE /api/v1/auth/sign_out 追加
+- [ ] J-03: RSpec テスト追加
+
+#### 6-J-2: セキュリティ強化
+- [ ] J-04: ログイン試行制限（Rack::Attack 導入、5回失敗で15分ロック）
+- [ ] J-05: レート制限（API全般に適用）
+- [ ] J-06: CSPヘッダー設定
+
+#### 6-J-3: E2Eテスト
+- [ ] J-07: Playwright セットアップ（frontend/e2e/）
+- [ ] J-08: おまかせ構成フローE2Eテスト
+- [ ] J-09: カスタム構成フローE2Eテスト
+- [ ] J-10: 構成保存・共有フローE2Eテスト
+
+#### 6-J-4: ドキュメント整備
+- [ ] J-11: README.md 最終更新
+- [ ] J-12: セットアップガイド最終確認
+
+---
+
+### 6.1 設計仕様との突合検証（6-A〜6-E 完了後）
 
 - [ ] FR-001: おまかせ構成提案の動作確認
   - PartsRecommendationService の推奨ロジック検証
@@ -266,7 +432,7 @@
 - [ ] FR-005: 認証フローの動作確認
   - サインアップ → サインイン → ログアウト
 
-### 6.2 セキュリティ強化
+### 6.2 セキュリティ強化（6-D3 で対応）
 
 - [ ] SEC-01: ログイン試行制限の実装確認（5回失敗で15分ロック）
 - [ ] SEC-02: パスワード要件の実装確認（8文字以上、英数字混合）
@@ -291,7 +457,7 @@
 - [ ] PERF-03: DBインデックスの確認・最適化
 - [ ] PERF-04: バンドルサイズの確認
 
-### 6.5 テスト・品質保証
+### 6.5 テスト・品質保証（6-E で対応）
 
 - [ ] TEST-01: E2Eテスト作成（主要フロー）
   - おまかせ構成フロー
@@ -311,6 +477,7 @@
 
 ### 6.7 ドキュメント整備
 
+- [x] DOC-00: API設計書と実装の整合性確認・更新（2026-02-01）
 - [ ] DOC-01: README.md 最終更新
 - [ ] DOC-02: 利用規約・プライバシーポリシー（必要に応じて）
 - [ ] DOC-03: 管理者向け運用マニュアル
@@ -348,8 +515,8 @@
 | Phase 4: ユーザー向け画面 | 11 | 11 | 100% ✅ |
 | Phase 5.5: 認証統合 | 8 | 8 | 100% ✅ |
 | Phase 5: 管理者画面 | 8 | 8 | 100% ✅ |
-| Phase 6: プロダクト品質向上 | 27 | 0 | 0% |
-| **合計** | **107** | **80** | **75%** |
+| Phase 6: プロダクト品質向上 | 31 | 18 | 58% |
+| **合計** | **111** | **98** | **88%** |
 
 ---
 

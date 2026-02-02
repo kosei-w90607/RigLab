@@ -10,6 +10,7 @@ import { Skeleton } from '@/app/components/ui/Skeleton'
 import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
 import type { PcCustomSet, PcEntrustSet, BasePart } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
+import { shareConfiguration } from '@/lib/share'
 
 type BuildData = PcCustomSet | PcEntrustSet
 
@@ -113,9 +114,11 @@ function PartRow({
   price,
 }: {
   label: string
-  name: string
-  price: number
+  name: string | undefined
+  price: number | undefined
 }) {
+  if (!name || price === undefined) return null
+
   return (
     <tr className="border-b border-gray-100 last:border-b-0">
       <td className="py-3 text-gray-500 w-32">{label}</td>
@@ -188,20 +191,30 @@ export default function BuildDetailPage() {
 
     setIsSharing(true)
     try {
-      const shareUrl = window.location.href
-
-      if (navigator.share) {
-        await navigator.share({
-          title: build.name,
-          text: `${build.name} - ${formatPrice(build.totalPrice)}`,
-          url: shareUrl,
-        })
-      } else {
-        await navigator.clipboard.writeText(shareUrl)
+      await shareConfiguration(
+        {
+          cpu_id: build.cpu?.id,
+          gpu_id: build.gpu?.id,
+          memory_id: build.memory?.id,
+          storage1_id: build.storage1?.id,
+          storage2_id: build.storage2?.id,
+          storage3_id: build.storage3?.id,
+          os_id: build.os?.id,
+          motherboard_id: build.motherboard?.id,
+          psu_id: build.psu?.id,
+          case_id: build.case?.id,
+        },
+        build.name,
+        `${build.name} - ${formatPrice(build.totalPrice)}`
+      )
+      // Web Share APIがない環境ではクリップボードにコピー済み
+      if (!navigator.share) {
         alert('URLをコピーしました')
       }
-    } catch {
-      // User cancelled share
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        alert(`共有に失敗しました: ${err.message}`)
+      }
     } finally {
       setIsSharing(false)
     }
@@ -216,9 +229,9 @@ export default function BuildDetailPage() {
       router.push('/dashboard')
     } catch (err) {
       if (err instanceof ApiClientError) {
-        alert(err.message)
+        alert(`削除に失敗しました: ${err.message}`)
       } else {
-        alert('削除に失敗しました')
+        alert('削除に失敗しました。ネットワーク接続を確認してください。')
       }
     } finally {
       setIsDeleting(false)
@@ -272,26 +285,26 @@ export default function BuildDetailPage() {
               <h2 className="text-lg font-bold text-gray-900 mb-4">選択パーツ</h2>
               <table className="w-full text-sm">
                 <tbody>
-                  <PartRow label="CPU" name={build.cpu.name} price={build.cpu.price} />
-                  <PartRow label="GPU" name={build.gpu.name} price={build.gpu.price} />
-                  <PartRow label="Memory" name={build.memory.name} price={build.memory.price} />
-                  <PartRow label="Storage(1)" name={build.storage1.name} price={build.storage1.price} />
+                  <PartRow label="CPU" name={build.cpu?.name} price={build.cpu?.price} />
+                  <PartRow label="GPU" name={build.gpu?.name} price={build.gpu?.price} />
+                  <PartRow label="Memory" name={build.memory?.name} price={build.memory?.price} />
+                  <PartRow label="Storage(1)" name={build.storage1?.name} price={build.storage1?.price} />
                   {build.storage2 && (
                     <PartRow label="Storage(2)" name={build.storage2.name} price={build.storage2.price} />
                   )}
                   {build.storage3 && (
                     <PartRow label="Storage(3)" name={build.storage3.name} price={build.storage3.price} />
                   )}
-                  <PartRow label="OS" name={build.os.name} price={build.os.price} />
+                  <PartRow label="OS" name={build.os?.name} price={build.os?.price} />
                 </tbody>
               </table>
 
               <h3 className="text-md font-bold text-gray-900 mt-6 mb-4">自動推奨パーツ</h3>
               <table className="w-full text-sm">
                 <tbody>
-                  <PartRow label="マザーボード" name={build.motherboard.name} price={build.motherboard.price} />
-                  <PartRow label="電源" name={build.psu.name} price={build.psu.price} />
-                  <PartRow label="ケース" name={build.case.name} price={build.case.price} />
+                  <PartRow label="マザーボード" name={build.motherboard?.name} price={build.motherboard?.price} />
+                  <PartRow label="電源" name={build.psu?.name} price={build.psu?.price} />
+                  <PartRow label="ケース" name={build.case?.name} price={build.case?.price} />
                 </tbody>
               </table>
 
@@ -305,7 +318,7 @@ export default function BuildDetailPage() {
 
             {/* Meta Info */}
             <div className="text-sm text-gray-500 mb-6">
-              作成日: {formatDate(build.createdAt)}
+              作成日: {build.createdAt ? formatDate(build.createdAt) : '-'}
             </div>
 
             {/* Delete Button */}

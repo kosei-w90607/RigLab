@@ -25,6 +25,7 @@
 | 9 | parts_cases | PCケース（自動推奨） |
 | 10 | pc_entrust_sets | おまかせ構成（プリセット） |
 | 11 | pc_custom_sets | カスタム構成 |
+| 12 | share_tokens | 共有トークン（トークンベース共有用） |
 
 ---
 
@@ -193,6 +194,14 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
+
+    share_tokens {
+        bigint id PK
+        string token UK "共有用トークン"
+        json parts_data "パーツ構成データ"
+        datetime created_at
+        datetime updated_at
+    }
 ```
 
 ---
@@ -201,25 +210,30 @@ erDiagram
 
 ### 3.1 users（ユーザー）
 
-**説明:** ユーザー情報を管理。Devise Token Auth使用。
+**説明:** ユーザー情報を管理。NextAuth.js + JWT認証を使用（フロントエンド側で認証）。
 
 | カラム名 | 型 | NULL | デフォルト | 説明 |
 |----------|-----|------|-----------|------|
 | id | BIGINT | NO | AUTO_INCREMENT | 主キー |
-| name | VARCHAR(255) | NO | - | ユーザー名 |
-| email | VARCHAR(255) | NO | - | メールアドレス |
-| encrypted_password | VARCHAR(255) | NO | - | 暗号化パスワード |
+| name | VARCHAR(255) | YES | - | ユーザー名 |
+| email | VARCHAR(255) | YES | - | メールアドレス |
+| encrypted_password | VARCHAR(255) | NO | '' | 暗号化パスワード |
 | role | VARCHAR(20) | NO | 'user' | 権限 (user/admin) |
-| provider | VARCHAR(255) | NO | 'email' | 認証プロバイダ |
-| uid | VARCHAR(255) | NO | - | 認証UID |
-| tokens | JSON | YES | NULL | Deviseトークン |
+| provider | VARCHAR(255) | NO | 'email' | 認証プロバイダ（レガシー） |
+| uid | VARCHAR(255) | NO | '' | 認証UID（レガシー） |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
 **インデックス:**
 - `PRIMARY KEY (id)`
 - `UNIQUE INDEX (email)`
-- `UNIQUE INDEX (uid, provider)`
+- `UNIQUE INDEX (uid, provider)` （レガシー、将来削除予定）
+- `INDEX (role)`
+
+**注記:**
+- 認証はフロントエンド（NextAuth.js）で実装。バックエンドはJWTトークンを検証
+- `provider`, `uid` はDevise Token Auth時代のレガシーカラム（現在は未使用）
+- 将来のマイグレーションでレガシーカラムを削除予定
 
 ---
 
@@ -566,6 +580,46 @@ erDiagram
 
 ---
 
+### 3.12 share_tokens（共有トークン）
+
+**説明:** トークンベース共有用。パーツ構成をJSONで保存し、短いURLで共有可能にする。
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|----------|-----|------|-----------|------|
+| id | BIGINT | NO | AUTO_INCREMENT | 主キー |
+| token | VARCHAR(255) | NO | - | 共有用トークン（URL用） |
+| parts_data | JSON | NO | - | パーツ構成データ |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
+
+**parts_dataのJSON構造例:**
+```json
+{
+  "cpu": { "id": 1, "name": "Intel Core i7-14700K", "price": 52000 },
+  "gpu": { "id": 5, "name": "GeForce RTX 4070", "price": 85000 },
+  "memory": { "id": 3, "name": "DDR5-5600 32GB", "price": 18000 },
+  "storage1": { "id": 10, "name": "Samsung 990 Pro 1TB", "price": 15000 },
+  "storage2": null,
+  "storage3": null,
+  "os": { "id": 1, "name": "Windows 11 Home", "price": 15000 },
+  "motherboard": { "id": 2, "name": "ASUS TUF B760M-PLUS", "price": 22000 },
+  "psu": { "id": 4, "name": "Corsair RM750e", "price": 12000 },
+  "case": { "id": 6, "name": "NZXT H5 Flow", "price": 13000 },
+  "total_price": 232000
+}
+```
+
+**インデックス:**
+- `PRIMARY KEY (id)`
+- `UNIQUE INDEX (token)`
+
+**用途:**
+- クエリパラメータ方式（`/share?c=...`）では長いURLになるため、SNS共有に不向き
+- トークン方式（`/share/abc123`）では短いURLを生成でき、SNS共有に最適
+- パーツデータをDBに保存することで、パーツ削除後も構成を表示可能
+
+---
+
 ## 4. マイグレーション例（Rails）
 
 ### 4.1 parts_cpus
@@ -691,3 +745,4 @@ User.create!(
 | 2025-01-15 | パーツ互換性対応: parts_othersを分割（parts_motherboards, parts_psus, parts_cases）、CPU/GPU/メモリに互換性チェック用カラム追加 |
 | 2025-01-15 | ストレージ3スロット対応: storage_idをstorage1_id, storage2_id, storage3_idに変更（プライマリ必須、他は任意） |
 | 2025-01-15 | ER図: ストレージのリレーション記法を修正（`}|--o|` → `||--o{`） |
+| 2026-02-01 | share_tokensテーブル追加（トークンベース共有用）、usersテーブル説明をNextAuth.js + JWT認証に更新、レガシーカラムに関する注記追加 |

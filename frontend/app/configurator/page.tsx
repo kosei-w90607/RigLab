@@ -20,6 +20,7 @@ import type {
   PartsCase,
 } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
+import { shareConfiguration } from '@/lib/share'
 
 // API response types for edit mode
 interface ApiPart {
@@ -51,6 +52,9 @@ interface PartsData {
   memories: PartsMemory[]
   storages: PartsStorage[]
   oses: PartsOs[]
+  motherboards: PartsMotherboard[]
+  psus: PartsPsu[]
+  cases: PartsCase[]
 }
 
 interface SelectedParts {
@@ -61,12 +65,16 @@ interface SelectedParts {
   storage2: PartsStorage | null
   storage3: PartsStorage | null
   os: PartsOs | null
-}
-
-interface RecommendedParts {
   motherboard: PartsMotherboard | null
   psu: PartsPsu | null
   case: PartsCase | null
+}
+
+// フィルタリングされたパーツリスト（互換性に基づく）
+interface FilteredPartsData {
+  memories: PartsMemory[]
+  motherboards: PartsMotherboard[]
+  cases: PartsCase[]
 }
 
 function formatPrice(price: number): string {
@@ -96,6 +104,18 @@ export default function ConfiguratorPage() {
   const searchParams = useSearchParams()
   const editId = searchParams.get('edit')
 
+  // URLパラメータからパーツIDを取得（共有URLからのカスタマイズ用）
+  const cpuIdParam = searchParams.get('cpu')
+  const gpuIdParam = searchParams.get('gpu')
+  const memoryIdParam = searchParams.get('memory')
+  const storage1IdParam = searchParams.get('storage1')
+  const storage2IdParam = searchParams.get('storage2')
+  const storage3IdParam = searchParams.get('storage3')
+  const osIdParam = searchParams.get('os')
+  const motherboardIdParam = searchParams.get('motherboard')
+  const psuIdParam = searchParams.get('psu')
+  const caseIdParam = searchParams.get('case')
+
   const [parts, setParts] = useState<PartsData | null>(null)
   const [selected, setSelected] = useState<SelectedParts>({
     cpu: null,
@@ -105,11 +125,15 @@ export default function ConfiguratorPage() {
     storage2: null,
     storage3: null,
     os: null,
-  })
-  const [recommended, setRecommended] = useState<RecommendedParts>({
     motherboard: null,
     psu: null,
     case: null,
+  })
+  // フィルタリングされたパーツリスト
+  const [filteredParts, setFilteredParts] = useState<FilteredPartsData>({
+    memories: [],
+    motherboards: [],
+    cases: [],
   })
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingBuild, setIsLoadingBuild] = useState(false)
@@ -123,12 +147,15 @@ export default function ConfiguratorPage() {
   useEffect(() => {
     const fetchParts = async () => {
       try {
-        const [cpuRes, gpuRes, memoryRes, storageRes, osRes] = await Promise.all([
+        const [cpuRes, gpuRes, memoryRes, storageRes, osRes, motherboardRes, psuRes, caseRes] = await Promise.all([
           api.get<{ data: PartsCpu[] }>('/parts?category=cpu'),
           api.get<{ data: PartsGpu[] }>('/parts?category=gpu'),
           api.get<{ data: PartsMemory[] }>('/parts?category=memory'),
           api.get<{ data: PartsStorage[] }>('/parts?category=storage'),
           api.get<{ data: PartsOs[] }>('/parts?category=os'),
+          api.get<{ data: PartsMotherboard[] }>('/parts?category=motherboard'),
+          api.get<{ data: PartsPsu[] }>('/parts?category=psu'),
+          api.get<{ data: PartsCase[] }>('/parts?category=case'),
         ])
 
         setParts({
@@ -137,6 +164,16 @@ export default function ConfiguratorPage() {
           memories: memoryRes.data,
           storages: storageRes.data,
           oses: osRes.data,
+          motherboards: motherboardRes.data,
+          psus: psuRes.data,
+          cases: caseRes.data,
+        })
+
+        // 初期状態ではフィルタリングなしで全パーツを表示
+        setFilteredParts({
+          memories: memoryRes.data,
+          motherboards: motherboardRes.data,
+          cases: caseRes.data,
         })
       } catch (err) {
         if (err instanceof ApiClientError) {
@@ -151,6 +188,130 @@ export default function ConfiguratorPage() {
 
     fetchParts()
   }, [])
+
+  // URLパラメータから選択状態を初期化（共有URLからのカスタマイズ用）
+  useEffect(() => {
+    // editモードの場合は既存の処理を優先
+    if (!parts || editId) return
+
+    // sessionStorageに保存済み状態がある場合はURLパラメータ復元をスキップ
+    // （sessionStorage復元を優先するため）
+    if (sessionStorage.getItem('pendingBuildConfig')) return
+
+    // URLパラメータがない場合は何もしない
+    const hasParams = cpuIdParam || gpuIdParam || memoryIdParam || storage1IdParam || osIdParam
+    if (!hasParams) return
+
+    const initialSelected: SelectedParts = { ...selected }
+
+    if (cpuIdParam) {
+      const cpu = parts.cpus.find(p => p.id === parseInt(cpuIdParam))
+      if (cpu) initialSelected.cpu = cpu
+    }
+    if (gpuIdParam) {
+      const gpu = parts.gpus.find(p => p.id === parseInt(gpuIdParam))
+      if (gpu) initialSelected.gpu = gpu
+    }
+    if (memoryIdParam) {
+      const memory = parts.memories.find(p => p.id === parseInt(memoryIdParam))
+      if (memory) initialSelected.memory = memory
+    }
+    if (storage1IdParam) {
+      const storage = parts.storages.find(p => p.id === parseInt(storage1IdParam))
+      if (storage) initialSelected.storage1 = storage
+    }
+    if (storage2IdParam) {
+      const storage = parts.storages.find(p => p.id === parseInt(storage2IdParam))
+      if (storage) initialSelected.storage2 = storage
+    }
+    if (storage3IdParam) {
+      const storage = parts.storages.find(p => p.id === parseInt(storage3IdParam))
+      if (storage) initialSelected.storage3 = storage
+    }
+    if (osIdParam) {
+      const os = parts.oses.find(p => p.id === parseInt(osIdParam))
+      if (os) initialSelected.os = os
+    }
+    if (motherboardIdParam) {
+      const motherboard = parts.motherboards.find(p => p.id === parseInt(motherboardIdParam))
+      if (motherboard) initialSelected.motherboard = motherboard
+    }
+    if (psuIdParam) {
+      const psu = parts.psus.find(p => p.id === parseInt(psuIdParam))
+      if (psu) initialSelected.psu = psu
+    }
+    if (caseIdParam) {
+      const pcCase = parts.cases.find(p => p.id === parseInt(caseIdParam))
+      if (pcCase) initialSelected.case = pcCase
+    }
+
+    setSelected(initialSelected)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parts, editId])
+
+  // sessionStorageから保存済み状態を復元（ログイン後のリダイレクト用）
+  useEffect(() => {
+    // partsのみ必要（ログイン完了前でも復元可能にする）
+    if (!parts) return
+
+    const savedConfig = sessionStorage.getItem('pendingBuildConfig')
+    if (!savedConfig) return
+
+    try {
+      const config = JSON.parse(savedConfig)
+      const restoredSelected: SelectedParts = {
+        cpu: null,
+        gpu: null,
+        memory: null,
+        storage1: null,
+        storage2: null,
+        storage3: null,
+        os: null,
+        motherboard: null,
+        psu: null,
+        case: null,
+      }
+
+      if (config.cpu_id) {
+        restoredSelected.cpu = parts.cpus.find(p => p.id === config.cpu_id) || null
+      }
+      if (config.gpu_id) {
+        restoredSelected.gpu = parts.gpus.find(p => p.id === config.gpu_id) || null
+      }
+      if (config.memory_id) {
+        restoredSelected.memory = parts.memories.find(p => p.id === config.memory_id) || null
+      }
+      if (config.storage1_id) {
+        restoredSelected.storage1 = parts.storages.find(p => p.id === config.storage1_id) || null
+      }
+      if (config.storage2_id) {
+        restoredSelected.storage2 = parts.storages.find(p => p.id === config.storage2_id) || null
+      }
+      if (config.storage3_id) {
+        restoredSelected.storage3 = parts.storages.find(p => p.id === config.storage3_id) || null
+      }
+      if (config.os_id) {
+        restoredSelected.os = parts.oses.find(p => p.id === config.os_id) || null
+      }
+      if (config.motherboard_id) {
+        restoredSelected.motherboard = parts.motherboards.find(p => p.id === config.motherboard_id) || null
+      }
+      if (config.psu_id) {
+        restoredSelected.psu = parts.psus.find(p => p.id === config.psu_id) || null
+      }
+      if (config.case_id) {
+        restoredSelected.case = parts.cases.find(p => p.id === config.case_id) || null
+      }
+
+      setSelected(restoredSelected)
+
+      // 復元後はクリア
+      sessionStorage.removeItem('pendingBuildConfig')
+    } catch {
+      // パースエラー時は無視
+      sessionStorage.removeItem('pendingBuildConfig')
+    }
+  }, [parts])
 
   // Fetch existing build when editing
   useEffect(() => {
@@ -193,6 +354,9 @@ export default function ConfiguratorPage() {
           storage2: findPart(parts.storages, storageParts[1]),
           storage3: findPart(parts.storages, storageParts[2]),
           os: findPart(parts.oses, partsByCategory['os']?.[0]),
+          motherboard: findPart(parts.motherboards, partsByCategory['motherboard']?.[0]),
+          psu: findPart(parts.psus, partsByCategory['psu']?.[0]),
+          case: findPart(parts.cases, partsByCategory['case']?.[0]),
         })
       } catch (err) {
         if (err instanceof ApiClientError) {
@@ -208,34 +372,102 @@ export default function ConfiguratorPage() {
     fetchBuildForEdit()
   }, [editId, parts, session?.accessToken])
 
-  // Fetch recommended parts when CPU or Memory changes
-  const fetchRecommendations = useCallback(async () => {
-    if (!selected.cpu || !selected.memory) {
-      setRecommended({ motherboard: null, psu: null, case: null })
+  // CPU選択時にメモリとマザーボードをフィルタリング
+  useEffect(() => {
+    if (!parts) return
+
+    const cpu = selected.cpu
+
+    if (!cpu) {
+      // CPU未選択時は全パーツを表示
+      setFilteredParts(prev => ({
+        ...prev,
+        memories: parts.memories,
+        motherboards: parts.motherboards,
+      }))
       return
     }
 
-    try {
-      const response = await api.get<{
-        motherboard: PartsMotherboard
-        psu: PartsPsu
-        case: PartsCase
-      }>(`/parts/recommendations?cpu_id=${selected.cpu.id}&memory_id=${selected.memory.id}${selected.gpu ? `&gpu_id=${selected.gpu.id}` : ''}`)
+    // CPUのメモリタイプに合うメモリをフィルタリング
+    const filteredMemories = parts.memories.filter(
+      m => m.memoryType === cpu.memoryType
+    )
 
-      setRecommended({
-        motherboard: response.motherboard,
-        psu: response.psu,
-        case: response.case,
-      })
-    } catch {
-      // Recommendations are optional, don't show error
-      setRecommended({ motherboard: null, psu: null, case: null })
+    // CPUのソケットとメモリタイプに合うマザーボードをフィルタリング
+    const filteredMotherboards = parts.motherboards.filter(
+      mb => mb.socket === cpu.socket && mb.memoryType === cpu.memoryType
+    )
+
+    setFilteredParts(prev => ({
+      ...prev,
+      memories: filteredMemories,
+      motherboards: filteredMotherboards,
+    }))
+
+    // CPUを変更した場合、互換性のないメモリ/マザーボードをリセット
+    if (selected.memory && selected.memory.memoryType !== cpu.memoryType) {
+      setSelected(prev => ({ ...prev, memory: null }))
     }
-  }, [selected.cpu, selected.memory, selected.gpu])
+    if (selected.motherboard && (selected.motherboard.socket !== cpu.socket || selected.motherboard.memoryType !== cpu.memoryType)) {
+      setSelected(prev => ({ ...prev, motherboard: null }))
+    }
+  }, [selected.cpu, parts])
 
+  // GPU選択時にケースをフィルタリング
   useEffect(() => {
-    fetchRecommendations()
-  }, [fetchRecommendations])
+    if (!parts) return
+
+    const gpu = selected.gpu
+    const motherboard = selected.motherboard
+
+    if (!gpu && !motherboard) {
+      // GPU/マザボ未選択時は全ケースを表示
+      setFilteredParts(prev => ({
+        ...prev,
+        cases: parts.cases,
+      }))
+      return
+    }
+
+    let filteredCases = parts.cases
+
+    // GPUの長さに対応するケースをフィルタリング
+    if (gpu && gpu.lengthMm) {
+      filteredCases = filteredCases.filter(
+        c => c.maxGpuLengthMm >= gpu.lengthMm
+      )
+    }
+
+    // マザーボードのフォームファクタに対応するケースをフィルタリング
+    if (motherboard) {
+      filteredCases = filteredCases.filter(c => {
+        // ケースのフォームファクタがマザーボードに対応しているか
+        switch (c.formFactor) {
+          case 'ATX':
+            return ['ATX', 'mATX', 'ITX'].includes(motherboard.formFactor)
+          case 'mATX':
+            return ['mATX', 'ITX'].includes(motherboard.formFactor)
+          case 'ITX':
+            return motherboard.formFactor === 'ITX'
+          default:
+            return true
+        }
+      })
+    }
+
+    setFilteredParts(prev => ({
+      ...prev,
+      cases: filteredCases,
+    }))
+
+    // 互換性のないケースをリセット
+    if (selected.case) {
+      const isCompatible = filteredCases.some(c => c.id === selected.case?.id)
+      if (!isCompatible) {
+        setSelected(prev => ({ ...prev, case: null }))
+      }
+    }
+  }, [selected.gpu, selected.motherboard, parts])
 
   const handleSelect = (key: keyof SelectedParts, id: string) => {
     if (!parts) return
@@ -243,11 +475,14 @@ export default function ConfiguratorPage() {
     const partLists: Record<keyof SelectedParts, Array<{ id: number }>> = {
       cpu: parts.cpus,
       gpu: parts.gpus,
-      memory: parts.memories,
+      memory: filteredParts.memories,
       storage1: parts.storages,
       storage2: parts.storages,
       storage3: parts.storages,
       os: parts.oses,
+      motherboard: filteredParts.motherboards,
+      psu: parts.psus,
+      case: filteredParts.cases,
     }
 
     const list = partLists[key]
@@ -263,38 +498,39 @@ export default function ConfiguratorPage() {
     (selected.storage2?.price || 0) +
     (selected.storage3?.price || 0) +
     (selected.os?.price || 0) +
-    (recommended.motherboard?.price || 0) +
-    (recommended.psu?.price || 0) +
-    (recommended.case?.price || 0)
+    (selected.motherboard?.price || 0) +
+    (selected.psu?.price || 0) +
+    (selected.case?.price || 0)
 
   const canSave = selected.cpu && selected.gpu && selected.memory && selected.storage1 && selected.os
 
   const handleShare = async () => {
     setIsSharing(true)
     try {
-      const params = new URLSearchParams()
-      if (selected.cpu) params.set('cpu', String(selected.cpu.id))
-      if (selected.gpu) params.set('gpu', String(selected.gpu.id))
-      if (selected.memory) params.set('memory', String(selected.memory.id))
-      if (selected.storage1) params.set('storage1', String(selected.storage1.id))
-      if (selected.storage2) params.set('storage2', String(selected.storage2.id))
-      if (selected.storage3) params.set('storage3', String(selected.storage3.id))
-      if (selected.os) params.set('os', String(selected.os.id))
-
-      const shareUrl = `${window.location.origin}/share?${params.toString()}`
-
-      if (navigator.share) {
-        await navigator.share({
-          title: 'RigLab - カスタム構成',
-          text: `カスタムPC構成 - ${formatPrice(totalPrice)}`,
-          url: shareUrl,
-        })
-      } else {
-        await navigator.clipboard.writeText(shareUrl)
+      await shareConfiguration(
+        {
+          cpu_id: selected.cpu?.id,
+          gpu_id: selected.gpu?.id,
+          memory_id: selected.memory?.id,
+          storage1_id: selected.storage1?.id,
+          storage2_id: selected.storage2?.id,
+          storage3_id: selected.storage3?.id,
+          os_id: selected.os?.id,
+          motherboard_id: selected.motherboard?.id,
+          psu_id: selected.psu?.id,
+          case_id: selected.case?.id,
+        },
+        'RigLab - カスタム構成',
+        `カスタムPC構成 - ${formatPrice(totalPrice)}`
+      )
+      // Web Share APIがない環境ではクリップボードにコピー済み
+      if (!navigator.share) {
         alert('URLをコピーしました')
       }
-    } catch {
-      // User cancelled share
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        alert(`共有URLの生成に失敗しました: ${err.message}`)
+      }
     } finally {
       setIsSharing(false)
     }
@@ -315,6 +551,9 @@ export default function ConfiguratorPage() {
           storage2_id: selected.storage2?.id,
           storage3_id: selected.storage3?.id,
           os_id: selected.os!.id,
+          motherboard_id: selected.motherboard?.id,
+          psu_id: selected.psu?.id,
+          case_id: selected.case?.id,
         },
       }
 
@@ -338,9 +577,9 @@ export default function ConfiguratorPage() {
       router.push('/dashboard')
     } catch (err) {
       if (err instanceof ApiClientError) {
-        alert(err.message)
+        alert(`保存に失敗しました: ${err.message}`)
       } else {
-        alert('保存に失敗しました')
+        alert('保存に失敗しました。ネットワーク接続を確認してください。')
       }
     } finally {
       setIsSaving(false)
@@ -409,16 +648,17 @@ export default function ConfiguratorPage() {
                   />
 
                   <Select
-                    label="Memory"
+                    label={`Memory${selected.cpu ? ` (${selected.cpu.memoryType}対応)` : ''}`}
                     value={selected.memory?.id?.toString() || ''}
                     onChange={(e) => handleSelect('memory', e.target.value)}
                     options={[
-                      { value: '', label: '選択してください' },
-                      ...parts.memories.map((p) => ({
+                      { value: '', label: selected.cpu ? '選択してください' : 'CPUを先に選択してください' },
+                      ...filteredParts.memories.map((p) => ({
                         value: p.id.toString(),
                         label: `${p.name} - ${formatPrice(p.price)}`,
                       })),
                     ]}
+                    disabled={!selected.cpu}
                   />
 
                   <Select
@@ -469,6 +709,53 @@ export default function ConfiguratorPage() {
                       ...parts.oses.map((p) => ({
                         value: p.id.toString(),
                         label: `${p.name} - ${formatPrice(p.price)}`,
+                      })),
+                    ]}
+                  />
+
+                  {/* セパレーター */}
+                  <div className="border-t border-gray-200 pt-4 mt-4">
+                    <p className="text-sm text-gray-500 mb-4">
+                      以下のパーツはCPU/GPUに基づいて互換性のあるものが表示されます
+                    </p>
+                  </div>
+
+                  <Select
+                    label={`Motherboard${selected.cpu ? ` (${selected.cpu.socket}対応)` : ''}`}
+                    value={selected.motherboard?.id?.toString() || ''}
+                    onChange={(e) => handleSelect('motherboard', e.target.value)}
+                    options={[
+                      { value: '', label: selected.cpu ? '選択してください' : 'CPUを先に選択してください' },
+                      ...filteredParts.motherboards.map((p) => ({
+                        value: p.id.toString(),
+                        label: `${p.name} (${p.formFactor}) - ${formatPrice(p.price)}`,
+                      })),
+                    ]}
+                    disabled={!selected.cpu}
+                  />
+
+                  <Select
+                    label="電源 (PSU)"
+                    value={selected.psu?.id?.toString() || ''}
+                    onChange={(e) => handleSelect('psu', e.target.value)}
+                    options={[
+                      { value: '', label: '選択してください' },
+                      ...parts.psus.map((p) => ({
+                        value: p.id.toString(),
+                        label: `${p.name} (${p.wattage}W) - ${formatPrice(p.price)}`,
+                      })),
+                    ]}
+                  />
+
+                  <Select
+                    label={`ケース${selected.motherboard ? ` (${selected.motherboard.formFactor}対応)` : ''}${selected.gpu?.lengthMm ? ` (GPU ${selected.gpu.lengthMm}mm対応)` : ''}`}
+                    value={selected.case?.id?.toString() || ''}
+                    onChange={(e) => handleSelect('case', e.target.value)}
+                    options={[
+                      { value: '', label: '選択してください' },
+                      ...filteredParts.cases.map((p) => ({
+                        value: p.id.toString(),
+                        label: `${p.name} (${p.formFactor}, max GPU ${p.maxGpuLengthMm}mm) - ${formatPrice(p.price)}`,
                       })),
                     ]}
                   />
@@ -535,38 +822,30 @@ export default function ConfiguratorPage() {
                 </dl>
               </div>
 
-              {/* Recommended Parts */}
-              {(recommended.motherboard || recommended.psu || recommended.case) && (
-                <div className="mb-4 pt-4 border-t border-gray-200">
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">自動推奨</h3>
-                  <dl className="space-y-1 text-sm">
-                    {recommended.motherboard && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">MB:</dt>
-                        <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={recommended.motherboard.name}>
-                          {recommended.motherboard.name}
-                        </dd>
-                      </div>
-                    )}
-                    {recommended.psu && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">電源:</dt>
-                        <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={recommended.psu.name}>
-                          {recommended.psu.name}
-                        </dd>
-                      </div>
-                    )}
-                    {recommended.case && (
-                      <div className="flex justify-between">
-                        <dt className="text-gray-500">ケース:</dt>
-                        <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={recommended.case.name}>
-                          {recommended.case.name}
-                        </dd>
-                      </div>
-                    )}
-                  </dl>
-                </div>
-              )}
+              {/* System Parts */}
+              <div className="mb-4 pt-4 border-t border-gray-200">
+                <h3 className="text-sm font-medium text-gray-500 mb-2">互換性パーツ</h3>
+                <dl className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500">MB:</dt>
+                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.motherboard?.name}>
+                      {selected.motherboard?.name || '-'}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500">電源:</dt>
+                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.psu?.name}>
+                      {selected.psu?.name || '-'}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-gray-500">ケース:</dt>
+                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.case?.name}>
+                      {selected.case?.name || '-'}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
 
               {/* Total Price */}
               <div className="pt-4 border-t border-gray-200 mb-6">
@@ -599,9 +878,33 @@ export default function ConfiguratorPage() {
                     {editId ? 'この構成を更新' : 'この構成を保存'}
                   </Button>
                 ) : (
-                  <p className="text-xs text-gray-500 text-center">
-                    保存するにはログインが必要です
-                  </p>
+                  <Button
+                    variant="primary"
+                    className="w-full"
+                    onClick={() => {
+                      // 現在の選択状態をsessionStorageに保存
+                      const stateToSave = {
+                        cpu_id: selected.cpu?.id,
+                        gpu_id: selected.gpu?.id,
+                        memory_id: selected.memory?.id,
+                        storage1_id: selected.storage1?.id,
+                        storage2_id: selected.storage2?.id,
+                        storage3_id: selected.storage3?.id,
+                        os_id: selected.os?.id,
+                        motherboard_id: selected.motherboard?.id,
+                        psu_id: selected.psu?.id,
+                        case_id: selected.case?.id,
+                      }
+                      sessionStorage.setItem('pendingBuildConfig', JSON.stringify(stateToSave))
+
+                      // callbackUrl は /configurator のみ（パラメータなし）
+                      // sessionStorage の状態を復元するため、古いURLパラメータは不要
+                      window.location.href = `/signin?callbackUrl=${encodeURIComponent('/configurator')}`
+                    }}
+                    disabled={!canSave}
+                  >
+                    ログインして保存
+                  </Button>
                 )}
               </div>
             </Card>
