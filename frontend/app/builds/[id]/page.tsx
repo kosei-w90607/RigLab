@@ -30,12 +30,12 @@ interface ApiPartEntry {
 interface ApiBuildDetail {
   id: number
   name: string
-  total_price: number
-  share_token: string
+  totalPrice: number
+  shareToken: string
   parts: ApiPartEntry[]
   user: { id: number; name: string } | null
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
 }
 
 // Transform API part to frontend part type
@@ -76,7 +76,7 @@ function transformBuildDetail(api: ApiBuildDetail): PcCustomSet {
     id: api.id,
     userId: api.user?.id || 0,
     name: api.name,
-    shareToken: api.share_token,
+    shareToken: api.shareToken,
     cpu: getPart('cpu') as PcCustomSet['cpu'],
     gpu: getPart('gpu') as PcCustomSet['gpu'],
     memory: getPart('memory') as PcCustomSet['memory'],
@@ -87,21 +87,31 @@ function transformBuildDetail(api: ApiBuildDetail): PcCustomSet {
     motherboard: getPart('motherboard') as PcCustomSet['motherboard'],
     psu: getPart('psu') as PcCustomSet['psu'],
     case: getPart('case') as PcCustomSet['case'],
-    totalPrice: api.total_price,
-    createdAt: api.created_at,
-    updatedAt: api.updated_at,
+    totalPrice: api.totalPrice,
+    createdAt: api.createdAt,
+    updatedAt: api.updatedAt,
   }
 }
 
-function formatPrice(price: number): string {
+function formatPrice(price: number | undefined | null): string {
+  if (price === undefined || price === null || isNaN(price)) {
+    return '¥0'
+  }
   return new Intl.NumberFormat('ja-JP', {
     style: 'currency',
     currency: 'JPY',
   }).format(price)
 }
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('ja-JP', {
+function formatDate(dateString: string | undefined | null): string {
+  if (!dateString) {
+    return '-'
+  }
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) {
+    return '-'
+  }
+  return date.toLocaleDateString('ja-JP', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

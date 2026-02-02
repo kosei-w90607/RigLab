@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 class Rack::Attack
-  # テスト環境では無効化
-  if Rails.env.test?
+  # テスト環境・開発環境では無効化
+  if Rails.env.test? || Rails.env.development?
     self.enabled = false
     self.cache.store = ActiveSupport::Cache::NullStore.new
   end

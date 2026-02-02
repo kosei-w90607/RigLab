@@ -38,12 +38,12 @@ interface ApiPartEntry {
 interface ApiBuildDetail {
   id: number
   name: string
-  total_price: number
-  share_token: string
+  totalPrice: number
+  shareToken: string
   parts: ApiPartEntry[]
   user: { id: number; name: string } | null
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
 }
 
 interface PartsData {
@@ -77,7 +77,10 @@ interface FilteredPartsData {
   cases: PartsCase[]
 }
 
-function formatPrice(price: number): string {
+function formatPrice(price: number | undefined | null): string {
+  if (price === undefined || price === null || isNaN(price)) {
+    return '¥0'
+  }
   return new Intl.NumberFormat('ja-JP', {
     style: 'currency',
     currency: 'JPY',

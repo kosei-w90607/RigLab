@@ -31,7 +31,10 @@ interface SharedBuild {
   case: PartsCase | null
 }
 
-function formatPrice(price: number): string {
+function formatPrice(price: number | undefined | null): string {
+  if (price === undefined || price === null || isNaN(price)) {
+    return '¥0'
+  }
   return new Intl.NumberFormat('ja-JP', {
     style: 'currency',
     currency: 'JPY',
