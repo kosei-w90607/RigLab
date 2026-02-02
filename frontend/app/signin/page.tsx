@@ -98,7 +98,7 @@ export default function SignInPage() {
             アカウントをお持ちでない方は
           </p>
           <Link
-            href="/signup"
+            href={`/signup${callbackUrl !== '/dashboard' ? `?callbackUrl=${encodeURIComponent(callbackUrl)}` : ''}`}
             className="mt-2 inline-block text-custom-blue hover:underline font-medium"
           >
             新規登録

@@ -69,7 +69,7 @@ module Api
       end
 
       def build_params
-        permitted = params.permit(:name, parts: %i[cpu_id gpu_id memory_id storage1_id storage2_id storage3_id os_id])
+        permitted = params.permit(:name, parts: %i[cpu_id gpu_id memory_id storage1_id storage2_id storage3_id os_id motherboard_id psu_id case_id])
 
         result = { name: permitted[:name] }
         result.merge!(permitted[:parts].to_h) if permitted[:parts].present?

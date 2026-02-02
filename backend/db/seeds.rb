@@ -6,15 +6,26 @@ puts "Seeding database..."
 
 # CPUs
 cpus = [
+  # Intel 13th/14th Gen (LGA1700)
   { name: "Intel Core i5-13400F", price: 28980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR5", specs: { cores: 10, threads: 16, base_clock: 2.5, boost_clock: 4.6 } },
   { name: "Intel Core i5-14400F", price: 32980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR5", specs: { cores: 10, threads: 16, base_clock: 2.5, boost_clock: 4.7 } },
   { name: "Intel Core i7-13700F", price: 52980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR5", specs: { cores: 16, threads: 24, base_clock: 2.1, boost_clock: 5.2 } },
   { name: "Intel Core i7-14700F", price: 56980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR5", specs: { cores: 20, threads: 28, base_clock: 2.1, boost_clock: 5.4 } },
   { name: "Intel Core i9-14900K", price: 89980, maker: "Intel", socket: "LGA1700", tdp: 125, memory_type: "DDR5", specs: { cores: 24, threads: 32, base_clock: 3.2, boost_clock: 6.0 } },
+  # Intel 15th Gen Arrow Lake (LGA1851)
+  { name: "Intel Core Ultra 5 245K", price: 42980, maker: "Intel", socket: "LGA1851", tdp: 125, memory_type: "DDR5", specs: { cores: 14, threads: 14, base_clock: 4.2, boost_clock: 5.2 } },
+  { name: "Intel Core Ultra 7 265K", price: 62980, maker: "Intel", socket: "LGA1851", tdp: 125, memory_type: "DDR5", specs: { cores: 20, threads: 20, base_clock: 3.9, boost_clock: 5.5 } },
+  { name: "Intel Core Ultra 9 285K", price: 89980, maker: "Intel", socket: "LGA1851", tdp: 125, memory_type: "DDR5", specs: { cores: 24, threads: 24, base_clock: 3.7, boost_clock: 5.7 } },
+  # AMD Ryzen 7000 Series (AM5)
   { name: "AMD Ryzen 5 7600", price: 29980, maker: "AMD", socket: "AM5", tdp: 65, memory_type: "DDR5", specs: { cores: 6, threads: 12, base_clock: 3.8, boost_clock: 5.1 } },
   { name: "AMD Ryzen 7 7700X", price: 49980, maker: "AMD", socket: "AM5", tdp: 105, memory_type: "DDR5", specs: { cores: 8, threads: 16, base_clock: 4.5, boost_clock: 5.4 } },
   { name: "AMD Ryzen 9 7900X", price: 69980, maker: "AMD", socket: "AM5", tdp: 170, memory_type: "DDR5", specs: { cores: 12, threads: 24, base_clock: 4.7, boost_clock: 5.6 } },
   { name: "AMD Ryzen 9 7950X", price: 89980, maker: "AMD", socket: "AM5", tdp: 170, memory_type: "DDR5", specs: { cores: 16, threads: 32, base_clock: 4.5, boost_clock: 5.7 } },
+  # AMD Ryzen 9000 Series Zen 5 (AM5)
+  { name: "AMD Ryzen 5 9600X", price: 36980, maker: "AMD", socket: "AM5", tdp: 65, memory_type: "DDR5", specs: { cores: 6, threads: 12, base_clock: 3.9, boost_clock: 5.4 } },
+  { name: "AMD Ryzen 7 9700X", price: 52980, maker: "AMD", socket: "AM5", tdp: 65, memory_type: "DDR5", specs: { cores: 8, threads: 16, base_clock: 3.8, boost_clock: 5.5 } },
+  { name: "AMD Ryzen 9 9900X", price: 72980, maker: "AMD", socket: "AM5", tdp: 120, memory_type: "DDR5", specs: { cores: 12, threads: 24, base_clock: 4.4, boost_clock: 5.6 } },
+  { name: "AMD Ryzen 9 9950X", price: 99980, maker: "AMD", socket: "AM5", tdp: 170, memory_type: "DDR5", specs: { cores: 16, threads: 32, base_clock: 4.3, boost_clock: 5.7 } },
 ]
 
 cpus.each do |cpu|
@@ -100,9 +111,16 @@ puts "  Created #{PartsOs.count} Operating Systems"
 
 # Motherboards
 motherboards = [
+  # Intel LGA1700 (13th/14th Gen)
   { name: "ASUS ROG STRIX B760-F GAMING WIFI", price: 32980, maker: "ASUS", socket: "LGA1700", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "B760", memory_slots: 4, max_memory: 128, m2_slots: 2 } },
   { name: "ASUS TUF GAMING B760M-PLUS WIFI", price: 22980, maker: "ASUS", socket: "LGA1700", memory_type: "DDR5", form_factor: "mATX", specs: { chipset: "B760", memory_slots: 4, max_memory: 128, m2_slots: 2 } },
   { name: "MSI MAG B760 TOMAHAWK WIFI", price: 28980, maker: "MSI", socket: "LGA1700", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "B760", memory_slots: 4, max_memory: 128, m2_slots: 2 } },
+  # Intel LGA1851 (15th Gen Arrow Lake)
+  { name: "ASUS ROG MAXIMUS Z890 HERO", price: 89980, maker: "ASUS", socket: "LGA1851", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "Z890", memory_slots: 4, max_memory: 192, m2_slots: 5 } },
+  { name: "MSI MEG Z890 ACE", price: 79980, maker: "MSI", socket: "LGA1851", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "Z890", memory_slots: 4, max_memory: 192, m2_slots: 4 } },
+  { name: "Gigabyte Z890 AORUS MASTER", price: 69980, maker: "Gigabyte", socket: "LGA1851", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "Z890", memory_slots: 4, max_memory: 192, m2_slots: 4 } },
+  { name: "ASUS PRIME Z890-P WIFI", price: 42980, maker: "ASUS", socket: "LGA1851", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "Z890", memory_slots: 4, max_memory: 192, m2_slots: 3 } },
+  # AMD AM5
   { name: "ASUS ROG STRIX X670E-E GAMING WIFI", price: 59980, maker: "ASUS", socket: "AM5", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "X670E", memory_slots: 4, max_memory: 128, m2_slots: 4 } },
   { name: "MSI MAG X670E TOMAHAWK WIFI", price: 42980, maker: "MSI", socket: "AM5", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "X670E", memory_slots: 4, max_memory: 128, m2_slots: 4 } },
   { name: "ASUS ROG STRIX B650E-F GAMING WIFI", price: 38980, maker: "ASUS", socket: "AM5", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "B650E", memory_slots: 4, max_memory: 128, m2_slots: 3 } },
@@ -152,5 +170,203 @@ cases.each do |pc_case|
   end
 end
 puts "  Created #{PartsCase.count} Cases"
+
+# Presets (PcEntrustSets)
+puts "Creating presets..."
+
+# Helper to find parts by name
+def find_cpu(name)
+  PartsCpu.find_by!(name: name)
+end
+
+def find_gpu(name)
+  PartsGpu.find_by!(name: name)
+end
+
+def find_memory(name)
+  PartsMemory.find_by!(name: name)
+end
+
+def find_storage(name)
+  PartsStorage.find_by!(name: name)
+end
+
+def find_os(name)
+  PartsOs.find_by!(name: name)
+end
+
+def find_motherboard(name)
+  PartsMotherboard.find_by!(name: name)
+end
+
+def find_psu(name)
+  PartsPsu.find_by!(name: name)
+end
+
+def find_case(name)
+  PartsCase.find_by!(name: name)
+end
+
+presets = [
+  # ===== エントリー帯 (~10万円) =====
+  {
+    name: "エントリーゲーミングPC",
+    description: "10万円以下でゲームを始めたい方に最適。フルHDで人気タイトルを快適にプレイできます。",
+    budget_range: "entry",
+    use_case: "gaming",
+    cpu: "AMD Ryzen 5 7600",
+    gpu: "AMD Radeon RX 7600",
+    memory: "Crucial DDR5-4800 16GB (8GBx2)",
+    storage1: "Crucial P3 Plus 1TB",
+    os: "Windows 11 Home",
+    motherboard: "Gigabyte B650 AORUS ELITE AX",
+    psu: "Corsair RM650",
+    case: "Corsair 4000D Airflow"
+  },
+  {
+    name: "エントリークリエイターPC",
+    description: "動画編集やイラスト制作を始めたい方向け。軽めの作業なら快適にこなせます。",
+    budget_range: "entry",
+    use_case: "creative",
+    cpu: "AMD Ryzen 5 7600",
+    gpu: "AMD Radeon RX 7600",
+    memory: "Crucial DDR5-4800 16GB (8GBx2)",
+    storage1: "Crucial P3 Plus 1TB",
+    os: "Windows 11 Home",
+    motherboard: "Gigabyte B650 AORUS ELITE AX",
+    psu: "Corsair RM650",
+    case: "Corsair 4000D Airflow"
+  },
+  {
+    name: "エントリーオフィスPC",
+    description: "事務作業やWeb閲覧に最適。コストパフォーマンス重視の構成です。",
+    budget_range: "entry",
+    use_case: "office",
+    cpu: "Intel Core i5-13400F",
+    gpu: "AMD Radeon RX 7600",
+    memory: "Crucial DDR5-4800 16GB (8GBx2)",
+    storage1: "Crucial P3 Plus 1TB",
+    os: "Windows 11 Home",
+    motherboard: "ASUS TUF GAMING B760M-PLUS WIFI",
+    psu: "Corsair RM650",
+    case: "Corsair 4000D Airflow"
+  },
+
+  # ===== ミドル帯 (10~30万円) =====
+  {
+    name: "ミドルゲーミングPC",
+    description: "WQHD高画質でAAAタイトルを快適にプレイ。配信やVRにも対応できる万能構成。",
+    budget_range: "middle",
+    use_case: "gaming",
+    cpu: "Intel Core i7-14700F",
+    gpu: "NVIDIA GeForce RTX 4070 Super",
+    memory: "Crucial DDR5-5600 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    os: "Windows 11 Home",
+    motherboard: "MSI MAG B760 TOMAHAWK WIFI",
+    psu: "Corsair RM850",
+    case: "NZXT H7 Flow"
+  },
+  {
+    name: "ミドルクリエイターPC",
+    description: "4K動画編集や3DCG制作に対応。クリエイティブワークの効率を大幅にアップ。",
+    budget_range: "middle",
+    use_case: "creative",
+    cpu: "AMD Ryzen 7 7700X",
+    gpu: "NVIDIA GeForce RTX 4070",
+    memory: "G.Skill Trident Z5 DDR5-6000 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    storage2: "Seagate Barracuda 4TB",
+    os: "Windows 11 Pro",
+    motherboard: "ASUS ROG STRIX B650E-F GAMING WIFI",
+    psu: "Corsair RM850",
+    case: "Fractal Design North"
+  },
+  {
+    name: "ミドルオフィスPC",
+    description: "マルチタスクやビジネス用途に最適。安定性と性能のバランスが取れた構成。",
+    budget_range: "middle",
+    use_case: "office",
+    cpu: "Intel Core i7-13700F",
+    gpu: "NVIDIA GeForce RTX 4060",
+    memory: "Crucial DDR5-5600 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 1TB",
+    storage2: "Seagate Barracuda 2TB",
+    os: "Windows 11 Pro",
+    motherboard: "ASUS ROG STRIX B760-F GAMING WIFI",
+    psu: "Corsair RM750",
+    case: "NZXT H5 Flow"
+  },
+
+  # ===== ハイエンド帯 (30万円~) =====
+  {
+    name: "ハイエンドゲーミングPC",
+    description: "4K最高画質でどんなゲームも快適。競技シーンでも活躍できる最強スペック。",
+    budget_range: "high",
+    use_case: "gaming",
+    cpu: "Intel Core i9-14900K",
+    gpu: "NVIDIA GeForce RTX 4080 Super",
+    memory: "G.Skill Trident Z5 DDR5-6400 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    storage2: "Samsung 990 Pro 2TB",
+    os: "Windows 11 Pro",
+    motherboard: "ASUS ROG STRIX B760-F GAMING WIFI",
+    psu: "Corsair RM1000",
+    case: "Lian Li O11 Dynamic EVO"
+  },
+  {
+    name: "ハイエンドクリエイターPC",
+    description: "8K動画編集、大規模3DCG、AIワークロードに対応。プロフェッショナル向け構成。",
+    budget_range: "high",
+    use_case: "creative",
+    cpu: "AMD Ryzen 9 7950X",
+    gpu: "NVIDIA GeForce RTX 4090",
+    memory: "Corsair Vengeance DDR5-5600 64GB (32GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    storage2: "Samsung 990 Pro 2TB",
+    storage3: "Seagate Barracuda 4TB",
+    os: "Windows 11 Pro",
+    motherboard: "ASUS ROG STRIX X670E-E GAMING WIFI",
+    psu: "Seasonic PRIME TX-1000",
+    case: "Fractal Design Torrent"
+  },
+  {
+    name: "ハイエンドワークステーション",
+    description: "ビジネス向け最高峰。複雑な計算処理やシミュレーションも余裕でこなします。",
+    budget_range: "high",
+    use_case: "office",
+    cpu: "AMD Ryzen 9 7900X",
+    gpu: "NVIDIA GeForce RTX 4070 Ti Super",
+    memory: "G.Skill Trident Z5 DDR5-6000 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    storage2: "Seagate Barracuda 4TB",
+    os: "Windows 11 Pro",
+    motherboard: "MSI MAG X670E TOMAHAWK WIFI",
+    psu: "Seasonic FOCUS GX-850",
+    case: "Corsair 5000D Airflow"
+  }
+]
+
+presets.each do |preset_data|
+  preset = PcEntrustSet.find_or_initialize_by(name: preset_data[:name])
+
+  preset.description = preset_data[:description]
+  preset.budget_range = preset_data[:budget_range]
+  preset.use_case = preset_data[:use_case]
+  preset.cpu = find_cpu(preset_data[:cpu])
+  preset.gpu = find_gpu(preset_data[:gpu])
+  preset.memory = find_memory(preset_data[:memory])
+  preset.storage1 = find_storage(preset_data[:storage1])
+  preset.storage2 = preset_data[:storage2] ? find_storage(preset_data[:storage2]) : nil
+  preset.storage3 = preset_data[:storage3] ? find_storage(preset_data[:storage3]) : nil
+  preset.os = find_os(preset_data[:os])
+  preset.motherboard = find_motherboard(preset_data[:motherboard])
+  preset.psu = find_psu(preset_data[:psu])
+  preset.case = find_case(preset_data[:case])
+
+  preset.save!
+end
+
+puts "  Created #{PcEntrustSet.count} Presets"
 
 puts "Seeding completed!"

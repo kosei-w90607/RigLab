@@ -73,6 +73,12 @@ function SkeletonDetail() {
 
 export default function SharePage() {
   const searchParams = useSearchParams()
+  const [mounted, setMounted] = useState(false)
+
+  // Hydration Error防止: クライアントマウント後にのみレンダリング
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const cpuId = searchParams.get('cpu')
   const gpuId = searchParams.get('gpu')
@@ -107,31 +113,31 @@ export default function SharePage() {
         const partTypes: (keyof SharedBuild)[] = []
 
         if (cpuId) {
-          requests.push(api.get<{ data: PartsCpu }>(`/parts/${cpuId}`))
+          requests.push(api.get<{ data: PartsCpu }>(`/parts/${cpuId}?category=cpu`))
           partTypes.push('cpu')
         }
         if (gpuId) {
-          requests.push(api.get<{ data: PartsGpu }>(`/parts/${gpuId}`))
+          requests.push(api.get<{ data: PartsGpu }>(`/parts/${gpuId}?category=gpu`))
           partTypes.push('gpu')
         }
         if (memoryId) {
-          requests.push(api.get<{ data: PartsMemory }>(`/parts/${memoryId}`))
+          requests.push(api.get<{ data: PartsMemory }>(`/parts/${memoryId}?category=memory`))
           partTypes.push('memory')
         }
         if (storage1Id) {
-          requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage1Id}`))
+          requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage1Id}?category=storage`))
           partTypes.push('storage1')
         }
         if (storage2Id) {
-          requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage2Id}`))
+          requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage2Id}?category=storage`))
           partTypes.push('storage2')
         }
         if (storage3Id) {
-          requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage3Id}`))
+          requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage3Id}?category=storage`))
           partTypes.push('storage3')
         }
         if (osId) {
-          requests.push(api.get<{ data: PartsOs }>(`/parts/${osId}`))
+          requests.push(api.get<{ data: PartsOs }>(`/parts/${osId}?category=os`))
           partTypes.push('os')
         }
 
@@ -213,6 +219,17 @@ export default function SharePage() {
       // Fallback for older browsers
       alert('コピーに失敗しました')
     }
+  }
+
+  // Hydration Error防止: クライアントマウント前はスケルトンを表示
+  if (!mounted) {
+    return (
+      <div className="flex-1 px-4 py-8 md:py-12">
+        <div className="max-w-3xl mx-auto">
+          <SkeletonDetail />
+        </div>
+      </div>
+    )
   }
 
   if (error) {

@@ -8,6 +8,7 @@ import { Button } from '@/app/components/ui/Button'
 import { Select } from '@/app/components/ui/Select'
 import { Skeleton } from '@/app/components/ui/Skeleton'
 import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
+import { ScrollToTopButton } from '@/app/components/ui/ScrollToTopButton'
 import { api, ApiResponse } from '@/lib/api'
 
 // パーツカテゴリ
@@ -257,6 +258,9 @@ export default function AdminPartsPage() {
         isLoading={deleting}
         variant="danger"
       />
+
+      {/* トップへ戻るボタン */}
+      <ScrollToTopButton />
     </div>
   )
 }

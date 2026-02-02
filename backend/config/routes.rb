@@ -18,7 +18,11 @@ Rails.application.routes.draw do
       get 'dashboard', to: 'dashboard#index'
 
       # Parts API
-      resources :parts, only: %i[index show]
+      resources :parts, only: %i[index show] do
+        collection do
+          get :recommendations
+        end
+      end
 
       # Presets API
       resources :presets, only: %i[index show]
@@ -27,10 +31,15 @@ Rails.application.routes.draw do
       resources :builds, only: %i[index show create update destroy]
       get 'builds/shared/:share_token', to: 'builds#shared', as: :shared_build
 
+      # Share Tokens API (未保存構成の共有)
+      resources :share_tokens, only: %i[create], param: :token
+      get 'share_tokens/:token', to: 'share_tokens#show', as: :share_token
+
       # Admin API
       namespace :admin do
         resources :parts, only: %i[create update destroy]
         resources :presets, only: %i[show create update destroy]
+        resources :users, only: %i[index update]
       end
     end
   end

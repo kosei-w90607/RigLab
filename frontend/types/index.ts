@@ -121,22 +121,22 @@ export type UseCase = 'gaming' | 'creative' | 'office'
 export interface PcEntrustSet {
   id: number
   name: string
-  description: string
+  description?: string
   budgetRange: BudgetRange
   useCase: UseCase
-  cpu: PartsCpu
-  gpu: PartsGpu
-  memory: PartsMemory
-  storage1: PartsStorage
+  cpu: PartsCpu | null
+  gpu: PartsGpu | null
+  memory: PartsMemory | null
+  storage1: PartsStorage | null
   storage2: PartsStorage | null
   storage3: PartsStorage | null
-  os: PartsOs
-  motherboard: PartsMotherboard
-  psu: PartsPsu
-  case: PartsCase
+  os?: PartsOs | null
+  motherboard?: PartsMotherboard | null
+  psu?: PartsPsu | null
+  case?: PartsCase | null
   totalPrice: number
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 // ============================================

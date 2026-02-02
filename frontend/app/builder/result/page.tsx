@@ -7,12 +7,29 @@ import { useSession } from 'next-auth/react'
 import { Card } from '@/app/components/ui/Card'
 import { Button } from '@/app/components/ui/Button'
 import { Skeleton } from '@/app/components/ui/Skeleton'
-import type { PcEntrustSet } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
+import { shareConfiguration } from '@/lib/share'
+
+// APIレスポンス型（snake_case）
+interface ApiPreset {
+  id: number
+  name: string
+  budget_range: string
+  use_case: string
+  total_price: number
+  cpu: { id: number; name: string; maker: string; price: number } | null
+  gpu: { id: number; name: string; maker: string; price: number } | null
+  memory: { id: number; name: string; maker: string; price: number } | null
+  storage1: { id: number; name: string; maker: string; price: number } | null
+  os: { id: number; name: string; maker: string; price: number } | null
+  motherboard: { id: number; name: string; maker: string; price: number } | null
+  psu: { id: number; name: string; maker: string; price: number } | null
+  case: { id: number; name: string; maker: string; price: number } | null
+}
 
 const budgetLabels: Record<string, string> = {
-  under100k: '〜10万円',
-  '100k-300k': '10〜30万円',
+  under100k: '〜15万円',
+  '100k-300k': '15〜30万円',
   over300k: '30万円〜',
   any: '指定なし',
 }
@@ -30,80 +47,131 @@ function formatPrice(price: number): string {
   }).format(price)
 }
 
-function PresetCard({ preset, index }: { preset: PcEntrustSet; index: number }) {
+function PartRow({ label, part }: { label: string; part: { name: string; price: number } | null }) {
+  if (!part) {
+    return (
+      <tr className="border-b border-gray-100">
+        <td className="py-2 text-gray-500 w-24">{label}</td>
+        <td className="py-2 text-gray-400">未設定</td>
+        <td className="py-2 text-right text-gray-400">-</td>
+      </tr>
+    )
+  }
+  return (
+    <tr className="border-b border-gray-100">
+      <td className="py-2 text-gray-500 w-24">{label}</td>
+      <td className="py-2 text-gray-900">{part.name}</td>
+      <td className="py-2 text-right text-gray-600">{formatPrice(part.price)}</td>
+    </tr>
+  )
+}
+
+function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
   const sessionResult = useSession()
   const session = sessionResult?.data
   const [isSharing, setIsSharing] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   const handleShare = async () => {
     setIsSharing(true)
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: preset.name,
-          text: `${preset.name} - ${formatPrice(preset.totalPrice)}`,
-          url: window.location.href,
-        })
-      } else {
-        await navigator.clipboard.writeText(window.location.href)
+      await shareConfiguration(
+        {
+          cpu_id: preset.cpu?.id,
+          gpu_id: preset.gpu?.id,
+          memory_id: preset.memory?.id,
+          storage1_id: preset.storage1?.id,
+          os_id: preset.os?.id,
+          motherboard_id: preset.motherboard?.id,
+          psu_id: preset.psu?.id,
+          case_id: preset.case?.id,
+        },
+        preset.name,
+        `${preset.name} - ${formatPrice(preset.total_price)}`
+      )
+      // Web Share APIがない環境ではクリップボードにコピー済み
+      if (!navigator.share) {
         alert('URLをコピーしました')
       }
-    } catch {
-      // User cancelled share
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        alert(`共有に失敗しました: ${err.message}`)
+      }
     } finally {
       setIsSharing(false)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!session?.accessToken) {
+      // 未ログイン → ログインページへ
+      window.location.href = `/signin?callbackUrl=${encodeURIComponent(window.location.href)}`
+      return
+    }
+
+    setIsSaving(true)
+    try {
+      const payload = {
+        name: `${preset.name}（カスタム）`,
+        parts: {
+          cpu_id: preset.cpu?.id || null,
+          gpu_id: preset.gpu?.id || null,
+          memory_id: preset.memory?.id || null,
+          storage1_id: preset.storage1?.id || null,
+          os_id: preset.os?.id || null,
+          motherboard_id: preset.motherboard?.id || null,
+          psu_id: preset.psu?.id || null,
+          case_id: preset.case?.id || null,
+        },
+      }
+      await api.post('/builds', payload, session.accessToken)
+      alert('構成を保存しました')
+      window.location.href = '/dashboard'
+    } catch (err) {
+      if (err instanceof ApiClientError) {
+        alert(`保存に失敗しました: ${err.message}`)
+      } else {
+        alert('保存に失敗しました。ネットワーク接続を確認してください。')
+      }
+    } finally {
+      setIsSaving(false)
     }
   }
 
   return (
     <Card padding="lg" shadow="md" className="mb-4">
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
-        <h3 className="text-lg font-bold text-gray-900">
-          おすすめ構成 #{index + 1}
-        </h3>
+        <div>
+          <Link href={`/builds/${preset.id}?type=preset`}>
+            <h3 className="text-lg font-bold text-gray-900 hover:text-blue-600 cursor-pointer">
+              おすすめ構成 #{index + 1}
+            </h3>
+          </Link>
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 mt-1">
+            {usageLabels[preset.use_case] || preset.use_case}
+          </span>
+        </div>
         <div className="text-xl font-bold text-custom-blue">
-          合計: {formatPrice(preset.totalPrice)}
+          合計: {formatPrice(preset.total_price)}
         </div>
       </div>
 
       <div className="border-t border-gray-200 pt-4 mb-4">
         <table className="w-full text-sm">
           <tbody>
-            <tr className="border-b border-gray-100">
-              <td className="py-2 text-gray-500 w-24">CPU</td>
-              <td className="py-2 text-gray-900">{preset.cpu.name}</td>
-              <td className="py-2 text-right text-gray-600">{formatPrice(preset.cpu.price)}</td>
-            </tr>
-            <tr className="border-b border-gray-100">
-              <td className="py-2 text-gray-500">GPU</td>
-              <td className="py-2 text-gray-900">{preset.gpu.name}</td>
-              <td className="py-2 text-right text-gray-600">{formatPrice(preset.gpu.price)}</td>
-            </tr>
-            <tr className="border-b border-gray-100">
-              <td className="py-2 text-gray-500">Memory</td>
-              <td className="py-2 text-gray-900">{preset.memory.name}</td>
-              <td className="py-2 text-right text-gray-600">{formatPrice(preset.memory.price)}</td>
-            </tr>
-            <tr className="border-b border-gray-100">
-              <td className="py-2 text-gray-500">Storage</td>
-              <td className="py-2 text-gray-900">{preset.storage1.name}</td>
-              <td className="py-2 text-right text-gray-600">{formatPrice(preset.storage1.price)}</td>
-            </tr>
-            <tr>
-              <td className="py-2 text-gray-400 text-xs" colSpan={3}>
-                + 自動推奨3点（MB/電源/ケース）
-              </td>
-            </tr>
+            <PartRow label="CPU" part={preset.cpu} />
+            <PartRow label="GPU" part={preset.gpu} />
+            <PartRow label="Memory" part={preset.memory} />
+            <PartRow label="Storage" part={preset.storage1} />
+            <PartRow label="OS" part={preset.os} />
+            <PartRow label="MB" part={preset.motherboard} />
+            <PartRow label="電源" part={preset.psu} />
+            <PartRow label="ケース" part={preset.case} />
           </tbody>
         </table>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <Link href={`/builds/${preset.id}?type=preset`}>
-          <Button variant="secondary" size="sm">
-            詳細を見る
-          </Button>
-        </Link>
+      <div className="flex flex-wrap gap-2 justify-end">
         <Button
           variant="ghost"
           size="sm"
@@ -112,11 +180,14 @@ function PresetCard({ preset, index }: { preset: PcEntrustSet; index: number }) 
         >
           共有
         </Button>
-        {session && (
-          <Button variant="ghost" size="sm">
-            保存
-          </Button>
-        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSave}
+          isLoading={isSaving}
+        >
+          保存
+        </Button>
       </div>
     </Card>
   )
@@ -145,7 +216,7 @@ export default function BuilderResultPage() {
   const usagesParam = searchParams.get('usages')
   const usages = usagesParam ? usagesParam.split(',') : []
 
-  const [presets, setPresets] = useState<PcEntrustSet[]>([])
+  const [presets, setPresets] = useState<ApiPreset[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -157,20 +228,20 @@ export default function BuilderResultPage() {
       try {
         const params = new URLSearchParams()
         if (budget && budget !== 'any') {
-          // Convert frontend budget key to backend format
+          // Convert frontend budget key to backend format (entry/middle/high)
           const budgetMap: Record<string, string> = {
-            under100k: 'under_100k',
-            '100k-300k': '100k_300k',
-            over300k: 'over_300k',
+            under100k: 'entry',
+            '100k-300k': 'middle',
+            over300k: 'high',
           }
-          params.set('budget_range', budgetMap[budget] || budget)
+          params.set('budget', budgetMap[budget] || budget)
         }
         if (usages.length > 0) {
           params.set('use_case', usages[0]) // API accepts single use_case for now
         }
 
         const endpoint = `/presets?${params.toString()}`
-        const response = await api.get<{ data: PcEntrustSet[] }>(endpoint)
+        const response = await api.get<{ data: ApiPreset[] }>(endpoint)
         setPresets(response.data)
       } catch (err) {
         if (err instanceof ApiClientError) {

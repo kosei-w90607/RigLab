@@ -8,14 +8,15 @@ import { Button } from '@/app/components/ui/Button'
 import { Select } from '@/app/components/ui/Select'
 import { Skeleton } from '@/app/components/ui/Skeleton'
 import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
+import { ScrollToTopButton } from '@/app/components/ui/ScrollToTopButton'
 import { api, ApiResponse } from '@/lib/api'
 
 // 予算帯
 const BUDGET_OPTIONS = [
   { value: '', label: 'すべての予算帯' },
-  { value: 'entry', label: 'エントリー (~10万円)' },
-  { value: 'middle', label: 'ミドル (10~20万円)' },
-  { value: 'high', label: 'ハイエンド (20万円~)' },
+  { value: 'entry', label: 'エントリー (~15万円)' },
+  { value: 'middle', label: 'ミドル (15~30万円)' },
+  { value: 'high', label: 'ハイエンド (30万円~)' },
 ]
 
 // 用途
@@ -279,6 +280,9 @@ export default function AdminPresetsPage() {
         isLoading={deleting}
         variant="danger"
       />
+
+      {/* トップへ戻るボタン */}
+      <ScrollToTopButton />
     </div>
   )
 }

@@ -254,9 +254,9 @@ export default function DashboardPage() {
       setBuilds((prev) => prev.filter((b) => b.id !== deleteTarget))
     } catch (err) {
       if (err instanceof ApiClientError) {
-        alert(err.message)
+        alert(`削除に失敗しました: ${err.message}`)
       } else {
-        alert('削除に失敗しました')
+        alert('削除に失敗しました。ネットワーク接続を確認してください。')
       }
     } finally {
       setIsDeleting(false)

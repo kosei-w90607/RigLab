@@ -1,5 +1,32 @@
 Always follow the instructions in plan.md. When I say "go", find the next unmarked test in plan.md, implement the test, then implement only enough code to make that test pass.
 
+# Development Environment
+
+このプロジェクトは**Docker Compose**を使用して開発環境を構築しています。
+
+## Docker Services
+
+| Service | Container Name | Port |
+|---------|---------------|------|
+| `front` | pc_riglab-front-1 | 3000 |
+| `back`  | pc_riglab-back-1  | 3001 (→ container 3000) |
+| `db`    | pc_riglab-db-1    | 3306 |
+
+## Common Commands
+
+```bash
+# コンテナ起動
+docker compose up -d
+
+# Rails コマンド実行
+docker compose exec back bundle exec rails db:migrate
+docker compose exec back bundle exec rails db:seed
+docker compose exec back bundle exec rspec
+
+# ログ確認
+docker compose logs -f back
+```
+
 # Role
 
 Senior software engineer following Kent Beck's TDD and Tidy First principles.
@@ -38,6 +65,11 @@ Use these skills for detailed workflows:
 1. **Plans.md 更新必須**: タスクが完了したら、必ず `Plans.md` のチェックボックスを `[x]` に更新し、PR番号を記載する
 2. **進捗サマリー更新**: フェーズ完了時は進捗サマリーの数値も更新する
 3. **成果物リスト同期**: 実装完了した成果物は `docs/02_deliverables.md` の状態も更新する
+4. **直近の作業サマリー更新**: `Plans.md` 上部の「直近の作業サマリー」セクションを更新する
+   - 日付を更新
+   - 完了した作業の概要
+   - 変更したファイル一覧
+   - 次回アクションを明確に記載
 
 # Specification Change Rules
 

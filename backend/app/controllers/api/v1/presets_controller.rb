@@ -48,7 +48,14 @@ module Api
           budget_range: preset.budget_range,
           use_case: preset.use_case,
           total_price: preset.total_price,
-          parts: serialize_parts_summary(preset)
+          cpu: serialize_part(preset.cpu),
+          gpu: serialize_part(preset.gpu),
+          memory: serialize_part(preset.memory),
+          storage1: serialize_part(preset.storage1),
+          os: serialize_part(preset.os),
+          motherboard: serialize_part(preset.motherboard),
+          psu: serialize_part(preset.psu),
+          case: serialize_part(preset.case)
         }
       end
 
@@ -99,6 +106,17 @@ module Api
             maker: part.maker,
             price: part.price
           }
+        }
+      end
+
+      def serialize_part(part)
+        return nil unless part
+
+        {
+          id: part.id,
+          name: part.name,
+          maker: part.maker,
+          price: part.price
         }
       end
 

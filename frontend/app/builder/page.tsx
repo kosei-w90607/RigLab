@@ -9,8 +9,8 @@ type BudgetOption = 'under100k' | '100k-300k' | 'over300k' | 'any'
 type UsageOption = 'gaming' | 'creative' | 'office'
 
 const budgetOptions: { value: BudgetOption; label: string }[] = [
-  { value: 'under100k', label: '〜10万円' },
-  { value: '100k-300k', label: '10〜30万円' },
+  { value: 'under100k', label: '〜15万円' },
+  { value: '100k-300k', label: '15〜30万円' },
   { value: 'over300k', label: '30万円〜' },
   { value: 'any', label: '指定しない' },
 ]

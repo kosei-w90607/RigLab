@@ -11,9 +11,9 @@ import { api, ApiResponse } from '@/lib/api'
 
 // 予算帯
 const BUDGET_OPTIONS = [
-  { value: 'entry', label: 'エントリー (~10万円)' },
-  { value: 'middle', label: 'ミドル (10~20万円)' },
-  { value: 'high', label: 'ハイエンド (20万円~)' },
+  { value: 'entry', label: 'エントリー (~15万円)' },
+  { value: 'middle', label: 'ミドル (15~30万円)' },
+  { value: 'high', label: 'ハイエンド (30万円~)' },
 ]
 
 // 用途
@@ -29,6 +29,23 @@ interface Part {
   maker: string
   price: number
   category: string
+  // CPU固有
+  socket?: string
+  memoryType?: string
+  tdp?: number
+  // GPU固有
+  lengthMm?: number
+  // マザーボード固有
+  formFactor?: string
+  // ケース固有
+  maxGpuLengthMm?: number
+  // PSU固有
+  wattage?: number
+}
+
+interface CompatibilityWarning {
+  type: 'error' | 'warning'
+  message: string
 }
 
 interface PresetFormData {
@@ -58,6 +75,8 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const [partsOptions, setPartsOptions] = useState<Record<string, Part[]>>({})
+  const [filteredParts, setFilteredParts] = useState<Record<string, Part[]>>({})
+  const [compatibilityWarnings, setCompatibilityWarnings] = useState<CompatibilityWarning[]>([])
 
   const [formData, setFormData] = useState<PresetFormData>({
     name: initialData?.name || '',
@@ -98,6 +117,140 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
   const handleChange = (name: string, value: string | number | null) => {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
+
+  // 互換性に基づくフィルタリング
+  useEffect(() => {
+    if (!partsOptions.cpu) return
+
+    const selectedCpu = partsOptions.cpu.find(p => p.id === formData.cpu_id)
+    const selectedGpu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
+    const selectedMotherboard = partsOptions.motherboard?.find(p => p.id === formData.motherboard_id)
+
+    // メモリ: CPUのmemoryTypeでフィルタ
+    const filteredMemories = selectedCpu
+      ? partsOptions.memory?.filter(m => m.memoryType === selectedCpu.memoryType) || []
+      : partsOptions.memory || []
+
+    // マザーボード: CPUのsocketとmemoryTypeでフィルタ
+    const filteredMotherboards = selectedCpu
+      ? partsOptions.motherboard?.filter(
+          mb => mb.socket === selectedCpu.socket && mb.memoryType === selectedCpu.memoryType
+        ) || []
+      : partsOptions.motherboard || []
+
+    // ケース: GPUのlengthMmとマザーボードのフォームファクタでフィルタ
+    let filteredCases = partsOptions.case || []
+    if (selectedGpu?.lengthMm) {
+      filteredCases = filteredCases.filter(c => c.maxGpuLengthMm && c.maxGpuLengthMm >= selectedGpu.lengthMm!)
+    }
+    if (selectedMotherboard?.formFactor) {
+      filteredCases = filteredCases.filter(c => {
+        switch (c.formFactor) {
+          case 'ATX':
+            return ['ATX', 'mATX', 'ITX'].includes(selectedMotherboard.formFactor!)
+          case 'mATX':
+            return ['mATX', 'ITX'].includes(selectedMotherboard.formFactor!)
+          case 'ITX':
+            return selectedMotherboard.formFactor === 'ITX'
+          default:
+            return true
+        }
+      })
+    }
+
+    setFilteredParts({
+      ...partsOptions,
+      memory: filteredMemories,
+      motherboard: filteredMotherboards,
+      case: filteredCases,
+    })
+  }, [formData.cpu_id, formData.gpu_id, formData.motherboard_id, partsOptions])
+
+  // 互換性チェック
+  useEffect(() => {
+    const warnings: CompatibilityWarning[] = []
+
+    // 選択されたパーツを取得
+    const cpu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
+    const memory = partsOptions.memory?.find(p => p.id === formData.memory_id)
+    const motherboard = partsOptions.motherboard?.find(p => p.id === formData.motherboard_id)
+    const gpu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
+    const pcCase = partsOptions.case?.find(p => p.id === formData.case_id)
+    const psu = partsOptions.psu?.find(p => p.id === formData.psu_id)
+
+    // CPU - マザーボード ソケット互換性
+    if (cpu && motherboard && cpu.socket !== motherboard.socket) {
+      warnings.push({
+        type: 'error',
+        message: `CPUソケット不一致: CPU(${cpu.socket}) ≠ マザーボード(${motherboard.socket})`
+      })
+    }
+
+    // CPU - メモリタイプ互換性
+    if (cpu && memory && cpu.memoryType !== memory.memoryType) {
+      warnings.push({
+        type: 'error',
+        message: `メモリタイプ不一致: CPU(${cpu.memoryType}) ≠ メモリ(${memory.memoryType})`
+      })
+    }
+
+    // マザーボード - メモリタイプ互換性
+    if (motherboard && memory && motherboard.memoryType !== memory.memoryType) {
+      warnings.push({
+        type: 'error',
+        message: `メモリタイプ不一致: マザーボード(${motherboard.memoryType}) ≠ メモリ(${memory.memoryType})`
+      })
+    }
+
+    // GPU - ケース サイズ互換性
+    if (gpu && pcCase && gpu.lengthMm && pcCase.maxGpuLengthMm) {
+      if (gpu.lengthMm > pcCase.maxGpuLengthMm) {
+        warnings.push({
+          type: 'error',
+          message: `GPU長がケースに収まりません: GPU(${gpu.lengthMm}mm) > ケース最大(${pcCase.maxGpuLengthMm}mm)`
+        })
+      }
+    }
+
+    // マザーボード - ケース フォームファクタ互換性
+    if (motherboard && pcCase && motherboard.formFactor && pcCase.formFactor) {
+      const isCompatible = (() => {
+        switch (pcCase.formFactor) {
+          case 'ATX':
+            return ['ATX', 'mATX', 'ITX'].includes(motherboard.formFactor)
+          case 'mATX':
+            return ['mATX', 'ITX'].includes(motherboard.formFactor)
+          case 'ITX':
+            return motherboard.formFactor === 'ITX'
+          default:
+            return true
+        }
+      })()
+
+      if (!isCompatible) {
+        warnings.push({
+          type: 'error',
+          message: `フォームファクタ不一致: マザーボード(${motherboard.formFactor}) がケース(${pcCase.formFactor})に収まりません`
+        })
+      }
+    }
+
+    // 電源容量チェック（警告のみ）
+    if (cpu && psu && cpu.tdp && psu.wattage) {
+      const gpuTdp = gpu?.tdp || 0
+      const totalTdp = cpu.tdp + gpuTdp
+      const recommendedWattage = totalTdp * 1.5 + 100
+
+      if (psu.wattage < recommendedWattage) {
+        warnings.push({
+          type: 'warning',
+          message: `電源容量が不足している可能性があります: 推奨${Math.ceil(recommendedWattage)}W以上（CPU ${cpu.tdp}W + GPU ${gpuTdp}W）、現在${psu.wattage}W`
+        })
+      }
+    }
+
+    setCompatibilityWarnings(warnings)
+  }, [formData, partsOptions])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -160,6 +313,8 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
     { key: 'os_id', label: 'OS', category: 'os' },
   ]
 
+  const hasErrors = compatibilityWarnings.some(w => w.type === 'error')
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {errors.length > 0 && (
@@ -167,6 +322,31 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
           <ul className="list-disc list-inside text-red-600">
             {errors.map((error, i) => (
               <li key={i}>{error}</li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      {/* 互換性警告 */}
+      {compatibilityWarnings.length > 0 && (
+        <Card padding="md" className={hasErrors ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}>
+          <h3 className={`font-semibold mb-2 ${hasErrors ? 'text-red-700' : 'text-yellow-700'}`}>
+            互換性チェック
+          </h3>
+          <ul className="space-y-1">
+            {compatibilityWarnings.map((warning, i) => (
+              <li key={i} className={`flex items-start gap-2 text-sm ${warning.type === 'error' ? 'text-red-600' : 'text-yellow-600'}`}>
+                {warning.type === 'error' ? (
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                )}
+                <span>{warning.message}</span>
+              </li>
             ))}
           </ul>
         </Card>
@@ -214,16 +394,39 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
         <h2 className="text-lg font-semibold text-gray-900 mb-4">パーツ構成</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {partSelectFields.map((field) => {
-            const parts = partsOptions[field.category] || []
+            // フィルタリング対象のカテゴリはfilteredPartsを使用
+            const isFilteredCategory = ['memory', 'motherboard', 'case'].includes(field.category)
+            const parts = isFilteredCategory
+              ? filteredParts[field.category] || partsOptions[field.category] || []
+              : partsOptions[field.category] || []
             const options = [
               { value: '', label: '選択してください' },
               ...parts.map(formatPartOption),
             ]
 
+            // フィルタリング状態に応じたラベル
+            let labelSuffix = ''
+            if (field.category === 'memory' && formData.cpu_id) {
+              const cpu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
+              if (cpu?.memoryType) labelSuffix = ` (${cpu.memoryType}対応)`
+            }
+            if (field.category === 'motherboard' && formData.cpu_id) {
+              const cpu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
+              if (cpu?.socket) labelSuffix = ` (${cpu.socket}対応)`
+            }
+            if (field.category === 'case') {
+              const gpu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
+              const mb = partsOptions.motherboard?.find(p => p.id === formData.motherboard_id)
+              const suffixes = []
+              if (gpu?.lengthMm) suffixes.push(`GPU ${gpu.lengthMm}mm対応`)
+              if (mb?.formFactor) suffixes.push(`${mb.formFactor}対応`)
+              if (suffixes.length > 0) labelSuffix = ` (${suffixes.join(', ')})`
+            }
+
             return (
               <div key={field.key}>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  {field.label}
+                  {field.label}{labelSuffix}
                 </label>
                 <Select
                   value={formData[field.key as keyof PresetFormData]?.toString() || ''}
@@ -241,7 +444,12 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
         </div>
       </Card>
 
-      <div className="flex justify-end gap-4">
+      <div className="flex justify-end items-center gap-4">
+        {hasErrors && (
+          <span className="text-sm text-red-600">
+            互換性エラーがあります（保存は可能ですが非推奨）
+          </span>
+        )}
         <Button
           type="button"
           variant="secondary"

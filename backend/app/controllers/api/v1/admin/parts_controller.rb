@@ -74,27 +74,36 @@ module Api
         end
 
         def part_params
-          # 基本パラメータ
-          base_params = params.permit(:name, :maker, :price)
+          # 基本パラメータ + カテゴリ固有のカラム
+          permitted = params.permit(
+            :name, :maker, :price,
+            # CPU
+            :socket, :tdp, :memory_type,
+            # GPU
+            :length_mm,
+            # Memory (memory_type is already included)
+            # Storage
+            :capacity_gb, :interface, :storage_type,
+            # OS
+            :version, :edition,
+            # Motherboard (socket, memory_type already included)
+            :form_factor,
+            # PSU (form_factor already included)
+            :wattage,
+            # Case (form_factor already included)
+            :max_gpu_length_mm,
+            # specs as JSON
+            specs: {}
+          )
 
-          # カテゴリ固有のパラメータをspecsに変換
-          spec_keys = %i[
-            socket tdp memory_type length_mm capacity_gb interface
-            storage_type version edition form_factor wattage max_gpu_length_mm
-          ]
-
-          specs = {}
-          spec_keys.each do |key|
-            specs[key] = params[key] if params[key].present?
+          # specsパラメータがない場合はparamsから直接取得を試みる
+          if params[:specs].present? && params[:specs].is_a?(ActionController::Parameters)
+            permitted[:specs] = params[:specs].to_unsafe_h
+          elsif params[:specs].present? && params[:specs].is_a?(Hash)
+            permitted[:specs] = params[:specs]
           end
 
-          # 既存のspecsパラメータがあればマージ
-          if params[:specs].present?
-            specs.merge!(params[:specs].to_unsafe_h)
-          end
-
-          base_params[:specs] = specs if specs.present?
-          base_params
+          permitted
         end
 
         def serialize_part(part)
