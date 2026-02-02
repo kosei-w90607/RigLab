@@ -4,6 +4,29 @@ const API_BASE_URL = typeof window === 'undefined'
   ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1')
   : '/api/v1'
 
+// snake_case から camelCase への変換
+function snakeToCamel(str: string): string {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())
+}
+
+// オブジェクトのキーを camelCase に変換（再帰的）
+function transformKeysToCamelCase<T>(obj: unknown): T {
+  if (Array.isArray(obj)) {
+    return obj.map((item) => transformKeysToCamelCase(item)) as T
+  }
+
+  if (obj !== null && typeof obj === 'object') {
+    const transformed: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+      const camelKey = snakeToCamel(key)
+      transformed[camelKey] = transformKeysToCamelCase(value)
+    }
+    return transformed as T
+  }
+
+  return obj as T
+}
+
 export interface ApiErrorDetail {
   field: string
   message: string
@@ -80,7 +103,8 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     throw new ApiClientError(response.status, json.error)
   }
 
-  return json as T
+  // APIレスポンスのキーを camelCase に変換
+  return transformKeysToCamelCase<T>(json)
 }
 
 export const api = {
