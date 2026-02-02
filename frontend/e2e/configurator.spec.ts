@@ -67,7 +67,7 @@ test.describe('カスタム構成フロー', () => {
   })
 
   test.describe('構成保存フロー', () => {
-    test('未ログイン状態で保存ボタンをクリックするとログインページに遷移する', async ({ page }) => {
+    test('保存ボタンをクリックするとモーダルが表示される', async ({ page }) => {
       await page.goto('/configurator')
       await page.waitForLoadState('networkidle')
 
@@ -75,9 +75,10 @@ test.describe('カスタム構成フロー', () => {
       const saveButton = page.getByRole('button', { name: '保存' })
       await saveButton.click()
 
-      // モーダルが表示される（パーツが選択されていない場合はエラーかモーダル）
-      // または未選択状態でもモーダルが開く場合
-      // 実際の動作に合わせて調整が必要
+      // 保存モーダルが表示される（構成名入力フィールドがある）
+      await expect(page.getByPlaceholder('マイゲーミングPC')).toBeVisible()
+      // キャンセルボタンが表示される
+      await expect(page.getByRole('button', { name: 'キャンセル' })).toBeVisible()
     })
   })
 

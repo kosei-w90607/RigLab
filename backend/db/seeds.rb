@@ -6,12 +6,12 @@ puts "Seeding database..."
 
 # CPUs
 cpus = [
-  # Intel 13th/14th Gen (LGA1700)
-  { name: "Intel Core i5-13400F", price: 28980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR5", specs: { cores: 10, threads: 16, base_clock: 2.5, boost_clock: 4.6 } },
-  { name: "Intel Core i5-14400F", price: 32980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR5", specs: { cores: 10, threads: 16, base_clock: 2.5, boost_clock: 4.7 } },
-  { name: "Intel Core i7-13700F", price: 52980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR5", specs: { cores: 16, threads: 24, base_clock: 2.1, boost_clock: 5.2 } },
-  { name: "Intel Core i7-14700F", price: 56980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR5", specs: { cores: 20, threads: 28, base_clock: 2.1, boost_clock: 5.4 } },
-  { name: "Intel Core i9-14900K", price: 89980, maker: "Intel", socket: "LGA1700", tdp: 125, memory_type: "DDR5", specs: { cores: 24, threads: 32, base_clock: 3.2, boost_clock: 6.0 } },
+  # Intel 13th/14th Gen (LGA1700) - DDR4/DDR5両対応
+  { name: "Intel Core i5-13400F", price: 28980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR4,DDR5", specs: { cores: 10, threads: 16, base_clock: 2.5, boost_clock: 4.6 } },
+  { name: "Intel Core i5-14400F", price: 32980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR4,DDR5", specs: { cores: 10, threads: 16, base_clock: 2.5, boost_clock: 4.7 } },
+  { name: "Intel Core i7-13700F", price: 52980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR4,DDR5", specs: { cores: 16, threads: 24, base_clock: 2.1, boost_clock: 5.2 } },
+  { name: "Intel Core i7-14700F", price: 56980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR4,DDR5", specs: { cores: 20, threads: 28, base_clock: 2.1, boost_clock: 5.4 } },
+  { name: "Intel Core i9-14900K", price: 89980, maker: "Intel", socket: "LGA1700", tdp: 125, memory_type: "DDR4,DDR5", specs: { cores: 24, threads: 32, base_clock: 3.2, boost_clock: 6.0 } },
   # Intel 15th Gen Arrow Lake (LGA1851)
   { name: "Intel Core Ultra 5 245K", price: 42980, maker: "Intel", socket: "LGA1851", tdp: 125, memory_type: "DDR5", specs: { cores: 14, threads: 14, base_clock: 4.2, boost_clock: 5.2 } },
   { name: "Intel Core Ultra 7 265K", price: 62980, maker: "Intel", socket: "LGA1851", tdp: 125, memory_type: "DDR5", specs: { cores: 20, threads: 20, base_clock: 3.9, boost_clock: 5.5 } },
@@ -368,5 +368,24 @@ presets.each do |preset_data|
 end
 
 puts "  Created #{PcEntrustSet.count} Presets"
+
+# Users (テスト・開発用)
+puts "Creating users..."
+
+# 管理者ユーザー
+admin = User.find_or_initialize_by(email: 'admin@example.com')
+admin.name = '管理者'
+admin.password = 'admin123'
+admin.role = 'admin'
+admin.save!
+
+# 一般ユーザー
+user = User.find_or_initialize_by(email: 'user@example.com')
+user.name = 'テストユーザー'
+user.password = 'password123'
+user.role = 'user'
+user.save!
+
+puts "  Created #{User.count} Users"
 
 puts "Seeding completed!"
