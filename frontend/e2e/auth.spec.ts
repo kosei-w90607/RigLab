@@ -20,8 +20,8 @@ test.describe('認証機能', () => {
       // 送信ボタン確認
       await expect(page.getByRole('button', { name: '登録する' })).toBeVisible()
 
-      // ログインリンク確認
-      await expect(page.getByRole('link', { name: 'ログイン' })).toBeVisible()
+      // ログインリンク確認（フォーム内のリンクを使用）
+      await expect(page.locator('main').getByRole('link', { name: 'ログイン' })).toBeVisible()
     })
 
     test('空のフィールドでバリデーションエラーが表示される', async ({ page }) => {
@@ -149,7 +149,8 @@ test.describe('認証機能', () => {
     test('サインアップからサインインへ遷移できる', async ({ page }) => {
       await page.goto('/signup')
 
-      await page.getByRole('link', { name: 'ログイン' }).click()
+      // フォーム内のログインリンクをクリック
+      await page.locator('main').getByRole('link', { name: 'ログイン' }).click()
 
       await expect(page).toHaveURL('/signin')
     })
