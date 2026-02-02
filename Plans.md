@@ -420,7 +420,7 @@ Phase 6-J のタスクを順に実行:
 
 ### 6-K: 追加バグ修正
 
-- [x] K-01: BUG-04 メモリーフィルタリング修正 (PR #TBD)
+- [x] K-01: BUG-04 メモリーフィルタリング修正 (PR #26)
   - `frontend/lib/api.ts`: APIレスポンスのsnake_case→camelCase変換を追加
   - **原因**: バックエンドは `memory_type` (snake_case) を返すが、フロントエンドは `memoryType` (camelCase) を期待していた
   - **対応**: APIクライアントに `transformKeysToCamelCase` 関数を追加し、全レスポンスを自動変換
