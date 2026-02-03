@@ -20,6 +20,7 @@ module Api
       def index
         parts = fetch_parts
         parts = apply_filters(parts)
+        parts = apply_sort(parts)
 
         # 配列の場合はKaminari.paginate_arrayを使用
         paginated = if parts.is_a?(Array)
@@ -89,6 +90,20 @@ module Api
         parts = filter_by_memory_type(parts)
         parts = filter_by_form_factor(parts)
         filter_by_min_gpu_length(parts)
+      end
+
+      def apply_sort(parts)
+        sort_field = params[:sort]
+        sort_order = params[:sort_order]&.downcase == 'desc' ? :desc : :asc
+
+        return parts unless sort_field == 'price'
+
+        if parts.is_a?(Array)
+          sorted = parts.sort_by(&:price)
+          sort_order == :desc ? sorted.reverse : sorted
+        else
+          parts.order(price: sort_order)
+        end
       end
 
       def filter_by_keyword(parts)

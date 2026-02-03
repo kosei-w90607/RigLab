@@ -6,35 +6,43 @@
 
 ---
 
-## 直近の作業サマリー（2026-02-03）
+## 直近の作業サマリー（2026-02-04）
 
-### 完了: Phase 6-J v1.0リリース準備
+### 完了: Phase 6 残タスク消化
 
-セキュリティ強化とE2Eテストを追加し、v1.0リリース準備を完了。
+UX/アクセシビリティ改善、機能検証、パフォーマンス確認、Plans.md整理を実施。
 
 | カテゴリ | 内容 |
 |----------|------|
-| sign_out | SessionsController#destroy実装、DELETE /api/v1/auth/sign_out追加 |
-| セキュリティ | Rack::Attack導入（レート制限・ログイン試行制限） |
-| E2E | builder.spec.ts, configurator.spec.ts, share.spec.ts追加 |
-| ドキュメント | README.md, 07_setup-guide.mdにE2Eテスト手順追加 |
+| UX/A11y | 見出し階層修正、aria-label追加、role="alert"追加、SVG aria-hidden追加 |
+| 検証 | FR-001〜005全機能のコードレベル検証完了 |
+| セキュリティ | SEC-01〜05全項目の実装確認完了 |
+| パフォーマンス | DBインデックス・バンドルサイズ確認完了 |
+| Plans.md | 6.1〜6.7の既完了タスクにチェック追加 |
 
 ### 変更ファイル
-- `backend/app/controllers/api/v1/auth/sessions_controller.rb` - destroy追加
-- `backend/config/routes.rb` - sign_outルート追加
-- `backend/config/initializers/rack_attack.rb` - 新規作成
-- `backend/config/initializers/content_security_policy.rb` - 新規作成
-- `backend/spec/requests/api/v1/auth/sessions_spec.rb` - 新規作成
-- `backend/spec/rails_helper.rb` - テスト環境を強制設定
-- `frontend/e2e/builder.spec.ts` - 新規作成
-- `frontend/e2e/configurator.spec.ts` - 新規作成
-- `frontend/e2e/share.spec.ts` - 新規作成
-- `README.md` - テストコマンド追加
-- `docs/07_setup-guide.md` - Playwrightセクション追加
+- `frontend/app/components/ui/Input.tsx` - エラーメッセージに role="alert" 追加
+- `frontend/app/components/ui/Select.tsx` - エラーメッセージに role="alert" 追加
+- `frontend/app/signin/page.tsx` - エラーメッセージに role="alert" 追加
+- `frontend/app/signup/page.tsx` - エラーメッセージに role="alert" 追加
+- `frontend/app/dashboard/page.tsx` - h3→h2修正、アイコンボタンにaria-label追加
+- `frontend/app/builder/result/page.tsx` - h3→h2修正
+- `frontend/app/configurator/page.tsx` - エラーメッセージに role="alert" 追加
+- `frontend/app/admin/page.tsx` - h1追加、SVGにaria-hidden追加
+- `frontend/app/admin/parts/page.tsx` - SVGにaria-hidden追加
+- `frontend/app/admin/presets/page.tsx` - SVGにaria-hidden追加
+- `frontend/app/share/page.tsx` - eslint-disable コメント除去
+- `frontend/.eslintrc.json` - 新規作成
+- `Plans.md` - 残タスクチェック完了
+
+### PR
+- PR #28: feat: Phase 6 残タスク消化 - UX/アクセシビリティ改善
 
 ### 次回アクション
-- PRを作成してマージ
-- Phase 6.1〜6.7の残タスクを確認
+- PR #28 をマージ
+- PERF-01/02はDocker環境で手動計測
+- TEST-02〜04は手動テスト（Lighthouse含む）
+- 残りの運用準備（OPS-02〜05）は必要に応じて対応
 
 ---
 
@@ -378,7 +386,7 @@
 
 - [x] H-01: 新フィルタリングパラメータのテスト追加（parts_spec.rb）
 - [x] H-02: recommendations エンドポイントのAPIテスト追加
-- [ ] H-03: E2Eテスト作成（Playwright）→ 6-J-3 に移行
+- [x] H-03: E2Eテスト作成（Playwright）→ 6-J-3 で実装済み
 
 ---
 
@@ -439,44 +447,44 @@
 
 ### 6.1 設計仕様との突合検証（6-A〜6-E 完了後）
 
-- [ ] FR-001: おまかせ構成提案の動作確認
+- [x] FR-001: おまかせ構成提案の動作確認 ← コードレベル検証済み
   - PartsRecommendationService の推奨ロジック検証
-- [ ] FR-002: カスタム構成の動作確認
+- [x] FR-002: カスタム構成の動作確認 ← コードレベル検証済み
   - CompatibilityCheckService の互換性チェック検証
-- [ ] FR-003: 構成保存・管理の動作確認
-- [ ] FR-004: 構成共有の動作確認
+- [x] FR-003: 構成保存・管理の動作確認 ← コードレベル検証済み
+- [x] FR-004: 構成共有の動作確認 ← コードレベル検証済み
   - share_token 生成・OG画像生成
-- [ ] FR-005: 認証フローの動作確認
+- [x] FR-005: 認証フローの動作確認 ← コードレベル検証済み
   - サインアップ → サインイン → ログアウト
 
 ### 6.2 セキュリティ強化（6-D3 で対応）
 
-- [ ] SEC-01: ログイン試行制限の実装確認（5回失敗で15分ロック）
-- [ ] SEC-02: パスワード要件の実装確認（8文字以上、英数字混合）
-- [ ] SEC-03: レート制限の検討・実装
-- [ ] SEC-04: セキュリティヘッダー設定（CSP等）
-- [ ] SEC-05: 環境変数・シークレット管理の確認
+- [x] SEC-01: ログイン試行制限の実装確認（5回失敗で15分ロック）← 6-J-2 Rack::Attack で実装済み
+- [x] SEC-02: パスワード要件の実装確認（8文字以上、英数字混合）← User モデル + signup バリデーション確認済み
+- [x] SEC-03: レート制限の検討・実装 ← 6-J-2 Rack::Attack で実装済み
+- [x] SEC-04: セキュリティヘッダー設定（CSP等）← 6-J-2 CSPヘッダー設定済み
+- [x] SEC-05: 環境変数・シークレット管理の確認 ← .env.example存在、.gitignoreで除外確認済み
 
 ### 6.3 UX/アクセシビリティ改善
 
-- [ ] UX-01: 見出し階層（h1〜h3）の実装確認
-- [ ] UX-02: aria-label（アイコンボタン）の実装確認
-- [ ] UX-03: フォーカスリングの実装確認
-- [ ] UX-04: キーボード操作の動作確認
-- [ ] UX-05: エラーメッセージの明確化
-- [ ] UX-06: Empty State（0件時）の表示確認
-- [ ] UX-07: ローディング状態の表示確認
+- [x] UX-01: 見出し階層（h1〜h3）の実装確認 ← h1統一、h2/h3順序修正済み
+- [x] UX-02: aria-label（アイコンボタン）の実装確認 ← dashboard、admin各ページのSVG/ボタン修正済み
+- [x] UX-03: フォーカスリングの実装確認 ← Button/Input/Select に focus-visible:ring 確認済み
+- [x] UX-04: キーボード操作の動作確認 ← Modal に Escape/role="dialog"/aria-modal 確認済み
+- [x] UX-05: エラーメッセージの明確化 ← role="alert" を Input/Select/signin/signup/configurator に追加
+- [x] UX-06: Empty State（0件時）の表示確認 ← dashboard/admin/parts/admin/presets/builder-result 確認済み
+- [x] UX-07: ローディング状態の表示確認 ← Skeleton コンポーネント活用確認済み
 
 ### 6.4 パフォーマンス
 
-- [ ] PERF-01: 初回ロード時間の計測（目標: 3秒以内）
-- [ ] PERF-02: APIレスポンス時間の計測（目標: 500ms以内）
-- [ ] PERF-03: DBインデックスの確認・最適化
-- [ ] PERF-04: バンドルサイズの確認
+- [ ] PERF-01: 初回ロード時間の計測（目標: 3秒以内）← Docker実行時に手動計測
+- [ ] PERF-02: APIレスポンス時間の計測（目標: 500ms以内）← Docker実行時に手動計測
+- [x] PERF-03: DBインデックスの確認・最適化 ← schema.rb で全主要カラムにインデックス確認済み
+- [x] PERF-04: バンドルサイズの確認 ← 最小限の依存関係（5 production deps）確認済み
 
 ### 6.5 テスト・品質保証（6-E で対応）
 
-- [ ] TEST-01: E2Eテスト作成（主要フロー）
+- [x] TEST-01: E2Eテスト作成（主要フロー）← 6-J-3 で実装済み
   - おまかせ構成フロー
   - カスタム構成フロー
   - 構成保存・共有フロー
@@ -486,7 +494,7 @@
 
 ### 6.6 運用準備
 
-- [ ] OPS-01: シードデータ投入（初期パーツ・プリセット）
+- [x] OPS-01: シードデータ投入（初期パーツ・プリセット）← 6-D で実装済み
 - [ ] OPS-02: エラー監視導入（Sentry等）
 - [ ] OPS-03: 本番環境設定確認（HTTPS、CORS、環境変数）
 - [ ] OPS-04: バックアップ戦略の策定
@@ -495,7 +503,7 @@
 ### 6.7 ドキュメント整備
 
 - [x] DOC-00: API設計書と実装の整合性確認・更新（2026-02-01）
-- [ ] DOC-01: README.md 最終更新
+- [x] DOC-01: README.md 最終更新 ← 6-J-4 で更新済み
 - [ ] DOC-02: 利用規約・プライバシーポリシー（必要に応じて）
 - [ ] DOC-03: 管理者向け運用マニュアル
 
@@ -532,8 +540,9 @@
 | Phase 4: ユーザー向け画面 | 11 | 11 | 100% ✅ |
 | Phase 5.5: 認証統合 | 8 | 8 | 100% ✅ |
 | Phase 5: 管理者画面 | 8 | 8 | 100% ✅ |
-| Phase 6: プロダクト品質向上 | 31 | 30 | 97% |
-| **合計** | **111** | **110** | **99%** |
+| Phase 6: プロダクト品質向上 | 31 | 31 | 100% ✅ |
+| Phase 6.1-6.7: 品質検証 | 34 | 23 | 68% |
+| **合計** | **145** | **134** | **92%** |
 
 ---
 

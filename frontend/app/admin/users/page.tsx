@@ -20,8 +20,8 @@ interface User {
   name: string | null
   role: string
   confirmed: boolean
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
 }
 
 function formatDate(dateString: string): string {
@@ -190,7 +190,7 @@ export default function AdminUsersPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {formatDate(user.created_at)}
+                      {formatDate(user.createdAt)}
                     </td>
                   </tr>
                 ))

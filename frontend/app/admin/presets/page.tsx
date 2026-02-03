@@ -24,15 +24,15 @@ const USE_CASE_OPTIONS = [
   { value: '', label: 'すべての用途' },
   { value: 'gaming', label: 'ゲーミング' },
   { value: 'creative', label: 'クリエイティブ' },
-  { value: 'business', label: 'ビジネス' },
+  { value: 'office', label: 'オフィス' },
 ]
 
 interface Preset {
   id: number
   name: string
-  budget_range: string
-  use_case: string
-  total_price: number
+  budgetRange: string
+  useCase: string
+  totalPrice: number
 }
 
 function formatPrice(price: number): string {
@@ -131,7 +131,7 @@ export default function AdminPresetsPage() {
         <h1 className="text-2xl font-bold text-gray-900">プリセット管理</h1>
         <Link href="/admin/presets/new">
           <Button>
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 mr-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             新規登録
@@ -207,16 +207,16 @@ export default function AdminPresetsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        {getBudgetLabel(preset.budget_range)}
+                        {getBudgetLabel(preset.budgetRange)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        {getUseCaseLabel(preset.use_case)}
+                        {getUseCaseLabel(preset.useCase)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatPrice(preset.total_price)}
+                      {formatPrice(preset.totalPrice)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">

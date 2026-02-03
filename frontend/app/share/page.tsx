@@ -161,8 +161,7 @@ export default function SharePage() {
 
         results.forEach((result, index) => {
           const partType = partTypes[index]
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          newBuild[partType] = result.data as any
+          ;(newBuild as unknown as Record<string, unknown>)[partType] = result.data
         })
 
         // Fetch recommended parts if CPU and Memory are available
