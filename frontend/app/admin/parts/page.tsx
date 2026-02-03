@@ -52,6 +52,7 @@ export default function AdminPartsPage() {
   const [category, setCategory] = useState('')
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [priceSort, setPriceSort] = useState<'asc' | 'desc' | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Part | null>(null)
   const [deleting, setDeleting] = useState(false)
 
@@ -65,6 +66,10 @@ export default function AdminPartsPage() {
       if (category) {
         params.append('category', category)
       }
+      if (priceSort) {
+        params.append('sort', 'price')
+        params.append('sort_order', priceSort)
+      }
 
       const data = await api.get<ApiResponse<Part[]>>(`/parts?${params}`)
 
@@ -75,7 +80,7 @@ export default function AdminPartsPage() {
     } finally {
       setLoading(false)
     }
-  }, [page, category])
+  }, [page, category, priceSort])
 
   useEffect(() => {
     fetchParts()
@@ -161,8 +166,20 @@ export default function AdminPartsPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   メーカー
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700"
+                  onClick={() => {
+                    setPriceSort((prev) => {
+                      if (prev === null) return 'asc'
+                      if (prev === 'asc') return 'desc'
+                      return null
+                    })
+                    setPage(1)
+                  }}
+                >
                   価格
+                  {priceSort === 'asc' && ' ▲'}
+                  {priceSort === 'desc' && ' ▼'}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   操作

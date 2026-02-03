@@ -10,19 +10,19 @@ import { api, ApiResponse } from '@/lib/api'
 interface PresetData {
   id: number
   name: string
-  budget_range: string
-  use_case: string
+  budgetRange: string
+  useCase: string
   parts: {
-    cpu_id: number | null
-    gpu_id: number | null
-    memory_id: number | null
-    storage1_id: number | null
-    storage2_id: number | null
-    storage3_id: number | null
-    motherboard_id: number | null
-    psu_id: number | null
-    case_id: number | null
-    os_id: number | null
+    cpuId: number | null
+    gpuId: number | null
+    memoryId: number | null
+    storage1Id: number | null
+    storage2Id: number | null
+    storage3Id: number | null
+    motherboardId: number | null
+    psuId: number | null
+    caseId: number | null
+    osId: number | null
   }
 }
 
@@ -97,17 +97,17 @@ export default function EditPresetPage({ params }: { params: Promise<{ id: strin
   const formData = {
     id: preset.id,
     name: preset.name,
-    budget_range: preset.budget_range,
-    use_case: preset.use_case,
-    cpu_id: preset.parts.cpu_id,
-    gpu_id: preset.parts.gpu_id,
-    memory_id: preset.parts.memory_id,
-    storage1_id: preset.parts.storage1_id,
-    storage2_id: preset.parts.storage2_id,
-    motherboard_id: preset.parts.motherboard_id,
-    psu_id: preset.parts.psu_id,
-    case_id: preset.parts.case_id,
-    os_id: preset.parts.os_id,
+    budgetRange: preset.budgetRange,
+    useCase: preset.useCase,
+    cpuId: preset.parts.cpuId,
+    gpuId: preset.parts.gpuId,
+    memoryId: preset.parts.memoryId,
+    storage1Id: preset.parts.storage1Id,
+    storage2Id: preset.parts.storage2Id,
+    motherboardId: preset.parts.motherboardId,
+    psuId: preset.parts.psuId,
+    caseId: preset.parts.caseId,
+    osId: preset.parts.osId,
   }
 
   return (

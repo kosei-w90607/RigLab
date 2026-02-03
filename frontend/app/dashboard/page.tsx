@@ -311,9 +311,16 @@ export default function DashboardPage() {
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            ダッシュボード
-          </h1>
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              ダッシュボード
+            </h1>
+            {session?.user?.name && (
+              <p className="text-sm text-gray-500">
+                こんにちは、{session.user.name}さん
+              </p>
+            )}
+          </div>
           <Button variant="primary" onClick={() => setShowCreateModal(true)}>
             新しい構成を作る
           </Button>

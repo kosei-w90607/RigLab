@@ -20,7 +20,7 @@ const BUDGET_OPTIONS = [
 const USE_CASE_OPTIONS = [
   { value: 'gaming', label: 'ゲーミング' },
   { value: 'creative', label: 'クリエイティブ' },
-  { value: 'business', label: 'ビジネス' },
+  { value: 'office', label: 'オフィス' },
 ]
 
 interface Part {
@@ -51,17 +51,17 @@ interface CompatibilityWarning {
 interface PresetFormData {
   id?: number
   name: string
-  budget_range: string
-  use_case: string
-  cpu_id: number | null
-  gpu_id: number | null
-  memory_id: number | null
-  storage1_id: number | null
-  storage2_id: number | null
-  motherboard_id: number | null
-  psu_id: number | null
-  case_id: number | null
-  os_id: number | null
+  budgetRange: string
+  useCase: string
+  cpuId: number | null
+  gpuId: number | null
+  memoryId: number | null
+  storage1Id: number | null
+  storage2Id: number | null
+  motherboardId: number | null
+  psuId: number | null
+  caseId: number | null
+  osId: number | null
 }
 
 interface PresetFormProps {
@@ -80,17 +80,17 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
 
   const [formData, setFormData] = useState<PresetFormData>({
     name: initialData?.name || '',
-    budget_range: initialData?.budget_range || 'middle',
-    use_case: initialData?.use_case || 'gaming',
-    cpu_id: initialData?.cpu_id || null,
-    gpu_id: initialData?.gpu_id || null,
-    memory_id: initialData?.memory_id || null,
-    storage1_id: initialData?.storage1_id || null,
-    storage2_id: initialData?.storage2_id || null,
-    motherboard_id: initialData?.motherboard_id || null,
-    psu_id: initialData?.psu_id || null,
-    case_id: initialData?.case_id || null,
-    os_id: initialData?.os_id || null,
+    budgetRange: initialData?.budgetRange || 'middle',
+    useCase: initialData?.useCase || 'gaming',
+    cpuId: initialData?.cpuId || null,
+    gpuId: initialData?.gpuId || null,
+    memoryId: initialData?.memoryId || null,
+    storage1Id: initialData?.storage1Id || null,
+    storage2Id: initialData?.storage2Id || null,
+    motherboardId: initialData?.motherboardId || null,
+    psuId: initialData?.psuId || null,
+    caseId: initialData?.caseId || null,
+    osId: initialData?.osId || null,
   })
 
   // パーツ一覧を取得
@@ -122,10 +122,10 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
   useEffect(() => {
     if (!partsOptions.cpu) return
 
-    const selectedCpu = partsOptions.cpu.find(p => p.id === formData.cpu_id)
-    const selectedGpu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
-    const selectedMotherboard = partsOptions.motherboard?.find(p => p.id === formData.motherboard_id)
-    const selectedMemory = partsOptions.memory?.find(p => p.id === formData.memory_id)
+    const selectedCpu = partsOptions.cpu.find(p => p.id === formData.cpuId)
+    const selectedGpu = partsOptions.gpu?.find(p => p.id === formData.gpuId)
+    const selectedMotherboard = partsOptions.motherboard?.find(p => p.id === formData.motherboardId)
+    const selectedMemory = partsOptions.memory?.find(p => p.id === formData.memoryId)
 
     // CPUの対応メモリタイプを配列化（DDR4,DDR5 → ['DDR4', 'DDR5']）
     const cpuMemoryTypes = selectedCpu?.memoryType?.split(',') || []
@@ -173,19 +173,19 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
       motherboard: filteredMotherboards,
       case: filteredCases,
     })
-  }, [formData.cpu_id, formData.gpu_id, formData.memory_id, formData.motherboard_id, partsOptions])
+  }, [formData.cpuId, formData.gpuId, formData.memoryId, formData.motherboardId, partsOptions])
 
   // 互換性チェック
   useEffect(() => {
     const warnings: CompatibilityWarning[] = []
 
     // 選択されたパーツを取得
-    const cpu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
-    const memory = partsOptions.memory?.find(p => p.id === formData.memory_id)
-    const motherboard = partsOptions.motherboard?.find(p => p.id === formData.motherboard_id)
-    const gpu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
-    const pcCase = partsOptions.case?.find(p => p.id === formData.case_id)
-    const psu = partsOptions.psu?.find(p => p.id === formData.psu_id)
+    const cpu = partsOptions.cpu?.find(p => p.id === formData.cpuId)
+    const memory = partsOptions.memory?.find(p => p.id === formData.memoryId)
+    const motherboard = partsOptions.motherboard?.find(p => p.id === formData.motherboardId)
+    const gpu = partsOptions.gpu?.find(p => p.id === formData.gpuId)
+    const pcCase = partsOptions.case?.find(p => p.id === formData.caseId)
+    const psu = partsOptions.psu?.find(p => p.id === formData.psuId)
 
     // CPU - マザーボード ソケット互換性
     if (cpu && motherboard && cpu.socket !== motherboard.socket) {
@@ -272,18 +272,18 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
     try {
       const payload = {
         name: formData.name,
-        budget_range: formData.budget_range,
-        use_case: formData.use_case,
+        budget_range: formData.budgetRange,
+        use_case: formData.useCase,
         parts: {
-          cpu_id: formData.cpu_id,
-          gpu_id: formData.gpu_id,
-          memory_id: formData.memory_id,
-          storage1_id: formData.storage1_id,
-          storage2_id: formData.storage2_id,
-          motherboard_id: formData.motherboard_id,
-          psu_id: formData.psu_id,
-          case_id: formData.case_id,
-          os_id: formData.os_id,
+          cpu_id: formData.cpuId,
+          gpu_id: formData.gpuId,
+          memory_id: formData.memoryId,
+          storage1_id: formData.storage1Id,
+          storage2_id: formData.storage2Id,
+          motherboard_id: formData.motherboardId,
+          psu_id: formData.psuId,
+          case_id: formData.caseId,
+          os_id: formData.osId,
         },
       }
 
@@ -306,15 +306,50 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
     }
   }
 
+  const getPartFieldInfo = (field: { key: string; label: string; category: string; disabled: boolean; hint: string }) => {
+    let parts: Part[]
+    if (field.category === 'psu') {
+      parts = filteredPsus || partsOptions.psu || []
+    } else if (['memory', 'motherboard', 'case'].includes(field.category)) {
+      parts = filteredParts[field.category] || partsOptions[field.category] || []
+    } else {
+      parts = partsOptions[field.category] || []
+    }
+
+    let labelSuffix = ''
+    if (field.category === 'memory' && formData.cpuId) {
+      const cpu = partsOptions.cpu?.find(p => p.id === formData.cpuId)
+      if (cpu?.memoryType) labelSuffix = ` (${cpu.memoryType.replace(',', '/')}対応)`
+    }
+    if (field.category === 'motherboard' && formData.cpuId) {
+      const cpu = partsOptions.cpu?.find(p => p.id === formData.cpuId)
+      const memory = partsOptions.memory?.find(p => p.id === formData.memoryId)
+      const suffixes = []
+      if (cpu?.socket) suffixes.push(cpu.socket)
+      if (memory?.memoryType) suffixes.push(memory.memoryType)
+      if (suffixes.length > 0) labelSuffix = ` (${suffixes.join('/')}対応)`
+    }
+    if (field.category === 'case') {
+      const gpu = partsOptions.gpu?.find(p => p.id === formData.gpuId)
+      const mb = partsOptions.motherboard?.find(p => p.id === formData.motherboardId)
+      const suffixes = []
+      if (gpu?.lengthMm) suffixes.push(`GPU ${gpu.lengthMm}mm以上`)
+      if (mb?.formFactor) suffixes.push(`${mb.formFactor}`)
+      if (suffixes.length > 0) labelSuffix = ` (${suffixes.join('/')}対応)`
+    }
+
+    return { parts, labelSuffix }
+  }
+
   const formatPartOption = (part: Part) => ({
     value: part.id.toString(),
     label: `${part.name} (${part.maker}) - ¥${part.price.toLocaleString()}`,
   })
 
   // PSU推奨ワット数の計算
-  const canSelectPsu = formData.cpu_id && formData.gpu_id
-  const selectedCpuForPsu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
-  const selectedGpuForPsu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
+  const canSelectPsu = formData.cpuId && formData.gpuId
+  const selectedCpuForPsu = partsOptions.cpu?.find(p => p.id === formData.cpuId)
+  const selectedGpuForPsu = partsOptions.gpu?.find(p => p.id === formData.gpuId)
   const recommendedWattage = canSelectPsu && selectedCpuForPsu?.tdp && selectedGpuForPsu?.tdp
     ? Math.ceil((selectedCpuForPsu.tdp + selectedGpuForPsu.tdp) * 1.5 + 100)
     : null
@@ -325,41 +360,48 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
     : partsOptions.psu
 
   // パーツ選択フィールドの定義（選択順序制御付き）
-  const partSelectFields = [
-    { key: 'cpu_id', label: 'CPU', category: 'cpu', disabled: false, hint: '' },
-    { key: 'gpu_id', label: 'GPU', category: 'gpu', disabled: false, hint: '' },
+  // 左列: コアパーツ (CPU, GPU, メモリ, ストレージ1, ストレージ2, OS)
+  const leftColumnFields = [
+    { key: 'cpuId', label: 'CPU', category: 'cpu', disabled: false, hint: '' },
+    { key: 'gpuId', label: 'GPU', category: 'gpu', disabled: false, hint: '' },
     {
-      key: 'memory_id',
+      key: 'memoryId',
       label: 'メモリ',
       category: 'memory',
-      disabled: !formData.cpu_id,
-      hint: !formData.cpu_id ? 'CPUを先に選択してください' : ''
+      disabled: !formData.cpuId,
+      hint: !formData.cpuId ? 'CPUを先に選択してください' : ''
     },
-    { key: 'storage1_id', label: 'ストレージ1', category: 'storage', disabled: false, hint: '' },
-    { key: 'storage2_id', label: 'ストレージ2 (任意)', category: 'storage', disabled: false, hint: '' },
+    { key: 'storage1Id', label: 'ストレージ1', category: 'storage', disabled: false, hint: '' },
+    { key: 'storage2Id', label: 'ストレージ2 (任意)', category: 'storage', disabled: false, hint: '' },
+    { key: 'osId', label: 'OS', category: 'os', disabled: false, hint: '' },
+  ]
+
+  // 右列: 筐体系パーツ (マザーボード, 電源, ケース)
+  const rightColumnFields = [
     {
-      key: 'motherboard_id',
+      key: 'motherboardId',
       label: 'マザーボード',
       category: 'motherboard',
-      disabled: !formData.cpu_id || !formData.memory_id,
-      hint: !formData.cpu_id || !formData.memory_id ? 'CPU・メモリを先に選択してください' : ''
+      disabled: !formData.cpuId || !formData.memoryId,
+      hint: !formData.cpuId || !formData.memoryId ? 'CPU・メモリを先に選択してください' : ''
     },
     {
-      key: 'psu_id',
+      key: 'psuId',
       label: recommendedWattage ? `電源 - 推奨: ${recommendedWattage}W以上` : '電源',
       category: 'psu',
-      disabled: !formData.cpu_id || !formData.gpu_id,
-      hint: !formData.cpu_id || !formData.gpu_id ? 'CPU・GPUを先に選択してください' : ''
+      disabled: !formData.cpuId || !formData.gpuId,
+      hint: !formData.cpuId || !formData.gpuId ? 'CPU・GPUを先に選択してください' : ''
     },
     {
-      key: 'case_id',
+      key: 'caseId',
       label: 'ケース',
       category: 'case',
-      disabled: !formData.motherboard_id || !formData.gpu_id,
-      hint: !formData.motherboard_id || !formData.gpu_id ? 'マザーボード・GPUを先に選択してください' : ''
+      disabled: !formData.motherboardId || !formData.gpuId,
+      hint: !formData.motherboardId || !formData.gpuId ? 'マザーボード・GPUを先に選択してください' : ''
     },
-    { key: 'os_id', label: 'OS', category: 'os', disabled: false, hint: '' },
   ]
+
+  const partSelectFields = [...leftColumnFields, ...rightColumnFields]
 
   const hasErrors = compatibilityWarnings.some(w => w.type === 'error')
 
@@ -420,8 +462,8 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
               予算帯
             </label>
             <Select
-              value={formData.budget_range}
-              onChange={(e) => handleChange('budget_range', e.target.value)}
+              value={formData.budgetRange}
+              onChange={(e) => handleChange('budgetRange', e.target.value)}
               options={BUDGET_OPTIONS}
             />
           </div>
@@ -430,8 +472,8 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
               用途
             </label>
             <Select
-              value={formData.use_case}
-              onChange={(e) => handleChange('use_case', e.target.value)}
+              value={formData.useCase}
+              onChange={(e) => handleChange('useCase', e.target.value)}
               options={USE_CASE_OPTIONS}
             />
           </div>
@@ -441,64 +483,62 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
       <Card padding="lg" shadow="sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">パーツ構成</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {partSelectFields.map((field) => {
-            // フィルタリング対象のカテゴリはfilteredPartsを使用、PSUは別途フィルタリング
-            let parts: Part[]
-            if (field.category === 'psu') {
-              parts = filteredPsus || partsOptions.psu || []
-            } else if (['memory', 'motherboard', 'case'].includes(field.category)) {
-              parts = filteredParts[field.category] || partsOptions[field.category] || []
-            } else {
-              parts = partsOptions[field.category] || []
-            }
-            const options = [
-              { value: '', label: field.hint || '選択してください' },
-              ...parts.map(formatPartOption),
-            ]
-
-            // フィルタリング状態に応じたラベル
-            let labelSuffix = ''
-            if (field.category === 'memory' && formData.cpu_id) {
-              const cpu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
-              // DDR4,DDR5 → DDR4/DDR5 に変換して表示
-              if (cpu?.memoryType) labelSuffix = ` (${cpu.memoryType.replace(',', '/')}対応)`
-            }
-            if (field.category === 'motherboard' && formData.cpu_id) {
-              const cpu = partsOptions.cpu?.find(p => p.id === formData.cpu_id)
-              const memory = partsOptions.memory?.find(p => p.id === formData.memory_id)
-              const suffixes = []
-              if (cpu?.socket) suffixes.push(cpu.socket)
-              if (memory?.memoryType) suffixes.push(memory.memoryType)
-              if (suffixes.length > 0) labelSuffix = ` (${suffixes.join('/')}対応)`
-            }
-            if (field.category === 'case') {
-              const gpu = partsOptions.gpu?.find(p => p.id === formData.gpu_id)
-              const mb = partsOptions.motherboard?.find(p => p.id === formData.motherboard_id)
-              const suffixes = []
-              if (gpu?.lengthMm) suffixes.push(`GPU ${gpu.lengthMm}mm以上`)
-              if (mb?.formFactor) suffixes.push(`${mb.formFactor}`)
-              if (suffixes.length > 0) labelSuffix = ` (${suffixes.join('/')}対応)`
-            }
-
-            return (
-              <div key={field.key}>
-                <label className={`block text-sm font-medium mb-1 ${field.disabled ? 'text-gray-400' : 'text-gray-700'}`}>
-                  {field.label}{labelSuffix}
-                </label>
-                <Select
-                  value={formData[field.key as keyof PresetFormData]?.toString() || ''}
-                  onChange={(e) =>
-                    handleChange(
-                      field.key,
-                      e.target.value ? parseInt(e.target.value) : null
-                    )
-                  }
-                  options={options}
-                  disabled={field.disabled}
-                />
-              </div>
-            )
-          })}
+          {/* 左列: コアパーツ */}
+          <div className="space-y-4">
+            {leftColumnFields.map((field) => {
+              const { parts, labelSuffix } = getPartFieldInfo(field)
+              const options = [
+                { value: '', label: field.hint || '選択してください' },
+                ...parts.map(formatPartOption),
+              ]
+              return (
+                <div key={field.key}>
+                  <label className={`block text-sm font-medium mb-1 ${field.disabled ? 'text-gray-400' : 'text-gray-700'}`}>
+                    {field.label}{labelSuffix}
+                  </label>
+                  <Select
+                    value={formData[field.key as keyof PresetFormData]?.toString() || ''}
+                    onChange={(e) =>
+                      handleChange(
+                        field.key,
+                        e.target.value ? parseInt(e.target.value) : null
+                      )
+                    }
+                    options={options}
+                    disabled={field.disabled}
+                  />
+                </div>
+              )
+            })}
+          </div>
+          {/* 右列: 筐体系パーツ */}
+          <div className="space-y-4">
+            {rightColumnFields.map((field) => {
+              const { parts, labelSuffix } = getPartFieldInfo(field)
+              const options = [
+                { value: '', label: field.hint || '選択してください' },
+                ...parts.map(formatPartOption),
+              ]
+              return (
+                <div key={field.key}>
+                  <label className={`block text-sm font-medium mb-1 ${field.disabled ? 'text-gray-400' : 'text-gray-700'}`}>
+                    {field.label}{labelSuffix}
+                  </label>
+                  <Select
+                    value={formData[field.key as keyof PresetFormData]?.toString() || ''}
+                    onChange={(e) =>
+                      handleChange(
+                        field.key,
+                        e.target.value ? parseInt(e.target.value) : null
+                      )
+                    }
+                    options={options}
+                    disabled={field.disabled}
+                  />
+                </div>
+              )
+            })}
+          </div>
         </div>
       </Card>
 

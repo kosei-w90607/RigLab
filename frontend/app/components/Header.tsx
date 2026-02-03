@@ -72,6 +72,9 @@ export function Header() {
             {isLoggedIn ? (
               <>
                 <NavLink href="/dashboard">Dashboard</NavLink>
+                <span className="text-sm text-gray-600">
+                  {session?.user?.name || session?.user?.email}
+                </span>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
                   className="px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
@@ -137,6 +140,9 @@ export function Header() {
             </MobileNavLink>
             {isLoggedIn ? (
               <>
+                <div className="px-4 py-2 text-sm font-medium text-gray-900 border-b border-gray-200">
+                  {session?.user?.name || session?.user?.email}
+                </div>
                 <MobileNavLink href="/dashboard" onClick={closeMenu}>
                   Dashboard
                 </MobileNavLink>
