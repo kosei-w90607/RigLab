@@ -673,7 +673,7 @@ export default function ConfiguratorPage() {
     return (
       <div className="flex-1 flex items-center justify-center px-4">
         <Card padding="lg" shadow="md" className="text-center max-w-md">
-          <p className="text-red-600 mb-4">{error}</p>
+          <p role="alert" className="text-red-600 mb-4">{error}</p>
           <Button variant="primary" onClick={() => window.location.reload()}>
             再読み込み
           </Button>

@@ -116,7 +116,7 @@ export default function SignUpPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {generalError && (
-            <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+            <div role="alert" className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
               {generalError}
             </div>
           )}

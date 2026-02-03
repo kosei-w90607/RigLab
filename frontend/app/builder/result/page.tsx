@@ -146,9 +146,9 @@ function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
         <div>
           <Link href={`/builds/${preset.id}?type=preset`}>
-            <h3 className="text-lg font-bold text-gray-900 hover:text-blue-600 cursor-pointer">
+            <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 cursor-pointer">
               おすすめ構成 #{index + 1}
-            </h3>
+            </h2>
           </Link>
           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 mt-1">
             {usageLabels[preset.useCase] || preset.useCase}
