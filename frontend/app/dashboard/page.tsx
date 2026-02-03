@@ -70,25 +70,18 @@ function BuildCard({
     <Card padding="lg" shadow="sm" className="mb-4 hover:shadow-md transition-shadow">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex-1">
-          <h2 className="text-lg font-bold text-gray-900 truncate" title={build.name}>
-            {build.name}
-          </h2>
+          <Link href={`/builds/${build.id}`}>
+            <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 truncate" title={build.name}>
+              {build.name}
+            </h2>
+          </Link>
           <p className="text-sm text-gray-500">作成日: {formatDate(build.createdAt)}</p>
         </div>
         <div className="text-xl font-bold text-custom-blue whitespace-nowrap">
           {formatPrice(build.totalPrice)}
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Link href={`/builds/${build.id}`}>
-          <button aria-label={`${build.name}の詳細を見る`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-custom-blue rounded-lg hover:bg-cyan-500 transition-colors">
-            <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            詳細
-          </button>
-        </Link>
+      <div className="mt-4 flex flex-wrap gap-2 justify-end">
         <Link href={`/configurator?edit=${build.id}`}>
           <button aria-label={`${build.name}を編集する`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
             <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
