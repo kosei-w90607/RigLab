@@ -137,15 +137,29 @@ module Api
       end
 
       # メモリタイプでフィルタリング（メモリ、マザーボード向け）
+      # CPUは複数タイプ対応（DDR4,DDR5）の場合があるため、部分一致も考慮
       def filter_by_memory_type(parts)
         return parts unless params[:memory_type].present?
 
+        target_type = params[:memory_type]
+
         if parts.is_a?(Array)
-          parts.select { |p| p.respond_to?(:memory_type) && p.memory_type == params[:memory_type] }
+          parts.select do |p|
+            next false unless p.respond_to?(:memory_type)
+
+            # CPUの場合はsupports_memory_type?メソッドを使用
+            if p.respond_to?(:supports_memory_type?)
+              p.supports_memory_type?(target_type)
+            else
+              # メモリ/マザーボードは単一値なので完全一致
+              p.memory_type == target_type
+            end
+          end
         else
           return parts unless parts.column_names.include?('memory_type')
 
-          parts.where(memory_type: params[:memory_type])
+          # メモリ/マザーボードは単一値なので完全一致でフィルタリング
+          parts.where(memory_type: target_type)
         end
       end
 

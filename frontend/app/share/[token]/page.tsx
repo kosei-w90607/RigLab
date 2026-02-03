@@ -22,9 +22,9 @@ interface PartEntry {
 
 interface ShareTokenData {
   token: string
-  total_price: number
+  totalPrice: number
   parts: PartEntry[]
-  created_at: string
+  createdAt: string
 }
 
 function formatPrice(price: number): string {
@@ -196,7 +196,7 @@ export default function ShareTokenPage() {
               <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center">
                 <span className="font-medium text-gray-900">合計</span>
                 <span className="text-2xl font-bold text-custom-blue">
-                  {formatPrice(data?.total_price || 0)}
+                  {formatPrice(data?.totalPrice || 0)}
                 </span>
               </div>
             </Card>

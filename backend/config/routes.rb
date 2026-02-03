@@ -13,6 +13,7 @@ Rails.application.routes.draw do
         post 'login', to: 'sessions#create'
         post 'register', to: 'registrations#create'
         get 'me', to: 'sessions#me'
+        delete 'sign_out', to: 'sessions#destroy'
       end
 
       get 'dashboard', to: 'dashboard#index'

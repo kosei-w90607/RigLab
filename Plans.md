@@ -8,24 +8,33 @@
 
 ## 直近の作業サマリー（2026-02-03）
 
-### 完了: BUG-04 メモリーフィルタリング修正
+### 完了: Phase 6-J v1.0リリース準備
 
-APIレスポンスの snake_case → camelCase 変換機能を追加し、メモリーフィルタリングが正しく動作するように修正。
+セキュリティ強化とE2Eテストを追加し、v1.0リリース準備を完了。
 
-| 問題 | 原因 | 対応 |
-|------|------|------|
-| CPU選択時にメモリーがフィルタリングされない | APIレスポンスが snake_case でフロントエンドが camelCase を期待 | APIクライアントに自動変換を追加 |
+| カテゴリ | 内容 |
+|----------|------|
+| sign_out | SessionsController#destroy実装、DELETE /api/v1/auth/sign_out追加 |
+| セキュリティ | Rack::Attack導入（レート制限・ログイン試行制限） |
+| E2E | builder.spec.ts, configurator.spec.ts, share.spec.ts追加 |
+| ドキュメント | README.md, 07_setup-guide.mdにE2Eテスト手順追加 |
 
 ### 変更ファイル
-- `frontend/lib/api.ts` - `transformKeysToCamelCase` 関数を追加、レスポンス自動変換
-- `Plans.md` - K-01 完了マーク
+- `backend/app/controllers/api/v1/auth/sessions_controller.rb` - destroy追加
+- `backend/config/routes.rb` - sign_outルート追加
+- `backend/config/initializers/rack_attack.rb` - 新規作成
+- `backend/config/initializers/content_security_policy.rb` - 新規作成
+- `backend/spec/requests/api/v1/auth/sessions_spec.rb` - 新規作成
+- `backend/spec/rails_helper.rb` - テスト環境を強制設定
+- `frontend/e2e/builder.spec.ts` - 新規作成
+- `frontend/e2e/configurator.spec.ts` - 新規作成
+- `frontend/e2e/share.spec.ts` - 新規作成
+- `README.md` - テストコマンド追加
+- `docs/07_setup-guide.md` - Playwrightセクション追加
 
 ### 次回アクション
-Phase 6-J のタスクを順に実行:
-1. J-01〜J-03: sign_out エンドポイント実装
-2. J-04〜J-06: セキュリティ強化
-3. J-07〜J-10: E2Eテスト
-4. J-11〜J-12: ドキュメント整備
+- PRを作成してマージ
+- Phase 6.1〜6.7の残タスクを確認
 
 ---
 
@@ -394,27 +403,27 @@ Phase 6-J のタスクを順に実行:
 
 ---
 
-### 6-J: v1.0リリース準備
+### 6-J: v1.0リリース準備 ✅
 
 #### 6-J-1: sign_out エンドポイント実装
-- [ ] J-01: Api::V1::Auth::SessionsController#destroy 実装
-- [ ] J-02: routes.rb に DELETE /api/v1/auth/sign_out 追加
-- [ ] J-03: RSpec テスト追加
+- [x] J-01: Api::V1::Auth::SessionsController#destroy 実装
+- [x] J-02: routes.rb に DELETE /api/v1/auth/sign_out 追加
+- [x] J-03: RSpec テスト追加
 
 #### 6-J-2: セキュリティ強化
-- [ ] J-04: ログイン試行制限（Rack::Attack 導入、5回失敗で15分ロック）
-- [ ] J-05: レート制限（API全般に適用）
-- [ ] J-06: CSPヘッダー設定
+- [x] J-04: ログイン試行制限（Rack::Attack 導入、5回失敗で15分ロック）
+- [x] J-05: レート制限（API全般に適用）
+- [x] J-06: CSPヘッダー設定
 
 #### 6-J-3: E2Eテスト
-- [ ] J-07: Playwright セットアップ（frontend/e2e/）
-- [ ] J-08: おまかせ構成フローE2Eテスト
-- [ ] J-09: カスタム構成フローE2Eテスト
-- [ ] J-10: 構成保存・共有フローE2Eテスト
+- [x] J-07: Playwright セットアップ（frontend/e2e/）- 既存
+- [x] J-08: おまかせ構成フローE2Eテスト
+- [x] J-09: カスタム構成フローE2Eテスト
+- [x] J-10: 構成保存・共有フローE2Eテスト
 
 #### 6-J-4: ドキュメント整備
-- [ ] J-11: README.md 最終更新
-- [ ] J-12: セットアップガイド最終確認
+- [x] J-11: README.md 最終更新
+- [x] J-12: セットアップガイド最終確認
 
 ---
 
@@ -523,8 +532,8 @@ Phase 6-J のタスクを順に実行:
 | Phase 4: ユーザー向け画面 | 11 | 11 | 100% ✅ |
 | Phase 5.5: 認証統合 | 8 | 8 | 100% ✅ |
 | Phase 5: 管理者画面 | 8 | 8 | 100% ✅ |
-| Phase 6: プロダクト品質向上 | 31 | 18 | 58% |
-| **合計** | **111** | **98** | **88%** |
+| Phase 6: プロダクト品質向上 | 31 | 30 | 97% |
+| **合計** | **111** | **110** | **99%** |
 
 ---
 

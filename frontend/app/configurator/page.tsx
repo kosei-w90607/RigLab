@@ -38,12 +38,12 @@ interface ApiPartEntry {
 interface ApiBuildDetail {
   id: number
   name: string
-  total_price: number
-  share_token: string
+  totalPrice: number
+  shareToken: string
   parts: ApiPartEntry[]
   user: { id: number; name: string } | null
-  created_at: string
-  updated_at: string
+  createdAt: string
+  updatedAt: string
 }
 
 interface PartsData {
@@ -77,7 +77,10 @@ interface FilteredPartsData {
   cases: PartsCase[]
 }
 
-function formatPrice(price: number): string {
+function formatPrice(price: number | undefined | null): string {
+  if (price === undefined || price === null || isNaN(price)) {
+    return '¥0'
+  }
   return new Intl.NumberFormat('ja-JP', {
     style: 'currency',
     currency: 'JPY',
@@ -372,46 +375,97 @@ export default function ConfiguratorPage() {
     fetchBuildForEdit()
   }, [editId, parts, session?.accessToken])
 
-  // CPU選択時にメモリとマザーボードをフィルタリング
+  // CPU選択時にメモリをフィルタリング
   useEffect(() => {
     if (!parts) return
 
     const cpu = selected.cpu
 
     if (!cpu) {
-      // CPU未選択時は全パーツを表示
+      // CPU未選択時は全メモリを表示
       setFilteredParts(prev => ({
         ...prev,
         memories: parts.memories,
-        motherboards: parts.motherboards,
       }))
       return
     }
 
+    // CPUのメモリタイプをパース（カンマ区切りの場合あり: "DDR4,DDR5"）
+    const cpuMemoryTypes = cpu.memoryType.split(',')
+
     // CPUのメモリタイプに合うメモリをフィルタリング
     const filteredMemories = parts.memories.filter(
-      m => m.memoryType === cpu.memoryType
-    )
-
-    // CPUのソケットとメモリタイプに合うマザーボードをフィルタリング
-    const filteredMotherboards = parts.motherboards.filter(
-      mb => mb.socket === cpu.socket && mb.memoryType === cpu.memoryType
+      m => cpuMemoryTypes.includes(m.memoryType)
     )
 
     setFilteredParts(prev => ({
       ...prev,
       memories: filteredMemories,
+    }))
+
+    // CPUを変更した場合、互換性のないメモリをリセット
+    if (selected.memory && !cpuMemoryTypes.includes(selected.memory.memoryType)) {
+      setSelected(prev => ({ ...prev, memory: null }))
+    }
+  }, [selected.cpu, parts])
+
+  // CPU/メモリ選択時にマザーボードをフィルタリング
+  useEffect(() => {
+    if (!parts) return
+
+    const cpu = selected.cpu
+    const memory = selected.memory
+
+    if (!cpu) {
+      // CPU未選択時は全マザーボードを表示
+      setFilteredParts(prev => ({
+        ...prev,
+        motherboards: parts.motherboards,
+      }))
+      return
+    }
+
+    // CPUのメモリタイプをパース
+    const cpuMemoryTypes = cpu.memoryType.split(',')
+
+    // マザーボードのフィルタリング条件
+    // 1. CPUソケットが一致
+    // 2. メモリが選択されている場合: そのメモリタイプと一致
+    //    メモリが未選択の場合: CPU対応のメモリタイプのいずれかと一致
+    const targetMemoryType = memory ? memory.memoryType : null
+
+    const filteredMotherboards = parts.motherboards.filter(mb => {
+      // ソケット一致は必須
+      if (mb.socket !== cpu.socket) return false
+
+      // メモリタイプのチェック
+      if (targetMemoryType) {
+        // メモリが選択されている場合、そのタイプと完全一致
+        return mb.memoryType === targetMemoryType
+      } else {
+        // メモリ未選択の場合、CPU対応のいずれかと一致
+        return cpuMemoryTypes.includes(mb.memoryType)
+      }
+    })
+
+    setFilteredParts(prev => ({
+      ...prev,
       motherboards: filteredMotherboards,
     }))
 
-    // CPUを変更した場合、互換性のないメモリ/マザーボードをリセット
-    if (selected.memory && selected.memory.memoryType !== cpu.memoryType) {
-      setSelected(prev => ({ ...prev, memory: null }))
+    // メモリを変更した場合、互換性のないマザーボードをリセット
+    if (selected.motherboard) {
+      const mbMemoryType = selected.motherboard.memoryType
+      const isSocketOk = selected.motherboard.socket === cpu.socket
+      const isMemoryTypeOk = targetMemoryType
+        ? mbMemoryType === targetMemoryType
+        : cpuMemoryTypes.includes(mbMemoryType)
+
+      if (!isSocketOk || !isMemoryTypeOk) {
+        setSelected(prev => ({ ...prev, motherboard: null }))
+      }
     }
-    if (selected.motherboard && (selected.motherboard.socket !== cpu.socket || selected.motherboard.memoryType !== cpu.memoryType)) {
-      setSelected(prev => ({ ...prev, motherboard: null }))
-    }
-  }, [selected.cpu, parts])
+  }, [selected.cpu, selected.memory, parts])
 
   // GPU選択時にケースをフィルタリング
   useEffect(() => {
@@ -468,6 +522,35 @@ export default function ConfiguratorPage() {
       }
     }
   }, [selected.gpu, selected.motherboard, parts])
+
+  // CPU/GPU変更時にPSUをリセット（推奨ワット数が変わる場合）
+  useEffect(() => {
+    if (!parts || !selected.psu) return
+
+    const cpu = selected.cpu
+    const gpu = selected.gpu
+
+    // CPU/GPUのどちらかが未選択ならPSUをリセット
+    if (!cpu || !gpu) {
+      setSelected(prev => ({ ...prev, psu: null }))
+      return
+    }
+
+    // 推奨ワット数を計算
+    const recommendedWattage = Math.ceil((cpu.tdp + gpu.tdp) * 1.5 + 100)
+
+    // 選択中のPSUが推奨を満たさなければリセット
+    if (selected.psu.wattage < recommendedWattage) {
+      setSelected(prev => ({ ...prev, psu: null }))
+    }
+  }, [selected.cpu, selected.gpu, parts])
+
+  // マザーボードがリセットされたらケースもリセット
+  useEffect(() => {
+    if (!selected.motherboard && selected.case) {
+      setSelected(prev => ({ ...prev, case: null }))
+    }
+  }, [selected.motherboard])
 
   const handleSelect = (key: keyof SelectedParts, id: string) => {
     if (!parts) return
@@ -648,14 +731,14 @@ export default function ConfiguratorPage() {
                   />
 
                   <Select
-                    label={`Memory${selected.cpu ? ` (${selected.cpu.memoryType}対応)` : ''}`}
+                    label={`Memory${selected.cpu ? ` (${selected.cpu.memoryType.replace(',', '/')}対応)` : ''}`}
                     value={selected.memory?.id?.toString() || ''}
                     onChange={(e) => handleSelect('memory', e.target.value)}
                     options={[
                       { value: '', label: selected.cpu ? '選択してください' : 'CPUを先に選択してください' },
                       ...filteredParts.memories.map((p) => ({
                         value: p.id.toString(),
-                        label: `${p.name} - ${formatPrice(p.price)}`,
+                        label: `${p.name} (${p.memoryType}) - ${formatPrice(p.price)}`,
                       })),
                     ]}
                     disabled={!selected.cpu}
@@ -713,52 +796,103 @@ export default function ConfiguratorPage() {
                     ]}
                   />
 
-                  {/* セパレーター */}
+                  {/* セパレーター - 互換性依存パーツ */}
                   <div className="border-t border-gray-200 pt-4 mt-4">
                     <p className="text-sm text-gray-500 mb-4">
-                      以下のパーツはCPU/GPUに基づいて互換性のあるものが表示されます
+                      以下のパーツは選択状況に応じて有効化されます
                     </p>
                   </div>
 
-                  <Select
-                    label={`Motherboard${selected.cpu ? ` (${selected.cpu.socket}対応)` : ''}`}
-                    value={selected.motherboard?.id?.toString() || ''}
-                    onChange={(e) => handleSelect('motherboard', e.target.value)}
-                    options={[
-                      { value: '', label: selected.cpu ? '選択してください' : 'CPUを先に選択してください' },
-                      ...filteredParts.motherboards.map((p) => ({
-                        value: p.id.toString(),
-                        label: `${p.name} (${p.formFactor}) - ${formatPrice(p.price)}`,
-                      })),
-                    ]}
-                    disabled={!selected.cpu}
-                  />
+                  {/* Motherboard: CPU + Memory 選択後に有効 */}
+                  {(() => {
+                    const canSelectMb = selected.cpu && selected.memory
+                    const mbHint = !selected.cpu
+                      ? 'CPUを先に選択してください'
+                      : !selected.memory
+                      ? 'メモリを先に選択してください'
+                      : '選択してください'
+                    const mbLabel = canSelectMb
+                      ? `Motherboard (${selected.cpu!.socket} / ${selected.memory!.memoryType})`
+                      : 'Motherboard'
+                    return (
+                      <Select
+                        label={mbLabel}
+                        value={selected.motherboard?.id?.toString() || ''}
+                        onChange={(e) => handleSelect('motherboard', e.target.value)}
+                        options={[
+                          { value: '', label: mbHint },
+                          ...filteredParts.motherboards.map((p) => ({
+                            value: p.id.toString(),
+                            label: `${p.name} (${p.formFactor}) - ${formatPrice(p.price)}`,
+                          })),
+                        ]}
+                        disabled={!canSelectMb}
+                      />
+                    )
+                  })()}
 
-                  <Select
-                    label="電源 (PSU)"
-                    value={selected.psu?.id?.toString() || ''}
-                    onChange={(e) => handleSelect('psu', e.target.value)}
-                    options={[
-                      { value: '', label: '選択してください' },
-                      ...parts.psus.map((p) => ({
-                        value: p.id.toString(),
-                        label: `${p.name} (${p.wattage}W) - ${formatPrice(p.price)}`,
-                      })),
-                    ]}
-                  />
+                  {/* PSU: CPU + GPU 選択後に有効、推奨ワット数を表示 */}
+                  {(() => {
+                    const canSelectPsu = selected.cpu && selected.gpu
+                    const recommendedWattage = canSelectPsu
+                      ? Math.ceil((selected.cpu!.tdp + selected.gpu!.tdp) * 1.5 + 100)
+                      : null
+                    const psuHint = !selected.cpu
+                      ? 'CPUを先に選択してください'
+                      : !selected.gpu
+                      ? 'GPUを先に選択してください'
+                      : '選択してください'
+                    const psuLabel = recommendedWattage
+                      ? `電源 (PSU) - 推奨: ${recommendedWattage}W以上`
+                      : '電源 (PSU)'
+                    // 推奨ワット数以上のPSUのみ表示（選択可能時）
+                    const filteredPsus = canSelectPsu
+                      ? parts.psus.filter(p => p.wattage >= recommendedWattage!)
+                      : parts.psus
+                    return (
+                      <Select
+                        label={psuLabel}
+                        value={selected.psu?.id?.toString() || ''}
+                        onChange={(e) => handleSelect('psu', e.target.value)}
+                        options={[
+                          { value: '', label: psuHint },
+                          ...filteredPsus.map((p) => ({
+                            value: p.id.toString(),
+                            label: `${p.name} (${p.wattage}W) - ${formatPrice(p.price)}`,
+                          })),
+                        ]}
+                        disabled={!canSelectPsu}
+                      />
+                    )
+                  })()}
 
-                  <Select
-                    label={`ケース${selected.motherboard ? ` (${selected.motherboard.formFactor}対応)` : ''}${selected.gpu?.lengthMm ? ` (GPU ${selected.gpu.lengthMm}mm対応)` : ''}`}
-                    value={selected.case?.id?.toString() || ''}
-                    onChange={(e) => handleSelect('case', e.target.value)}
-                    options={[
-                      { value: '', label: '選択してください' },
-                      ...filteredParts.cases.map((p) => ({
-                        value: p.id.toString(),
-                        label: `${p.name} (${p.formFactor}, max GPU ${p.maxGpuLengthMm}mm) - ${formatPrice(p.price)}`,
-                      })),
-                    ]}
-                  />
+                  {/* Case: Motherboard + GPU 選択後に有効 */}
+                  {(() => {
+                    const canSelectCase = selected.motherboard && selected.gpu
+                    const caseHint = !selected.motherboard
+                      ? 'マザーボードを先に選択してください'
+                      : !selected.gpu
+                      ? 'GPUを先に選択してください'
+                      : '選択してください'
+                    const caseLabel = canSelectCase
+                      ? `ケース (${selected.motherboard!.formFactor}対応 / GPU ${selected.gpu!.lengthMm}mm以上)`
+                      : 'ケース'
+                    return (
+                      <Select
+                        label={caseLabel}
+                        value={selected.case?.id?.toString() || ''}
+                        onChange={(e) => handleSelect('case', e.target.value)}
+                        options={[
+                          { value: '', label: caseHint },
+                          ...filteredParts.cases.map((p) => ({
+                            value: p.id.toString(),
+                            label: `${p.name} (${p.formFactor}, max GPU ${p.maxGpuLengthMm}mm) - ${formatPrice(p.price)}`,
+                          })),
+                        ]}
+                        disabled={!canSelectCase}
+                      />
+                    )
+                  })()}
                 </div>
               ) : null}
             </Card>

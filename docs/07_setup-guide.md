@@ -171,7 +171,33 @@ docker compose exec front npm run lint
 docker compose exec front npm run build
 ```
 
-### 4.4 データベースの操作
+### 4.4 E2Eテスト（Playwright）の実行
+
+E2Eテストを実行する前に、フロントエンドとバックエンドが起動している必要があります。
+
+```bash
+# コンテナが起動していることを確認
+docker compose up -d
+
+# ローカルで実行する場合（ホストマシンにNode.jsが必要）
+cd frontend
+npm install
+npx playwright install  # 初回のみ、ブラウザをインストール
+npm run test:e2e
+
+# UIモードで実行（デバッグ用）
+npx playwright test --ui
+
+# 特定のテストファイルを実行
+npx playwright test e2e/builder.spec.ts
+
+# ヘッドレスモードを無効にして実行（ブラウザを表示）
+npx playwright test --headed
+```
+
+**注意**: E2Eテストはバックエンドのシードデータに依存するテストがあります。テスト実行前に`db:seed`を実行してください。
+
+### 4.5 データベースの操作
 
 ```bash
 # MySQLクライアントに接続
@@ -311,3 +337,4 @@ docker compose exec back rails db:create db:migrate db:seed
 | 2025-01-15 | フロントエンドをNext.js 15 App Routerに変更（Vite→Next.js、環境変数プレフィックスをNEXT_PUBLIC_に変更） |
 | 2025-01-15 | ポート番号を標準化（front:3000, back:3001, db:3306） |
 | 2026-01-31 | Docker seedコマンドにbundle execを追記、コマンド一覧にseed追加 |
+| 2026-02-03 | セクション「4.4 E2Eテスト（Playwright）の実行」追加 |

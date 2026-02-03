@@ -3,7 +3,8 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import * as jose from 'jose'
 import type { User } from '@/types'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1'
+// サーバーサイド用（Docker内部通信）
+const INTERNAL_API_URL = process.env.INTERNAL_API_URL || 'http://localhost:3001/api/v1'
 const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || 'development-secret-key-for-riglab'
 
 // Generate HS256 JWT for Rails backend compatibility
@@ -36,7 +37,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const response = await fetch(`${API_BASE_URL}/auth/login`, {
+          const response = await fetch(`${INTERNAL_API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

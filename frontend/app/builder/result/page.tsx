@@ -10,13 +10,13 @@ import { Skeleton } from '@/app/components/ui/Skeleton'
 import { api, ApiClientError } from '@/lib/api'
 import { shareConfiguration } from '@/lib/share'
 
-// APIレスポンス型（snake_case）
+// APIレスポンス型（camelCase - api.tsで変換済み）
 interface ApiPreset {
   id: number
   name: string
-  budget_range: string
-  use_case: string
-  total_price: number
+  budgetRange: string
+  useCase: string
+  totalPrice: number
   cpu: { id: number; name: string; maker: string; price: number } | null
   gpu: { id: number; name: string; maker: string; price: number } | null
   memory: { id: number; name: string; maker: string; price: number } | null
@@ -40,7 +40,10 @@ const usageLabels: Record<string, string> = {
   office: '事務・普段使い',
 }
 
-function formatPrice(price: number): string {
+function formatPrice(price: number | undefined | null): string {
+  if (price === undefined || price === null || isNaN(price)) {
+    return '¥0'
+  }
   return new Intl.NumberFormat('ja-JP', {
     style: 'currency',
     currency: 'JPY',
@@ -87,7 +90,7 @@ function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
           case_id: preset.case?.id,
         },
         preset.name,
-        `${preset.name} - ${formatPrice(preset.total_price)}`
+        `${preset.name} - ${formatPrice(preset.totalPrice)}`
       )
       // Web Share APIがない環境ではクリップボードにコピー済み
       if (!navigator.share) {
@@ -148,11 +151,11 @@ function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
             </h3>
           </Link>
           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 mt-1">
-            {usageLabels[preset.use_case] || preset.use_case}
+            {usageLabels[preset.useCase] || preset.useCase}
           </span>
         </div>
         <div className="text-xl font-bold text-custom-blue">
-          合計: {formatPrice(preset.total_price)}
+          合計: {formatPrice(preset.totalPrice)}
         </div>
       </div>
 

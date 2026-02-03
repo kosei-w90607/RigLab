@@ -1,7 +1,8 @@
 import type { NextConfig } from 'next'
 
-// Backend API URL (use Docker service name in container, localhost for local dev)
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || 'http://localhost:3001'
+// Backend API URL for server-side rewrites (use Docker service name in container)
+// INTERNAL_API_URL is for server-side, NEXT_PUBLIC_API_URL is for client-side
+const BACKEND_URL = process.env.INTERNAL_API_URL?.replace('/api/v1', '') || 'http://localhost:3001'
 
 const nextConfig: NextConfig = {
   // Strict Mode for development

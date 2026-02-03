@@ -12,13 +12,13 @@ import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
 import type { PcCustomSet } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
 
-// API response type (snake_case from Rails)
+// API response type (camelCase - api.tsで変換済み)
 interface ApiBuildSummary {
   id: number
   name: string
-  total_price: number
-  created_at: string
-  updated_at: string
+  totalPrice: number
+  createdAt: string
+  updatedAt: string
 }
 
 // Transform API response to frontend type
@@ -26,21 +26,31 @@ function transformBuild(apiBuild: ApiBuildSummary): PcCustomSet {
   return {
     id: apiBuild.id,
     name: apiBuild.name,
-    totalPrice: apiBuild.total_price,
-    createdAt: apiBuild.created_at,
-    updatedAt: apiBuild.updated_at,
+    totalPrice: apiBuild.totalPrice,
+    createdAt: apiBuild.createdAt,
+    updatedAt: apiBuild.updatedAt,
   } as PcCustomSet
 }
 
-function formatPrice(price: number): string {
+function formatPrice(price: number | undefined | null): string {
+  if (price === undefined || price === null || isNaN(price)) {
+    return '¥0'
+  }
   return new Intl.NumberFormat('ja-JP', {
     style: 'currency',
     currency: 'JPY',
   }).format(price)
 }
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('ja-JP', {
+function formatDate(dateString: string | undefined | null): string {
+  if (!dateString) {
+    return '-'
+  }
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) {
+    return '-'
+  }
+  return date.toLocaleDateString('ja-JP', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

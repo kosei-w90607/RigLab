@@ -26,3 +26,9 @@
 .playwright-mcp/
 frontend/playwright-report/
 frontend/test-results/
+
+# RSpec (auto-generated)
+backend/spec/examples.txt
+
+# TypeScript (build cache)
+frontend/tsconfig.tsbuildinfo
