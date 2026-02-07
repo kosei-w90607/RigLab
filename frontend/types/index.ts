@@ -196,3 +196,86 @@ export interface CompatibilityIssue {
   message: string
   severity: 'error' | 'warning'
 }
+
+// ============================================
+// Price History & Buy Advice
+// ============================================
+export interface PriceHistory {
+  price: number
+  source: string
+  fetchedAt: string
+}
+
+export interface PriceTrend {
+  direction: 'up' | 'down' | 'stable'
+  changePercent: number
+  minPrice: number
+  maxPrice: number
+  avgPrice: number
+}
+
+export interface PriceHistoryResponse {
+  partType: string
+  partId: number
+  partName: string
+  currentPrice: number
+  initialPrice: number | null
+  priceSinceLaunch: number | null
+  rakutenUrl: string | null
+  rakutenImageUrl: string | null
+  histories: PriceHistory[]
+  trend: PriceTrend | null
+}
+
+export type BuyVerdict = 'buy_now' | 'wait' | 'neutral'
+
+export interface BuyAdvice {
+  verdict: BuyVerdict
+  message: string
+  confidence: number
+  trendSummary: {
+    direction: 'up' | 'down' | 'stable'
+    changePercent: number
+    minPrice: number
+    maxPrice: number
+    avgPrice: number
+    currentPrice: number
+  } | null
+}
+
+export interface BuyAdviceSummary {
+  bestDeals: {
+    partType: string
+    partId: number
+    partName: string
+    currentPrice: number
+    changePercent: number
+    verdict: BuyVerdict
+    message: string
+  }[]
+  categoryTrends: {
+    category: string
+    label: string
+    avgChangePercent: number
+    direction: 'up' | 'down' | 'stable'
+    partCount: number
+  }[]
+  biggestDrops: {
+    partType: string
+    partId: number
+    partName: string
+    currentPrice: number
+    changePercent: number
+    verdict: BuyVerdict
+    message: string
+  }[]
+  biggestRises: {
+    partType: string
+    partId: number
+    partName: string
+    currentPrice: number
+    changePercent: number
+    verdict: BuyVerdict
+    message: string
+  }[]
+}
