@@ -11,12 +11,15 @@ import { Modal } from '@/app/components/ui/Modal'
 import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
 import type { PcCustomSet } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
+import { ScrollToTopButton } from '@/app/components/ui/ScrollToTopButton'
+import { useToast } from '@/app/components/ui/Toast'
 
 // API response type (camelCase - api.tsで変換済み)
 interface ApiBuildSummary {
   id: number
   name: string
   totalPrice: number
+  shareToken: string | null
   createdAt: string
   updatedAt: string
 }
@@ -27,6 +30,7 @@ function transformBuild(apiBuild: ApiBuildSummary): PcCustomSet {
     id: apiBuild.id,
     name: apiBuild.name,
     totalPrice: apiBuild.totalPrice,
+    shareToken: apiBuild.shareToken,
     createdAt: apiBuild.createdAt,
     updatedAt: apiBuild.updatedAt,
   } as PcCustomSet
@@ -205,6 +209,7 @@ export default function DashboardPage() {
   const session = sessionResult?.data
   const status = sessionResult?.status
   const router = useRouter()
+  const { addToast } = useToast()
 
   const [builds, setBuilds] = useState<PcCustomSet[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -212,6 +217,20 @@ export default function DashboardPage() {
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
+
+  // フラッシュメッセージの表示（ページ遷移後のトースト）
+  useEffect(() => {
+    const flash = sessionStorage.getItem('flash')
+    if (flash) {
+      sessionStorage.removeItem('flash')
+      try {
+        const { type, message } = JSON.parse(flash)
+        addToast({ type, message })
+      } catch {
+        // パースエラー時は無視
+      }
+    }
+  }, [addToast])
 
   // Redirect to signin if not authenticated
   useEffect(() => {
@@ -259,9 +278,9 @@ export default function DashboardPage() {
       setBuilds((prev) => prev.filter((b) => b.id !== deleteTarget))
     } catch (err) {
       if (err instanceof ApiClientError) {
-        alert(`削除に失敗しました: ${err.message}`)
+        addToast({ type: 'error', message: `削除に失敗しました: ${err.message}` })
       } else {
-        alert('削除に失敗しました。ネットワーク接続を確認してください。')
+        addToast({ type: 'error', message: '削除に失敗しました。ネットワーク接続を確認してください。' })
       }
     } finally {
       setIsDeleting(false)
@@ -270,7 +289,9 @@ export default function DashboardPage() {
   }
 
   const handleShare = async (build: PcCustomSet) => {
-    const shareUrl = `${window.location.origin}/builds/${build.id}`
+    const shareUrl = build.shareToken
+      ? `${window.location.origin}/share?build=${build.shareToken}`
+      : `${window.location.origin}/builds/${build.id}`
 
     try {
       if (navigator.share) {
@@ -281,7 +302,7 @@ export default function DashboardPage() {
         })
       } else {
         await navigator.clipboard.writeText(shareUrl)
-        alert('URLをコピーしました')
+        addToast({ type: 'success', message: 'URLをコピーしました' })
       }
     } catch {
       // User cancelled share
@@ -387,6 +408,8 @@ export default function DashboardPage() {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
       />
+
+      <ScrollToTopButton />
     </div>
   )
 }

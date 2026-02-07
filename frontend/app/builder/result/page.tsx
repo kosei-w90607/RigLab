@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { Card } from '@/app/components/ui/Card'
@@ -9,6 +9,8 @@ import { Button } from '@/app/components/ui/Button'
 import { Skeleton } from '@/app/components/ui/Skeleton'
 import { api, ApiClientError } from '@/lib/api'
 import { shareConfiguration } from '@/lib/share'
+import { ScrollToTopButton } from '@/app/components/ui/ScrollToTopButton'
+import { useToast } from '@/app/components/ui/Toast'
 
 // APIレスポンス型（camelCase - api.tsで変換済み）
 interface ApiPreset {
@@ -72,6 +74,8 @@ function PartRow({ label, part }: { label: string; part: { name: string; price: 
 function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
   const sessionResult = useSession()
   const session = sessionResult?.data
+  const router = useRouter()
+  const { addToast } = useToast()
   const [isSharing, setIsSharing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -94,11 +98,11 @@ function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
       )
       // Web Share APIがない環境ではクリップボードにコピー済み
       if (!navigator.share) {
-        alert('URLをコピーしました')
+        addToast({ type: 'success', message: 'URLをコピーしました' })
       }
     } catch (err) {
       if (err instanceof ApiClientError) {
-        alert(`共有に失敗しました: ${err.message}`)
+        addToast({ type: 'error', message: `共有に失敗しました: ${err.message}` })
       }
     } finally {
       setIsSharing(false)
@@ -128,13 +132,13 @@ function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
         },
       }
       await api.post('/builds', payload, session.accessToken)
-      alert('構成を保存しました')
-      window.location.href = '/dashboard'
+      sessionStorage.setItem('flash', JSON.stringify({ type: 'success', message: '構成を保存しました' }))
+      router.push('/dashboard')
     } catch (err) {
       if (err instanceof ApiClientError) {
-        alert(`保存に失敗しました: ${err.message}`)
+        addToast({ type: 'error', message: `保存に失敗しました: ${err.message}` })
       } else {
-        alert('保存に失敗しました。ネットワーク接続を確認してください。')
+        addToast({ type: 'error', message: '保存に失敗しました。ネットワーク接続を確認してください。' })
       }
     } finally {
       setIsSaving(false)
@@ -147,7 +151,7 @@ function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
         <div>
           <Link href={`/builds/${preset.id}?type=preset`}>
             <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 cursor-pointer">
-              おすすめ構成 #{index + 1}
+              {preset.name}
             </h2>
           </Link>
           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 mt-1">
@@ -322,6 +326,7 @@ export default function BuilderResultPage() {
           </>
         )}
       </div>
+      <ScrollToTopButton />
     </div>
   )
 }
