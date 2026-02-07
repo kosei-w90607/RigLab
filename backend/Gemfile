@@ -64,6 +64,10 @@ gem 'enumerize', '~> 2.7.0'
 # pagination
 gem 'kaminari', '~> 1.2.2'
 
+# Background jobs
+gem 'sidekiq', '~> 7.2'
+gem 'sidekiq-cron', '~> 1.12'
+
 # remind mail
 gem 'mailkick'
 
