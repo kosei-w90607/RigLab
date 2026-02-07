@@ -2,6 +2,9 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     if Rails.env.test?
       origins '*'
+    elsif Rails.env.production?
+      allowed = ENV.fetch('CORS_ORIGINS', '').split(',').map(&:strip)
+      origins(*allowed) if allowed.any?
     else
       origins 'http://localhost:3000', 'http://localhost:3002'
     end

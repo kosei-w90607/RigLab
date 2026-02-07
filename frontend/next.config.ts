@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next'
+import { withSentryConfig } from '@sentry/nextjs'
 
 // Backend API URL for server-side rewrites (use Docker service name in container)
 // INTERNAL_API_URL is for server-side, NEXT_PUBLIC_API_URL is for client-side
@@ -41,4 +42,6 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+export default withSentryConfig(nextConfig, {
+  silent: true,
+})

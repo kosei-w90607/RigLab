@@ -38,6 +38,10 @@ gem 'rack-cors'
 # Rate limiting and throttling
 gem 'rack-attack', '~> 6.7'
 
+# Error tracking
+gem 'sentry-ruby'
+gem 'sentry-rails'
+
 # I18n
 gem 'rails-i18n', '~> 7.0.8'
 # gem 'devise-i18n', '~> 1.12.0'  # Commented out - not using Devise
