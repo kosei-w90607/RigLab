@@ -11,6 +11,7 @@ import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
 import type { PcCustomSet, PcEntrustSet, BasePart } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
 import { shareConfiguration } from '@/lib/share'
+import { useToast } from '@/app/components/ui/Toast'
 
 type BuildData = PcCustomSet | PcEntrustSet
 
@@ -168,6 +169,7 @@ export default function BuildDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [isSharing, setIsSharing] = useState(false)
 
+  const { addToast } = useToast()
   const isOwner = !isPreset && session && build && 'userId' in build && build.userId === Number(session.user?.id)
 
   useEffect(() => {
@@ -219,11 +221,13 @@ export default function BuildDetailPage() {
       )
       // Web Share APIがない環境ではクリップボードにコピー済み
       if (!navigator.share) {
-        alert('URLをコピーしました')
+        addToast({ type: 'success', message: 'URLをコピーしました' })
       }
     } catch (err) {
-      if (err instanceof ApiClientError) {
-        alert(`共有に失敗しました: ${err.message}`)
+      if (err instanceof Error && err.name === 'AbortError') {
+        // ユーザーがシェアをキャンセル
+      } else if (err instanceof ApiClientError) {
+        addToast({ type: 'error', message: `共有に失敗しました: ${err.message}` })
       }
     } finally {
       setIsSharing(false)
@@ -239,9 +243,9 @@ export default function BuildDetailPage() {
       router.push('/dashboard')
     } catch (err) {
       if (err instanceof ApiClientError) {
-        alert(`削除に失敗しました: ${err.message}`)
+        addToast({ type: 'error', message: `削除に失敗しました: ${err.message}` })
       } else {
-        alert('削除に失敗しました。ネットワーク接続を確認してください。')
+        addToast({ type: 'error', message: '削除に失敗しました。ネットワーク接続を確認してください。' })
       }
     } finally {
       setIsDeleting(false)

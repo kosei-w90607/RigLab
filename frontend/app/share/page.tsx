@@ -6,30 +6,28 @@ import Link from 'next/link'
 import { Card } from '@/app/components/ui/Card'
 import { Button } from '@/app/components/ui/Button'
 import { Skeleton } from '@/app/components/ui/Skeleton'
-import type {
-  PartsCpu,
-  PartsGpu,
-  PartsMemory,
-  PartsStorage,
-  PartsOs,
-  PartsMotherboard,
-  PartsPsu,
-  PartsCase,
-} from '@/types'
 import { api, ApiClientError } from '@/lib/api'
+import { useToast } from '@/app/components/ui/Toast'
+
+interface SharedPart {
+  id: number
+  name: string
+  maker: string
+  price: number
+}
 
 interface SharedBuild {
   name: string | null
-  cpu: PartsCpu | null
-  gpu: PartsGpu | null
-  memory: PartsMemory | null
-  storage1: PartsStorage | null
-  storage2: PartsStorage | null
-  storage3: PartsStorage | null
-  os: PartsOs | null
-  motherboard: PartsMotherboard | null
-  psu: PartsPsu | null
-  case: PartsCase | null
+  cpu: SharedPart | null
+  gpu: SharedPart | null
+  memory: SharedPart | null
+  storage1: SharedPart | null
+  storage2: SharedPart | null
+  storage3: SharedPart | null
+  os: SharedPart | null
+  motherboard: SharedPart | null
+  psu: SharedPart | null
+  case: SharedPart | null
   serverTotalPrice: number | null
 }
 
@@ -85,15 +83,7 @@ export default function SharePage() {
     setMounted(true)
   }, [])
 
-  const buildToken = searchParams.get('build')
   const shareToken = searchParams.get('token')
-  const cpuId = searchParams.get('cpu')
-  const gpuId = searchParams.get('gpu')
-  const memoryId = searchParams.get('memory')
-  const storage1Id = searchParams.get('storage1')
-  const storage2Id = searchParams.get('storage2')
-  const storage3Id = searchParams.get('storage3')
-  const osId = searchParams.get('os')
 
   const [build, setBuild] = useState<SharedBuild>({
     name: null,
@@ -149,83 +139,16 @@ export default function SharePage() {
       setError(null)
 
       try {
-        if (buildToken) {
-          // ?build=xxx - ダッシュボードからの共有 (builds/shared/:token)
-          const response = await api.get<{ data: { name: string; totalPrice: number; parts: { category: string; part: { id: number; name: string; maker: string; price: number } }[] } }>(`/builds/shared/${buildToken}`)
-          const parsed = parseParts(response.data.parts)
-          parsed.name = response.data.name
-          parsed.serverTotalPrice = response.data.totalPrice
-          setBuild(parsed)
-        } else if (shareToken) {
-          // ?token=xxx - shareConfigurationからの共有 (share_tokens/:token)
-          const response = await api.get<{ data: { token: string; totalPrice: number; parts: { category: string; part: { id: number; name: string; maker: string; price: number } }[] } }>(`/share_tokens/${shareToken}`)
-          const parsed = parseParts(response.data.parts)
-          parsed.serverTotalPrice = response.data.totalPrice
-          setBuild(parsed)
-        } else if (cpuId || gpuId || memoryId || storage1Id || osId) {
-          // 従来の個別パーツクエリ方式
-          const requests: Promise<{ data: unknown }>[] = []
-          const partTypes: (keyof SharedBuild)[] = []
-
-          if (cpuId) {
-            requests.push(api.get<{ data: PartsCpu }>(`/parts/${cpuId}?category=cpu`))
-            partTypes.push('cpu')
-          }
-          if (gpuId) {
-            requests.push(api.get<{ data: PartsGpu }>(`/parts/${gpuId}?category=gpu`))
-            partTypes.push('gpu')
-          }
-          if (memoryId) {
-            requests.push(api.get<{ data: PartsMemory }>(`/parts/${memoryId}?category=memory`))
-            partTypes.push('memory')
-          }
-          if (storage1Id) {
-            requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage1Id}?category=storage`))
-            partTypes.push('storage1')
-          }
-          if (storage2Id) {
-            requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage2Id}?category=storage`))
-            partTypes.push('storage2')
-          }
-          if (storage3Id) {
-            requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage3Id}?category=storage`))
-            partTypes.push('storage3')
-          }
-          if (osId) {
-            requests.push(api.get<{ data: PartsOs }>(`/parts/${osId}?category=os`))
-            partTypes.push('os')
-          }
-
-          const results = await Promise.all(requests)
-          const newBuild = { ...emptyBuild }
-
-          results.forEach((result, index) => {
-            const partType = partTypes[index]
-            ;(newBuild as unknown as Record<string, unknown>)[partType] = result.data
-          })
-
-          // Fetch recommended parts if CPU and Memory are available
-          if (newBuild.cpu && newBuild.memory) {
-            try {
-              const recResponse = await api.get<{
-                motherboard: PartsMotherboard
-                psu: PartsPsu
-                case: PartsCase
-              }>(`/parts/recommendations?cpu_id=${newBuild.cpu.id}&memory_id=${newBuild.memory.id}${newBuild.gpu ? `&gpu_id=${newBuild.gpu.id}` : ''}`)
-
-              newBuild.motherboard = recResponse.motherboard
-              newBuild.psu = recResponse.psu
-              newBuild.case = recResponse.case
-            } catch {
-              // Recommendations are optional
-            }
-          }
-
-          setBuild(newBuild)
-        } else {
+        if (!shareToken) {
           setError('共有URLが無効です')
           return
         }
+
+        // ?token=xxx - share_tokensから取得
+        const response = await api.get<{ data: { token: string; totalPrice: number; parts: { category: string; part: { id: number; name: string; maker: string; price: number } }[] } }>(`/share_tokens/${shareToken}`)
+        const parsed = parseParts(response.data.parts)
+        parsed.serverTotalPrice = response.data.totalPrice
+        setBuild(parsed)
       } catch (err) {
         if (err instanceof ApiClientError) {
           setError(err.message)
@@ -238,7 +161,7 @@ export default function SharePage() {
     }
 
     fetchSharedBuild()
-  }, [buildToken, shareToken, cpuId, gpuId, memoryId, storage1Id, storage2Id, storage3Id, osId])
+  }, [shareToken])
 
   const totalPrice = build.serverTotalPrice ??
     ((build.cpu?.price || 0) +
@@ -252,13 +175,29 @@ export default function SharePage() {
     (build.psu?.price || 0) +
     (build.case?.price || 0))
 
+  const buildConfiguratorUrl = () => {
+    const params = new URLSearchParams()
+    if (build.cpu?.id) params.set('cpu', String(build.cpu.id))
+    if (build.gpu?.id) params.set('gpu', String(build.gpu.id))
+    if (build.memory?.id) params.set('memory', String(build.memory.id))
+    if (build.storage1?.id) params.set('storage1', String(build.storage1.id))
+    if (build.storage2?.id) params.set('storage2', String(build.storage2.id))
+    if (build.storage3?.id) params.set('storage3', String(build.storage3.id))
+    if (build.os?.id) params.set('os', String(build.os.id))
+    if (build.motherboard?.id) params.set('motherboard', String(build.motherboard.id))
+    if (build.psu?.id) params.set('psu', String(build.psu.id))
+    if (build.case?.id) params.set('case', String(build.case.id))
+    return `/configurator?${params.toString()}`
+  }
+
+  const { addToast } = useToast()
+
   const handleCopyUrl = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href)
-      alert('URLをコピーしました')
+      addToast({ type: 'success', message: 'URLをコピーしました' })
     } catch {
-      // Fallback for older browsers
-      alert('コピーに失敗しました')
+      addToast({ type: 'error', message: 'コピーに失敗しました' })
     }
   }
 
@@ -345,7 +284,7 @@ export default function SharePage() {
                 この構成をベースに自分の構成を作成できます
               </p>
               <Link
-                href={`/configurator?${searchParams.toString()}`}
+                href={buildConfiguratorUrl()}
               >
                 <Button variant="primary" size="lg">
                   この構成をカスタマイズ
