@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { auth } from '@/lib/auth'
 import { Providers } from './providers'
 import { LayoutWrapper } from './components/LayoutWrapper'
 import './globals.css'
@@ -29,15 +30,16 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await auth()
   return (
     <html lang="ja" data-theme="light">
       <body>
-        <Providers>
+        <Providers session={session}>
           <LayoutWrapper>{children}</LayoutWrapper>
         </Providers>
       </body>
