@@ -3,17 +3,16 @@
 import { ReactNode } from 'react'
 import { SessionProvider } from 'next-auth/react'
 import { ToastProvider } from '@/app/components/ui/Toast'
+import type { Session } from 'next-auth'
 
 interface ProvidersProps {
   children: ReactNode
+  session?: Session | null
 }
 
-/**
- * Global providers wrapper for the application.
- */
-export function Providers({ children }: ProvidersProps) {
+export function Providers({ children, session }: ProvidersProps) {
   return (
-    <SessionProvider>
+    <SessionProvider session={session}>
       <ToastProvider>{children}</ToastProvider>
     </SessionProvider>
   )

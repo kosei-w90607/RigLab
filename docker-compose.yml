@@ -50,6 +50,7 @@ services:
       - INTERNAL_API_URL=http://back:3000/api/v1
       - NEXTAUTH_URL=http://localhost:3000
       - NEXTAUTH_SECRET=development-secret-key-for-riglab
+      - AUTH_TRUST_HOST=true
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
     hostname: front
