@@ -19,6 +19,7 @@ import type {
 import { api, ApiClientError } from '@/lib/api'
 
 interface SharedBuild {
+  name: string | null
   cpu: PartsCpu | null
   gpu: PartsGpu | null
   memory: PartsMemory | null
@@ -29,6 +30,7 @@ interface SharedBuild {
   motherboard: PartsMotherboard | null
   psu: PartsPsu | null
   case: PartsCase | null
+  serverTotalPrice: number | null
 }
 
 function formatPrice(price: number | undefined | null): string {
@@ -83,6 +85,8 @@ export default function SharePage() {
     setMounted(true)
   }, [])
 
+  const buildToken = searchParams.get('build')
+  const shareToken = searchParams.get('token')
   const cpuId = searchParams.get('cpu')
   const gpuId = searchParams.get('gpu')
   const memoryId = searchParams.get('memory')
@@ -92,6 +96,7 @@ export default function SharePage() {
   const osId = searchParams.get('os')
 
   const [build, setBuild] = useState<SharedBuild>({
+    name: null,
     cpu: null,
     gpu: null,
     memory: null,
@@ -102,86 +107,125 @@ export default function SharePage() {
     motherboard: null,
     psu: null,
     case: null,
+    serverTotalPrice: null,
   })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchParts = async () => {
+    const emptyBuild: SharedBuild = {
+      name: null,
+      cpu: null,
+      gpu: null,
+      memory: null,
+      storage1: null,
+      storage2: null,
+      storage3: null,
+      os: null,
+      motherboard: null,
+      psu: null,
+      case: null,
+      serverTotalPrice: null,
+    }
+
+    const parseParts = (parts: { category: string; part: { id: number; name: string; maker: string; price: number } }[]): SharedBuild => {
+      const result = { ...emptyBuild }
+      let storageIndex = 1
+      for (const p of parts) {
+        const partData = { ...p.part } as unknown
+        if (p.category === 'storage') {
+          const key = `storage${storageIndex}` as keyof SharedBuild
+          ;(result as unknown as Record<string, unknown>)[key] = partData
+          storageIndex++
+        } else {
+          ;(result as unknown as Record<string, unknown>)[p.category] = partData
+        }
+      }
+      return result
+    }
+
+    const fetchSharedBuild = async () => {
       setIsLoading(true)
       setError(null)
 
       try {
-        const requests: Promise<{ data: unknown }>[] = []
-        const partTypes: (keyof SharedBuild)[] = []
+        if (buildToken) {
+          // ?build=xxx - ダッシュボードからの共有 (builds/shared/:token)
+          const response = await api.get<{ data: { name: string; totalPrice: number; parts: { category: string; part: { id: number; name: string; maker: string; price: number } }[] } }>(`/builds/shared/${buildToken}`)
+          const parsed = parseParts(response.data.parts)
+          parsed.name = response.data.name
+          parsed.serverTotalPrice = response.data.totalPrice
+          setBuild(parsed)
+        } else if (shareToken) {
+          // ?token=xxx - shareConfigurationからの共有 (share_tokens/:token)
+          const response = await api.get<{ data: { token: string; totalPrice: number; parts: { category: string; part: { id: number; name: string; maker: string; price: number } }[] } }>(`/share_tokens/${shareToken}`)
+          const parsed = parseParts(response.data.parts)
+          parsed.serverTotalPrice = response.data.totalPrice
+          setBuild(parsed)
+        } else if (cpuId || gpuId || memoryId || storage1Id || osId) {
+          // 従来の個別パーツクエリ方式
+          const requests: Promise<{ data: unknown }>[] = []
+          const partTypes: (keyof SharedBuild)[] = []
 
-        if (cpuId) {
-          requests.push(api.get<{ data: PartsCpu }>(`/parts/${cpuId}?category=cpu`))
-          partTypes.push('cpu')
-        }
-        if (gpuId) {
-          requests.push(api.get<{ data: PartsGpu }>(`/parts/${gpuId}?category=gpu`))
-          partTypes.push('gpu')
-        }
-        if (memoryId) {
-          requests.push(api.get<{ data: PartsMemory }>(`/parts/${memoryId}?category=memory`))
-          partTypes.push('memory')
-        }
-        if (storage1Id) {
-          requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage1Id}?category=storage`))
-          partTypes.push('storage1')
-        }
-        if (storage2Id) {
-          requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage2Id}?category=storage`))
-          partTypes.push('storage2')
-        }
-        if (storage3Id) {
-          requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage3Id}?category=storage`))
-          partTypes.push('storage3')
-        }
-        if (osId) {
-          requests.push(api.get<{ data: PartsOs }>(`/parts/${osId}?category=os`))
-          partTypes.push('os')
-        }
-
-        const results = await Promise.all(requests)
-
-        const newBuild: SharedBuild = {
-          cpu: null,
-          gpu: null,
-          memory: null,
-          storage1: null,
-          storage2: null,
-          storage3: null,
-          os: null,
-          motherboard: null,
-          psu: null,
-          case: null,
-        }
-
-        results.forEach((result, index) => {
-          const partType = partTypes[index]
-          ;(newBuild as unknown as Record<string, unknown>)[partType] = result.data
-        })
-
-        // Fetch recommended parts if CPU and Memory are available
-        if (newBuild.cpu && newBuild.memory) {
-          try {
-            const recResponse = await api.get<{
-              motherboard: PartsMotherboard
-              psu: PartsPsu
-              case: PartsCase
-            }>(`/parts/recommendations?cpu_id=${newBuild.cpu.id}&memory_id=${newBuild.memory.id}${newBuild.gpu ? `&gpu_id=${newBuild.gpu.id}` : ''}`)
-
-            newBuild.motherboard = recResponse.motherboard
-            newBuild.psu = recResponse.psu
-            newBuild.case = recResponse.case
-          } catch {
-            // Recommendations are optional
+          if (cpuId) {
+            requests.push(api.get<{ data: PartsCpu }>(`/parts/${cpuId}?category=cpu`))
+            partTypes.push('cpu')
           }
-        }
+          if (gpuId) {
+            requests.push(api.get<{ data: PartsGpu }>(`/parts/${gpuId}?category=gpu`))
+            partTypes.push('gpu')
+          }
+          if (memoryId) {
+            requests.push(api.get<{ data: PartsMemory }>(`/parts/${memoryId}?category=memory`))
+            partTypes.push('memory')
+          }
+          if (storage1Id) {
+            requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage1Id}?category=storage`))
+            partTypes.push('storage1')
+          }
+          if (storage2Id) {
+            requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage2Id}?category=storage`))
+            partTypes.push('storage2')
+          }
+          if (storage3Id) {
+            requests.push(api.get<{ data: PartsStorage }>(`/parts/${storage3Id}?category=storage`))
+            partTypes.push('storage3')
+          }
+          if (osId) {
+            requests.push(api.get<{ data: PartsOs }>(`/parts/${osId}?category=os`))
+            partTypes.push('os')
+          }
 
-        setBuild(newBuild)
+          const results = await Promise.all(requests)
+          const newBuild = { ...emptyBuild }
+
+          results.forEach((result, index) => {
+            const partType = partTypes[index]
+            ;(newBuild as unknown as Record<string, unknown>)[partType] = result.data
+          })
+
+          // Fetch recommended parts if CPU and Memory are available
+          if (newBuild.cpu && newBuild.memory) {
+            try {
+              const recResponse = await api.get<{
+                motherboard: PartsMotherboard
+                psu: PartsPsu
+                case: PartsCase
+              }>(`/parts/recommendations?cpu_id=${newBuild.cpu.id}&memory_id=${newBuild.memory.id}${newBuild.gpu ? `&gpu_id=${newBuild.gpu.id}` : ''}`)
+
+              newBuild.motherboard = recResponse.motherboard
+              newBuild.psu = recResponse.psu
+              newBuild.case = recResponse.case
+            } catch {
+              // Recommendations are optional
+            }
+          }
+
+          setBuild(newBuild)
+        } else {
+          setError('共有URLが無効です')
+          return
+        }
       } catch (err) {
         if (err instanceof ApiClientError) {
           setError(err.message)
@@ -193,16 +237,11 @@ export default function SharePage() {
       }
     }
 
-    if (cpuId || gpuId || memoryId || storage1Id || osId) {
-      fetchParts()
-    } else {
-      setIsLoading(false)
-      setError('共有URLが無効です')
-    }
-  }, [cpuId, gpuId, memoryId, storage1Id, storage2Id, storage3Id, osId])
+    fetchSharedBuild()
+  }, [buildToken, shareToken, cpuId, gpuId, memoryId, storage1Id, storage2Id, storage3Id, osId])
 
-  const totalPrice =
-    (build.cpu?.price || 0) +
+  const totalPrice = build.serverTotalPrice ??
+    ((build.cpu?.price || 0) +
     (build.gpu?.price || 0) +
     (build.memory?.price || 0) +
     (build.storage1?.price || 0) +
@@ -211,7 +250,7 @@ export default function SharePage() {
     (build.os?.price || 0) +
     (build.motherboard?.price || 0) +
     (build.psu?.price || 0) +
-    (build.case?.price || 0)
+    (build.case?.price || 0))
 
   const handleCopyUrl = async () => {
     try {
@@ -257,7 +296,7 @@ export default function SharePage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                共有構成
+                {build.name || '共有構成'}
               </h1>
               <Button variant="secondary" onClick={handleCopyUrl}>
                 URLをコピー

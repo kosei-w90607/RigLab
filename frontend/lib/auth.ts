@@ -1,11 +1,10 @@
-import type { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import NextAuth from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
 import * as jose from 'jose'
-import type { User } from '@/types'
 
 // サーバーサイド用（Docker内部通信）
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL || 'http://localhost:3001/api/v1'
-const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || 'development-secret-key-for-riglab'
+const AUTH_SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'development-secret-key-for-riglab'
 
 // Generate HS256 JWT for Rails backend compatibility
 async function generateAccessToken(payload: {
@@ -14,7 +13,7 @@ async function generateAccessToken(payload: {
   name: string
   role: string
 }): Promise<string> {
-  const secret = new TextEncoder().encode(NEXTAUTH_SECRET)
+  const secret = new TextEncoder().encode(AUTH_SECRET)
   const jwt = await new jose.SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
@@ -23,9 +22,9 @@ async function generateAccessToken(payload: {
   return jwt
 }
 
-export const authOptions: NextAuthOptions = {
+export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
-    CredentialsProvider({
+    Credentials({
       name: 'credentials',
       credentials: {
         email: { label: 'メールアドレス', type: 'email' },
@@ -72,7 +71,7 @@ export const authOptions: NextAuthOptions = {
       // Initial sign in - add user data to token
       if (user) {
         token.id = user.id
-        token.role = user.role
+        token.role = (user as { role: string }).role
         token.email = user.email
         token.name = user.name
       }
@@ -82,7 +81,7 @@ export const authOptions: NextAuthOptions = {
       // Send properties to the client
       if (token && session.user) {
         session.user.id = token.id as string
-        session.user.role = token.role as User['role']
+        session.user.role = token.role as 'user' | 'admin'
         session.user.email = token.email as string
         session.user.name = token.name as string
 
@@ -105,6 +104,5 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  // JWT is signed with NEXTAUTH_SECRET env var
-  // The same secret must be set in Rails backend for verification
-}
+  secret: AUTH_SECRET,
+})

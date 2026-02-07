@@ -81,6 +81,7 @@ module Api
           id: build.id,
           name: build.name,
           total_price: build.total_price,
+          share_token: build.share_token,
           created_at: build.created_at,
           updated_at: build.updated_at
         }

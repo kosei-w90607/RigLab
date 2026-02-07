@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Card } from '@/app/components/ui/Card'
 import { Button } from '@/app/components/ui/Button'
@@ -9,6 +10,7 @@ import { Select } from '@/app/components/ui/Select'
 import { Skeleton } from '@/app/components/ui/Skeleton'
 import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
 import { ScrollToTopButton } from '@/app/components/ui/ScrollToTopButton'
+import { useToast } from '@/app/components/ui/Toast'
 import { api, ApiResponse } from '@/lib/api'
 
 // パーツカテゴリ
@@ -23,6 +25,9 @@ const CATEGORIES = [
   { value: 'case', label: 'ケース' },
   { value: 'os', label: 'OS' },
 ]
+
+const VALID_CATEGORIES = CATEGORIES.map((c) => c.value)
+const VALID_SORTS = ['price_asc', 'price_desc']
 
 interface Part {
   id: number
@@ -47,14 +52,46 @@ function getCategoryLabel(category: string): string {
 
 export default function AdminPartsPage() {
   const { data: session } = useSession()
+  const { addToast } = useToast()
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  // URLパラメータから初期状態を復元
+  const initialCategory = VALID_CATEGORIES.includes(searchParams.get('category') || '')
+    ? searchParams.get('category') || ''
+    : ''
+  const initialSort = VALID_SORTS.includes(searchParams.get('sort') || '')
+    ? searchParams.get('sort') || ''
+    : ''
+  const initialPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1)
+
   const [parts, setParts] = useState<Part[]>([])
   const [loading, setLoading] = useState(true)
-  const [category, setCategory] = useState('')
-  const [page, setPage] = useState(1)
+  const [category, setCategory] = useState(initialCategory)
+  const [page, setPage] = useState(initialPage)
   const [totalPages, setTotalPages] = useState(1)
-  const [priceSort, setPriceSort] = useState<'asc' | 'desc' | null>(null)
+  const [priceSort, setPriceSort] = useState<'asc' | 'desc' | null>(
+    initialSort === 'price_asc' ? 'asc' : initialSort === 'price_desc' ? 'desc' : null
+  )
   const [deleteTarget, setDeleteTarget] = useState<Part | null>(null)
   const [deleting, setDeleting] = useState(false)
+
+  // フィルタ状態をURLに反映
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (category) {
+      params.set('category', category)
+    }
+    if (priceSort) {
+      params.set('sort', `price_${priceSort}`)
+    }
+    if (page > 1) {
+      params.set('page', page.toString())
+    }
+    const queryString = params.toString()
+    const newUrl = queryString ? `/admin/parts?${queryString}` : '/admin/parts'
+    router.replace(newUrl, { scroll: false })
+  }, [category, priceSort, page, router])
 
   const fetchParts = useCallback(async () => {
     setLoading(true)
@@ -92,11 +129,13 @@ export default function AdminPartsPage() {
     setDeleting(true)
     try {
       await api.delete(`/admin/parts/${deleteTarget.id}?category=${deleteTarget.category}`, session.accessToken)
+      addToast({ type: 'success', message: 'パーツを削除しました' })
       setDeleteTarget(null)
       fetchParts()
     } catch (error) {
       console.error('パーツの削除に失敗:', error)
-      alert('削除に失敗しました')
+      const errorMessage = error instanceof Error ? error.message : '削除に失敗しました'
+      addToast({ type: 'error', message: `削除に失敗しました: ${errorMessage}` })
     } finally {
       setDeleting(false)
     }
@@ -136,7 +175,7 @@ export default function AdminPartsPage() {
 
       {/* フィルター */}
       <div className="flex gap-4">
-        <div className="w-48">
+        <div className="w-full sm:w-48">
           <Select
             value={category}
             onChange={(e) => {
@@ -148,26 +187,51 @@ export default function AdminPartsPage() {
         </div>
       </div>
 
+      {/* ページネーション（上部） */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+          >
+            前へ
+          </Button>
+          <span className="flex items-center px-4 text-sm text-gray-600">
+            {page} / {totalPages}
+          </span>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+          >
+            次へ
+          </Button>
+        </div>
+      )}
+
       {/* パーツ一覧 */}
       <Card padding="none" shadow="sm">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   名前
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   カテゴリ
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   メーカー
                 </th>
                 <th
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700"
+                  className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700"
                   onClick={() => {
                     setPriceSort((prev) => {
                       if (prev === null) return 'asc'
@@ -181,7 +245,7 @@ export default function AdminPartsPage() {
                   {priceSort === 'asc' && ' ▲'}
                   {priceSort === 'desc' && ' ▼'}
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -189,31 +253,31 @@ export default function AdminPartsPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {parts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={6} className="px-3 md:px-6 py-12 text-center text-gray-500">
                     パーツが登録されていません
                   </td>
                 </tr>
               ) : (
                 parts.map((part) => (
                   <tr key={`${part.category}-${part.id}`} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {part.id}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{part.name}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         {getCategoryLabel(part.category)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {part.maker}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatPrice(part.price)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         <Link href={`/admin/parts/${part.id}?category=${part.category}`}>
                           <Button variant="secondary" size="sm">

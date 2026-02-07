@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
@@ -46,48 +46,91 @@ const navItems = [
   },
 ]
 
-function AdminSidebar() {
+function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const pathname = usePathname()
 
-  return (
-    <aside className="w-64 bg-gray-800 min-h-screen">
-      <div className="p-4">
-        <h2 className="text-xl font-bold text-white mb-6">管理者メニュー</h2>
-        <nav className="space-y-2">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href ||
-              (item.href !== '/admin' && pathname.startsWith(item.href))
+  // ページ遷移時にモバイルサイドバーを閉じる
+  useEffect(() => {
+    onClose()
+  }, [pathname, onClose])
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                }`}
-              >
-                {item.icon}
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
-      </div>
-    </aside>
+  return (
+    <>
+      {/* モバイルオーバーレイ */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* サイドバー */}
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-50 w-64 bg-gray-800 transform transition-transform duration-200 ease-in-out lg:static lg:translate-x-0 lg:min-h-screen
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-white">管理者メニュー</h2>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white lg:hidden"
+              aria-label="メニューを閉じる"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <nav className="space-y-2">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href ||
+                (item.href !== '/admin' && pathname.startsWith(item.href))
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                  }`}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </Link>
+              )
+            })}
+          </nav>
+        </div>
+      </aside>
+    </>
   )
 }
 
-function AdminHeader() {
+function AdminHeader({ onMenuToggle }: { onMenuToggle: () => void }) {
   const { data: session } = useSession()
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
+    <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">管理者ダッシュボード</h1>
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onMenuToggle}
+            className="text-gray-600 hover:text-gray-900 lg:hidden"
+            aria-label="メニューを開く"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">管理者ダッシュボード</h1>
+        </div>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <span className="text-sm text-gray-600 hidden sm:inline">
             {session?.user?.name || session?.user?.email}
           </span>
           <Link
@@ -104,8 +147,8 @@ function AdminHeader() {
 
 function LoadingSkeleton() {
   return (
-    <div className="flex min-h-screen">
-      <div className="w-64 bg-gray-800">
+    <div className="lg:flex min-h-screen">
+      <div className="hidden lg:block w-64 bg-gray-800">
         <div className="p-4">
           <Skeleton className="h-8 w-32 mb-6 bg-gray-700" />
           <div className="space-y-2">
@@ -116,10 +159,10 @@ function LoadingSkeleton() {
         </div>
       </div>
       <div className="flex-1">
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
           <Skeleton className="h-8 w-48" />
         </div>
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           <Skeleton className="h-32 w-full" />
         </div>
       </div>
@@ -170,6 +213,10 @@ export default function AdminLayout({
 }) {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  const closeSidebar = useCallback(() => setIsSidebarOpen(false), [])
+  const toggleSidebar = useCallback(() => setIsSidebarOpen((prev) => !prev), [])
 
   useEffect(() => {
     // 未ログインの場合はサインインページにリダイレクト
@@ -195,11 +242,11 @@ export default function AdminLayout({
 
   // 管理者の場合
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar />
-      <div className="flex-1 flex flex-col">
-        <AdminHeader />
-        <main className="flex-1 p-6">{children}</main>
+    <div className="lg:flex min-h-screen bg-gray-100">
+      <AdminSidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <AdminHeader onMenuToggle={toggleSidebar} />
+        <main className="flex-1 p-4 sm:p-6">{children}</main>
       </div>
     </div>
   )

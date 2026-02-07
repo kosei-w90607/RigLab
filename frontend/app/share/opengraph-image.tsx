@@ -22,6 +22,42 @@ function formatPrice(price: number): string {
   }).format(price)
 }
 
+async function fetchPartsFromBuildToken(token: string): Promise<{ parts: Record<string, Part | null>; totalPrice: number }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/builds/shared/${token}`)
+    if (!response.ok) return { parts: {}, totalPrice: 0 }
+    const json = await response.json()
+    const data = json.data
+    const parts: Record<string, Part | null> = {}
+    if (data.parts) {
+      for (const p of data.parts) {
+        parts[p.category] = p.part
+      }
+    }
+    return { parts, totalPrice: data.totalPrice || data.total_price || 0 }
+  } catch {
+    return { parts: {}, totalPrice: 0 }
+  }
+}
+
+async function fetchPartsFromShareToken(token: string): Promise<{ parts: Record<string, Part | null>; totalPrice: number }> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/share_tokens/${token}`)
+    if (!response.ok) return { parts: {}, totalPrice: 0 }
+    const json = await response.json()
+    const data = json.data
+    const parts: Record<string, Part | null> = {}
+    if (data.parts) {
+      for (const p of data.parts) {
+        parts[p.category] = p.part
+      }
+    }
+    return { parts, totalPrice: data.totalPrice || data.total_price || 0 }
+  } catch {
+    return { parts: {}, totalPrice: 0 }
+  }
+}
+
 export default async function Image({
   params,
   searchParams,
@@ -29,6 +65,8 @@ export default async function Image({
   params: Record<string, string>
   searchParams: Record<string, string>
 }) {
+  const buildToken = searchParams.build
+  const shareToken = searchParams.token
   const cpuId = searchParams.cpu
   const gpuId = searchParams.gpu
   const memoryId = searchParams.memory
@@ -43,37 +81,55 @@ export default async function Image({
   let totalPrice = 0
 
   try {
-    const fetchPart = async (category: string, id: string): Promise<Part | null> => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/parts/${id}?category=${category}`)
-        if (!response.ok) return null
-        const json = await response.json()
-        return json.data
-      } catch {
-        return null
+    if (buildToken) {
+      const result = await fetchPartsFromBuildToken(buildToken)
+      cpu = result.parts.cpu || null
+      gpu = result.parts.gpu || null
+      memory = result.parts.memory || null
+      storage = result.parts.storage || null
+      os = result.parts.os || null
+      totalPrice = result.totalPrice
+    } else if (shareToken) {
+      const result = await fetchPartsFromShareToken(shareToken)
+      cpu = result.parts.cpu || null
+      gpu = result.parts.gpu || null
+      memory = result.parts.memory || null
+      storage = result.parts.storage || null
+      os = result.parts.os || null
+      totalPrice = result.totalPrice
+    } else {
+      const fetchPart = async (category: string, id: string): Promise<Part | null> => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/parts/${id}?category=${category}`)
+          if (!response.ok) return null
+          const json = await response.json()
+          return json.data
+        } catch {
+          return null
+        }
       }
+
+      const results = await Promise.all([
+        cpuId ? fetchPart('cpu', cpuId) : null,
+        gpuId ? fetchPart('gpu', gpuId) : null,
+        memoryId ? fetchPart('memory', memoryId) : null,
+        storage1Id ? fetchPart('storage', storage1Id) : null,
+        osId ? fetchPart('os', osId) : null,
+      ])
+
+      cpu = results[0]
+      gpu = results[1]
+      memory = results[2]
+      storage = results[3]
+      os = results[4]
+
+      totalPrice =
+        (cpu?.price || 0) +
+        (gpu?.price || 0) +
+        (memory?.price || 0) +
+        (storage?.price || 0) +
+        (os?.price || 0)
     }
-
-    const results = await Promise.all([
-      cpuId ? fetchPart('cpu', cpuId) : null,
-      gpuId ? fetchPart('gpu', gpuId) : null,
-      memoryId ? fetchPart('memory', memoryId) : null,
-      storage1Id ? fetchPart('storage', storage1Id) : null,
-      osId ? fetchPart('os', osId) : null,
-    ])
-
-    cpu = results[0]
-    gpu = results[1]
-    memory = results[2]
-    storage = results[3]
-    os = results[4]
-
-    totalPrice =
-      (cpu?.price || 0) +
-      (gpu?.price || 0) +
-      (memory?.price || 0) +
-      (storage?.price || 0) +
-      (os?.price || 0)
   } catch {
     // Use default values
   }

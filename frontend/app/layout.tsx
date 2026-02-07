@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
-    url: 'https://riglab.example.com',
+    url: process.env.NEXT_PUBLIC_APP_URL || 'https://riglab.example.com',
     siteName: 'RigLab',
     title: 'RigLab - あなただけのPC構成を見つけよう',
     description:
@@ -35,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="ja">
+    <html lang="ja" data-theme="light">
       <body>
         <Providers>
           <LayoutWrapper>{children}</LayoutWrapper>

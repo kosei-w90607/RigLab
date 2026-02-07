@@ -7,6 +7,7 @@ import { Card } from '@/app/components/ui/Card'
 import { Button } from '@/app/components/ui/Button'
 import { Input } from '@/app/components/ui/Input'
 import { Select } from '@/app/components/ui/Select'
+import { useToast } from '@/app/components/ui/Toast'
 import { api, ApiResponse } from '@/lib/api'
 
 // 予算帯
@@ -72,6 +73,7 @@ interface PresetFormProps {
 export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
   const router = useRouter()
   const { data: session } = useSession()
+  const { addToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const [partsOptions, setPartsOptions] = useState<Record<string, Part[]>>({})
@@ -289,18 +291,18 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
 
       if (isEdit && initialData?.id) {
         await api.patch(`/admin/presets/${initialData.id}`, payload, session.accessToken)
+        addToast({ type: 'success', message: 'プリセットを更新しました' })
       } else {
         await api.post('/admin/presets', payload, session.accessToken)
+        addToast({ type: 'success', message: 'プリセットを作成しました' })
       }
 
       router.push('/admin/presets')
     } catch (error) {
       console.error('保存に失敗:', error)
-      if (error instanceof Error) {
-        setErrors([error.message])
-      } else {
-        setErrors(['保存に失敗しました'])
-      }
+      const errorMessage = error instanceof Error ? error.message : '保存に失敗しました'
+      setErrors([errorMessage])
+      addToast({ type: 'error', message: `保存に失敗しました: ${errorMessage}` })
     } finally {
       setLoading(false)
     }
@@ -402,6 +404,33 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
   ]
 
   const partSelectFields = [...leftColumnFields, ...rightColumnFields]
+
+  // 合計金額を計算
+  const totalPrice = (() => {
+    const allFields = [...leftColumnFields, ...rightColumnFields]
+    let total = 0
+    for (const field of allFields) {
+      const partId = formData[field.key as keyof PresetFormData]
+      if (partId && typeof partId === 'number') {
+        const parts = partsOptions[field.category] || []
+        const part = parts.find(p => p.id === partId)
+        if (part) total += part.price
+      }
+    }
+    return total
+  })()
+
+  // 予算帯の範囲定義
+  const budgetRanges: Record<string, { min: number; max: number }> = {
+    entry: { min: 0, max: 150000 },
+    middle: { min: 150000, max: 300000 },
+    high: { min: 300000, max: Infinity },
+  }
+
+  const currentBudgetRange = budgetRanges[formData.budgetRange]
+  const isBudgetOutOfRange = currentBudgetRange && totalPrice > 0 && (
+    totalPrice < currentBudgetRange.min || totalPrice > currentBudgetRange.max
+  )
 
   const hasErrors = compatibilityWarnings.some(w => w.type === 'error')
 
@@ -541,6 +570,27 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
           </div>
         </div>
       </Card>
+
+      {/* 合計金額表示 */}
+      {totalPrice > 0 && (
+        <Card padding="lg" shadow="sm">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-semibold text-gray-900">合計金額</span>
+            <span className="text-2xl font-bold text-custom-blue">
+              ¥{totalPrice.toLocaleString()}
+            </span>
+          </div>
+        </Card>
+      )}
+
+      {/* 予算帯警告 */}
+      {totalPrice > 0 && isBudgetOutOfRange && (
+        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+          <p className="text-yellow-700">
+            合計金額 (¥{totalPrice.toLocaleString()}) が選択した予算帯の範囲外です
+          </p>
+        </div>
+      )}
 
       <div className="flex justify-end items-center gap-4">
         {hasErrors && (

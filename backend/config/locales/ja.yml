@@ -1,0 +1,78 @@
+ja:
+  activerecord:
+    models:
+      user: ユーザー
+      parts_cpu: CPU
+      parts_gpu: GPU
+      parts_memory: メモリ
+      parts_storage: ストレージ
+      parts_os: OS
+      parts_motherboard: マザーボード
+      parts_psu: 電源ユニット
+      parts_case: ケース
+      pc_custom_set: カスタム構成
+      pc_entrust_set: おまかせ構成
+    attributes:
+      user:
+        name: 名前
+        email: メールアドレス
+        password: パスワード
+        password_confirmation: パスワード（確認）
+        role: 権限
+      parts_cpu:
+        name: パーツ名
+        maker: メーカー
+        price: 価格
+        socket: ソケット
+        cores: コア数
+        threads: スレッド数
+        clock_speed: クロック周波数
+        tdp: TDP
+        memory_type: メモリタイプ
+      parts_gpu:
+        name: パーツ名
+        maker: メーカー
+        price: 価格
+      parts_memory:
+        name: パーツ名
+        maker: メーカー
+        price: 価格
+      parts_storage:
+        name: パーツ名
+        maker: メーカー
+        price: 価格
+      parts_os:
+        name: パーツ名
+        maker: メーカー
+        price: 価格
+      parts_motherboard:
+        name: パーツ名
+        maker: メーカー
+        price: 価格
+      parts_psu:
+        name: パーツ名
+        maker: メーカー
+        price: 価格
+      parts_case:
+        name: パーツ名
+        maker: メーカー
+        price: 価格
+      pc_custom_set:
+        name: 構成名
+      pc_entrust_set:
+        name: プリセット名
+        budget_range: 予算帯
+        use_case: 用途
+  errors:
+    messages:
+      blank: を入力してください
+      taken: はすでに存在します
+      too_short: は%{count}文字以上で入力してください
+      too_long: は%{count}文字以内で入力してください
+      invalid: は不正な値です
+      not_a_number: は数値で入力してください
+      greater_than: は%{count}より大きい値にしてください
+      greater_than_or_equal_to: は%{count}以上の値にしてください
+      less_than: は%{count}より小さい値にしてください
+      less_than_or_equal_to: は%{count}以下の値にしてください
+      inclusion: は一覧にありません

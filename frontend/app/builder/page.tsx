@@ -47,7 +47,7 @@ export default function BuilderPage() {
 
   return (
     <div className="flex-1 px-4 py-8 md:py-12">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
           おまかせ構成
         </h1>
