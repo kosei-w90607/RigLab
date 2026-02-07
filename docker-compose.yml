@@ -26,8 +26,10 @@ services:
       TZ: Asia/Tokyo
       RAILS_ENV: development
       NEXTAUTH_SECRET: development-secret-key-for-riglab
+      REDIS_URL: redis://redis:6379/0
     depends_on:
       - db
+      - redis
     hostname: back
     tty: true
     stdin_open: true
@@ -56,5 +58,13 @@ services:
     hostname: front
     depends_on:
       - back
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 volumes:
   mysql_data:
+  redis_data:
