@@ -12,6 +12,7 @@ import type { PcCustomSet, PcEntrustSet, BasePart } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
 import { shareConfiguration } from '@/lib/share'
 import { useToast } from '@/app/components/ui/Toast'
+import { PriceInfoSection } from '@/app/components/price/PriceInfoSection'
 
 type BuildData = PcCustomSet | PcEntrustSet
 
@@ -123,19 +124,32 @@ function PartRow({
   label,
   name,
   price,
+  partType,
+  partId,
 }: {
   label: string
   name: string | undefined
   price: number | undefined
+  partType?: string
+  partId?: number
 }) {
   if (!name || price === undefined) return null
 
   return (
-    <tr className="border-b border-gray-100 last:border-b-0">
-      <td className="py-3 text-gray-500 w-32">{label}</td>
-      <td className="py-3 text-gray-900">{name}</td>
-      <td className="py-3 text-right text-gray-600">{formatPrice(price)}</td>
-    </tr>
+    <>
+      <tr className="border-b border-gray-100 last:border-b-0">
+        <td className="py-3 text-gray-500 w-32">{label}</td>
+        <td className="py-3 text-gray-900">{name}</td>
+        <td className="py-3 text-right text-gray-600">{formatPrice(price)}</td>
+      </tr>
+      {partType && partId && partId > 0 && (
+        <tr>
+          <td colSpan={3} className="pb-2">
+            <PriceInfoSection partType={partType} partId={partId} />
+          </td>
+        </tr>
+      )}
+    </>
   )
 }
 
@@ -315,26 +329,26 @@ export default function BuildDetailPage() {
               <h2 className="text-lg font-bold text-gray-900 mb-4">選択パーツ</h2>
               <table className="w-full text-sm">
                 <tbody>
-                  <PartRow label="CPU" name={build.cpu?.name} price={build.cpu?.price} />
-                  <PartRow label="GPU" name={build.gpu?.name} price={build.gpu?.price} />
-                  <PartRow label="Memory" name={build.memory?.name} price={build.memory?.price} />
-                  <PartRow label="Storage(1)" name={build.storage1?.name} price={build.storage1?.price} />
+                  <PartRow label="CPU" name={build.cpu?.name} price={build.cpu?.price} partType="cpu" partId={build.cpu?.id} />
+                  <PartRow label="GPU" name={build.gpu?.name} price={build.gpu?.price} partType="gpu" partId={build.gpu?.id} />
+                  <PartRow label="Memory" name={build.memory?.name} price={build.memory?.price} partType="memory" partId={build.memory?.id} />
+                  <PartRow label="Storage(1)" name={build.storage1?.name} price={build.storage1?.price} partType="storage" partId={build.storage1?.id} />
                   {build.storage2 && (
-                    <PartRow label="Storage(2)" name={build.storage2.name} price={build.storage2.price} />
+                    <PartRow label="Storage(2)" name={build.storage2.name} price={build.storage2.price} partType="storage" partId={build.storage2.id} />
                   )}
                   {build.storage3 && (
-                    <PartRow label="Storage(3)" name={build.storage3.name} price={build.storage3.price} />
+                    <PartRow label="Storage(3)" name={build.storage3.name} price={build.storage3.price} partType="storage" partId={build.storage3.id} />
                   )}
-                  <PartRow label="OS" name={build.os?.name} price={build.os?.price} />
+                  <PartRow label="OS" name={build.os?.name} price={build.os?.price} partType="os" partId={build.os?.id} />
                 </tbody>
               </table>
 
               <h3 className="text-md font-bold text-gray-900 mt-6 mb-4">自動推奨パーツ</h3>
               <table className="w-full text-sm">
                 <tbody>
-                  <PartRow label="マザーボード" name={build.motherboard?.name} price={build.motherboard?.price} />
-                  <PartRow label="電源" name={build.psu?.name} price={build.psu?.price} />
-                  <PartRow label="ケース" name={build.case?.name} price={build.case?.price} />
+                  <PartRow label="マザーボード" name={build.motherboard?.name} price={build.motherboard?.price} partType="motherboard" partId={build.motherboard?.id} />
+                  <PartRow label="電源" name={build.psu?.name} price={build.psu?.price} partType="psu" partId={build.psu?.id} />
+                  <PartRow label="ケース" name={build.case?.name} price={build.case?.price} partType="case" partId={build.case?.id} />
                 </tbody>
               </table>
 
