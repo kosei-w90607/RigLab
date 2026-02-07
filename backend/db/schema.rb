@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_07_171038) do
   create_table "parts_cases", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "maker", null: false
@@ -20,6 +20,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
     t.json "specs"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rakuten_url"
+    t.string "rakuten_image_url"
+    t.string "amazon_url"
+    t.datetime "last_price_checked_at"
     t.index ["form_factor"], name: "index_parts_cases_on_form_factor"
     t.index ["maker"], name: "index_parts_cases_on_maker"
     t.index ["price"], name: "index_parts_cases_on_price"
@@ -35,6 +39,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
     t.json "specs"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rakuten_url"
+    t.string "rakuten_image_url"
+    t.string "amazon_url"
+    t.datetime "last_price_checked_at"
     t.index ["maker"], name: "index_parts_cpus_on_maker"
     t.index ["price"], name: "index_parts_cpus_on_price"
     t.index ["socket"], name: "index_parts_cpus_on_socket"
@@ -49,6 +57,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
     t.json "specs"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rakuten_url"
+    t.string "rakuten_image_url"
+    t.string "amazon_url"
+    t.datetime "last_price_checked_at"
     t.index ["maker"], name: "index_parts_gpus_on_maker"
     t.index ["price"], name: "index_parts_gpus_on_price"
   end
@@ -61,6 +73,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
     t.json "specs"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rakuten_url"
+    t.string "rakuten_image_url"
+    t.string "amazon_url"
+    t.datetime "last_price_checked_at"
     t.index ["maker"], name: "index_parts_memories_on_maker"
     t.index ["memory_type"], name: "index_parts_memories_on_memory_type"
     t.index ["price"], name: "index_parts_memories_on_price"
@@ -76,6 +92,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
     t.json "specs"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rakuten_url"
+    t.string "rakuten_image_url"
+    t.string "amazon_url"
+    t.datetime "last_price_checked_at"
     t.index ["form_factor"], name: "index_parts_motherboards_on_form_factor"
     t.index ["memory_type"], name: "index_parts_motherboards_on_memory_type"
     t.index ["socket"], name: "index_parts_motherboards_on_socket"
@@ -88,8 +108,26 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
     t.json "specs"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rakuten_url"
+    t.string "rakuten_image_url"
+    t.string "amazon_url"
+    t.datetime "last_price_checked_at"
     t.index ["maker"], name: "index_parts_os_on_maker"
     t.index ["price"], name: "index_parts_os_on_price"
+  end
+
+  create_table "parts_price_histories", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "part_id", null: false
+    t.string "part_type", null: false
+    t.integer "price", null: false
+    t.string "source", null: false
+    t.string "external_url"
+    t.string "product_name"
+    t.datetime "fetched_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["part_type", "part_id", "fetched_at"], name: "idx_on_part_type_part_id_fetched_at_3d1ecb5a9d"
+    t.index ["part_type", "part_id", "source", "fetched_at"], name: "idx_price_histories_part_source_fetched"
   end
 
   create_table "parts_psus", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -101,6 +139,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
     t.json "specs"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rakuten_url"
+    t.string "rakuten_image_url"
+    t.string "amazon_url"
+    t.datetime "last_price_checked_at"
     t.index ["form_factor"], name: "index_parts_psus_on_form_factor"
     t.index ["wattage"], name: "index_parts_psus_on_wattage"
   end
@@ -112,6 +154,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_01_31_000001) do
     t.json "specs"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rakuten_url"
+    t.string "rakuten_image_url"
+    t.string "amazon_url"
+    t.datetime "last_price_checked_at"
     t.index ["maker"], name: "index_parts_storages_on_maker"
     t.index ["price"], name: "index_parts_storages_on_price"
   end
