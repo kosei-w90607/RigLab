@@ -14,7 +14,7 @@ RSpec.describe 'Api::V1::ShareTokens', type: :request do
         expect(response).to have_http_status(:created)
         json = JSON.parse(response.body)
         expect(json['data']['token']).to be_present
-        expect(json['data']['url']).to start_with('/share/')
+        expect(json['data']['url']).to start_with('/share?token=')
       end
     end
 
@@ -31,7 +31,7 @@ RSpec.describe 'Api::V1::ShareTokens', type: :request do
 
   describe 'GET /api/v1/share_tokens/:token' do
     let!(:cpu) { PartsCpu.create!(name: 'Test CPU', maker: 'Intel', price: 30000, socket: 'LGA1700', tdp: 65, memory_type: 'DDR5') }
-    let!(:share_token) { ShareToken.create!(parts_data: { 'cpu_id' => cpu.id }) }
+    let!(:share_token) { ShareToken.create!(token: SecureRandom.hex(16), parts_data: { 'cpu_id' => cpu.id }) }
 
     context '有効なトークンの場合' do
       it '共有データを取得できる' do

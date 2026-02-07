@@ -13,7 +13,7 @@ module Api
         render json: {
           data: {
             token: share_token.token,
-            url: "/share/#{share_token.token}"
+            url: "/share?token=#{share_token.token}"
           }
         }, status: :created
       rescue ActiveRecord::RecordInvalid => e
