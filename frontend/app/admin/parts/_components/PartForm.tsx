@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Card } from '@/app/components/ui/Card'
 import { Button } from '@/app/components/ui/Button'
 import { Input } from '@/app/components/ui/Input'
 import { Select } from '@/app/components/ui/Select'
+import { useToast } from '@/app/components/ui/Toast'
 import { api } from '@/lib/api'
 
 // パーツカテゴリ
@@ -73,11 +74,18 @@ interface PartFormProps {
   isEdit?: boolean
 }
 
+// 全カテゴリの固有フィールド名一覧
+const ALL_CATEGORY_FIELD_NAMES = new Set(
+  Object.values(CATEGORY_FIELDS).flatMap((fields) => fields.map((f) => f.name))
+)
+
 export function PartForm({ initialData, isEdit = false }: PartFormProps) {
   const router = useRouter()
   const { data: session } = useSession()
+  const { addToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
+  const formRef = useRef<HTMLFormElement>(null)
 
   const [formData, setFormData] = useState<PartFormData>({
     category: initialData?.category || 'cpu',
@@ -91,6 +99,20 @@ export function PartForm({ initialData, isEdit = false }: PartFormProps) {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleCategoryChange = (newCategory: string) => {
+    setFormData((prev) => {
+      // 全カテゴリ固有フィールドをクリア
+      const cleaned: PartFormData = {
+        category: newCategory,
+        name: prev.name,
+        maker: prev.maker,
+        price: prev.price,
+      }
+      if (prev.id !== undefined) cleaned.id = prev.id
+      return cleaned
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!session?.accessToken) return
@@ -99,22 +121,44 @@ export function PartForm({ initialData, isEdit = false }: PartFormProps) {
     setErrors([])
 
     try {
+      // フォームDOM要素から直接値を収集し、Reactステートとマージ
+      // Firefoxのイベント発火タイミング問題を回避する
       const payload = { ...formData }
+      if (formRef.current) {
+        const currentFields = CATEGORY_FIELDS[formData.category] || []
+        for (const field of currentFields) {
+          const input = formRef.current.elements.namedItem(field.name) as HTMLInputElement | null
+          if (input && input.value !== '') {
+            payload[field.name] =
+              field.type === 'number' ? parseInt(input.value) || 0 : input.value
+          }
+        }
+      }
+
+      // 現在のカテゴリに属さない固有フィールドを除外
+      const currentFieldNames = new Set(
+        (CATEGORY_FIELDS[payload.category] || []).map((f) => f.name)
+      )
+      for (const fieldName of ALL_CATEGORY_FIELD_NAMES) {
+        if (!currentFieldNames.has(fieldName)) {
+          delete payload[fieldName]
+        }
+      }
 
       if (isEdit && initialData?.id) {
         await api.patch(`/admin/parts/${initialData.id}`, payload, session.accessToken)
+        addToast({ type: 'success', message: 'パーツを更新しました' })
       } else {
         await api.post('/admin/parts', payload, session.accessToken)
+        addToast({ type: 'success', message: 'パーツを作成しました' })
       }
 
       router.push('/admin/parts')
     } catch (error) {
       console.error('保存に失敗:', error)
-      if (error instanceof Error) {
-        setErrors([error.message])
-      } else {
-        setErrors(['保存に失敗しました'])
-      }
+      const errorMessage = error instanceof Error ? error.message : '保存に失敗しました'
+      setErrors([errorMessage])
+      addToast({ type: 'error', message: `保存に失敗しました: ${errorMessage}` })
     } finally {
       setLoading(false)
     }
@@ -123,7 +167,7 @@ export function PartForm({ initialData, isEdit = false }: PartFormProps) {
   const categoryFields = CATEGORY_FIELDS[formData.category] || []
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
       {errors.length > 0 && (
         <Card padding="md" className="bg-red-50 border-red-200">
           <ul className="list-disc list-inside text-red-600">
@@ -143,7 +187,7 @@ export function PartForm({ initialData, isEdit = false }: PartFormProps) {
             </label>
             <Select
               value={formData.category}
-              onChange={(e) => handleChange('category', e.target.value)}
+              onChange={(e) => handleCategoryChange(e.target.value)}
               options={CATEGORIES}
               disabled={isEdit}
             />
@@ -195,6 +239,7 @@ export function PartForm({ initialData, isEdit = false }: PartFormProps) {
                   {field.label}
                 </label>
                 <Input
+                  name={field.name}
                   type={field.type}
                   value={(formData[field.name] as string | number) || ''}
                   onChange={(e) =>

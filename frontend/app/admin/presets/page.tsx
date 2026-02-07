@@ -9,6 +9,7 @@ import { Select } from '@/app/components/ui/Select'
 import { Skeleton } from '@/app/components/ui/Skeleton'
 import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
 import { ScrollToTopButton } from '@/app/components/ui/ScrollToTopButton'
+import { useToast } from '@/app/components/ui/Toast'
 import { api, ApiResponse } from '@/lib/api'
 
 // 予算帯
@@ -54,6 +55,7 @@ function getUseCaseLabel(useCase: string): string {
 
 export default function AdminPresetsPage() {
   const { data: session } = useSession()
+  const { addToast } = useToast()
   const [presets, setPresets] = useState<Preset[]>([])
   const [loading, setLoading] = useState(true)
   const [budget, setBudget] = useState('')
@@ -94,11 +96,13 @@ export default function AdminPresetsPage() {
     setDeleting(true)
     try {
       await api.delete(`/admin/presets/${deleteTarget.id}`, session.accessToken)
+      addToast({ type: 'success', message: 'プリセットを削除しました' })
       setDeleteTarget(null)
       fetchPresets()
     } catch (error) {
       console.error('プリセットの削除に失敗:', error)
-      alert('削除に失敗しました')
+      const errorMessage = error instanceof Error ? error.message : '削除に失敗しました'
+      addToast({ type: 'error', message: `削除に失敗しました: ${errorMessage}` })
     } finally {
       setDeleting(false)
     }
@@ -140,8 +144,8 @@ export default function AdminPresetsPage() {
       </div>
 
       {/* フィルター */}
-      <div className="flex gap-4">
-        <div className="w-48">
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="w-full sm:w-48">
           <Select
             value={budget}
             onChange={(e) => {
@@ -151,7 +155,7 @@ export default function AdminPresetsPage() {
             options={BUDGET_OPTIONS}
           />
         </div>
-        <div className="w-48">
+        <div className="w-full sm:w-48">
           <Select
             value={useCase}
             onChange={(e) => {
@@ -169,22 +173,22 @@ export default function AdminPresetsPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   名前
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   予算帯
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   用途
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   合計金額
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
@@ -192,33 +196,33 @@ export default function AdminPresetsPage() {
             <tbody className="bg-white divide-y divide-gray-200">
               {presets.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={6} className="px-3 md:px-6 py-12 text-center text-gray-500">
                     プリセットが登録されていません
                   </td>
                 </tr>
               ) : (
                 presets.map((preset) => (
                   <tr key={preset.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {preset.id}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{preset.name}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                         {getBudgetLabel(preset.budgetRange)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                         {getUseCaseLabel(preset.useCase)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatPrice(preset.totalPrice)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex justify-end gap-2">
                         <Link href={`/admin/presets/${preset.id}`}>
                           <Button variant="secondary" size="sm">
