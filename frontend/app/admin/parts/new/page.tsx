@@ -1,9 +1,28 @@
 'use client'
 
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { PartForm } from '../_components/PartForm'
 
 export default function NewPartPage() {
+  const searchParams = useSearchParams()
+
+  // 楽天からのプリフィル対応
+  const prefillName = searchParams.get('name')
+  const prefillPrice = searchParams.get('price')
+  const prefillCategory = searchParams.get('category')
+  const prefillRakutenUrl = searchParams.get('rakuten_url')
+  const prefillRakutenImageUrl = searchParams.get('rakuten_image_url')
+
+  const initialData = prefillName ? {
+    category: prefillCategory || 'cpu',
+    name: prefillName,
+    maker: '',
+    price: prefillPrice ? parseInt(prefillPrice) : 0,
+    rakuten_url: prefillRakutenUrl || '',
+    rakuten_image_url: prefillRakutenImageUrl || '',
+  } : undefined
+
   return (
     <div className="space-y-6">
       {/* ヘッダー */}
@@ -20,7 +39,7 @@ export default function NewPartPage() {
       </div>
 
       {/* フォーム */}
-      <PartForm />
+      <PartForm initialData={initialData} />
     </div>
   )
 }
