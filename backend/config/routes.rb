@@ -36,6 +36,9 @@ Rails.application.routes.draw do
       resources :share_tokens, only: %i[create], param: :token
       get 'share_tokens/:token', to: 'share_tokens#show', as: :share_token
 
+      # Price Histories API
+      get 'parts/:part_type/:part_id/price_histories', to: 'price_histories#show'
+
       # Admin API
       namespace :admin do
         resources :parts, only: %i[create update destroy] do
@@ -46,6 +49,7 @@ Rails.application.routes.draw do
         resources :presets, only: %i[show create update destroy]
         resources :users, only: %i[index update]
         get 'rakuten_search', to: 'rakuten_search#index'
+        post 'price_fetch', to: 'price_fetch#create'
       end
     end
   end
