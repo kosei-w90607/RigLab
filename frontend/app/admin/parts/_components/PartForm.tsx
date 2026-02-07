@@ -257,6 +257,34 @@ export function PartForm({ initialData, isEdit = false }: PartFormProps) {
         </Card>
       )}
 
+      <Card padding="lg" shadow="sm">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">外部リンク情報</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              楽天URL
+            </label>
+            <Input
+              type="url"
+              value={(formData.rakuten_url as string) || ''}
+              onChange={(e) => handleChange('rakuten_url', e.target.value)}
+              placeholder="https://item.rakuten.co.jp/..."
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              楽天画像URL
+            </label>
+            <Input
+              type="url"
+              value={(formData.rakuten_image_url as string) || ''}
+              onChange={(e) => handleChange('rakuten_image_url', e.target.value)}
+              placeholder="https://thumbnail.image.rakuten.co.jp/..."
+            />
+          </div>
+        </div>
+      </Card>
+
       <div className="flex justify-end gap-4">
         <Button
           type="button"
