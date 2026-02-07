@@ -6,7 +6,7 @@ module Api
       class PartsController < ApplicationController
         before_action :authenticate_user!
         before_action :require_admin!
-        before_action :set_part, only: %i[update destroy]
+        before_action :set_part, only: %i[update destroy link_rakuten]
 
         CATEGORY_MODEL_MAP = {
           'cpu' => PartsCpu,
@@ -45,6 +45,29 @@ module Api
         def destroy
           @part.destroy
           head :no_content
+        end
+
+        def link_rakuten
+          @part.update!(
+            rakuten_url: params[:rakuten_url],
+            rakuten_image_url: params[:rakuten_image_url]
+          )
+
+          if params[:item_price].present?
+            PartsPriceHistory.create!(
+              part_id: @part.id,
+              part_type: params[:category],
+              price: params[:item_price].to_i,
+              source: 'rakuten',
+              external_url: params[:rakuten_url],
+              product_name: @part.name,
+              fetched_at: Time.current
+            )
+          end
+
+          render json: { data: { message: '楽天情報を紐付けました' } }
+        rescue ActiveRecord::RecordInvalid => e
+          render json: { error: { code: 'VALIDATION_ERROR', message: e.message } }, status: :unprocessable_entity
         end
 
         private

@@ -38,9 +38,14 @@ Rails.application.routes.draw do
 
       # Admin API
       namespace :admin do
-        resources :parts, only: %i[create update destroy]
+        resources :parts, only: %i[create update destroy] do
+          member do
+            post :link_rakuten
+          end
+        end
         resources :presets, only: %i[show create update destroy]
         resources :users, only: %i[index update]
+        get 'rakuten_search', to: 'rakuten_search#index'
       end
     end
   end
