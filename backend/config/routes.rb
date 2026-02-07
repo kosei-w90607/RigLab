@@ -39,6 +39,10 @@ Rails.application.routes.draw do
       # Price Histories API
       get 'parts/:part_type/:part_id/price_histories', to: 'price_histories#show'
 
+      # Buy Advice API
+      get 'parts/:part_type/:part_id/buy_advice', to: 'buy_advice#show'
+      get 'buy_advice/summary', to: 'buy_advice#summary'
+
       # Admin API
       namespace :admin do
         resources :parts, only: %i[create update destroy] do
