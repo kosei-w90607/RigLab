@@ -11,6 +11,7 @@ import { Modal } from '@/app/components/ui/Modal'
 import { ConfirmDialog } from '@/app/components/ui/ConfirmDialog'
 import type { PcCustomSet } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
+import { createShareUrl } from '@/lib/share'
 import { ScrollToTopButton } from '@/app/components/ui/ScrollToTopButton'
 import { useToast } from '@/app/components/ui/Toast'
 
@@ -289,11 +290,27 @@ export default function DashboardPage() {
   }
 
   const handleShare = async (build: PcCustomSet) => {
-    const shareUrl = build.shareToken
-      ? `${window.location.origin}/share?build=${build.shareToken}`
-      : `${window.location.origin}/builds/${build.id}`
-
     try {
+      // ビルド詳細を取得してパーツIDを取得
+      const response = await api.get<{ data: { parts: { category: string; part: { id: number } }[] } }>(
+        `/builds/${build.id}`,
+        session?.accessToken
+      )
+      const parts = response.data.parts
+      const partIds: Record<string, number | null> = {}
+      let storageIndex = 1
+      for (const p of parts) {
+        if (p.category === 'storage') {
+          partIds[`storage${storageIndex}_id`] = p.part.id
+          storageIndex++
+        } else {
+          partIds[`${p.category}_id`] = p.part.id
+        }
+      }
+
+      // share_tokensでトークン生成してURL取得
+      const shareUrl = await createShareUrl(partIds)
+
       if (navigator.share) {
         await navigator.share({
           title: build.name,
@@ -304,8 +321,9 @@ export default function DashboardPage() {
         await navigator.clipboard.writeText(shareUrl)
         addToast({ type: 'success', message: 'URLをコピーしました' })
       }
-    } catch {
-      // User cancelled share
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') return
+      addToast({ type: 'error', message: '共有URLの生成に失敗しました' })
     }
   }
 
