@@ -162,7 +162,7 @@ export default function AdminPartsPage() {
     <div className="space-y-6">
       {/* ヘッダー */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">パーツ管理</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">パーツ管理</h1>
         <div className="flex gap-2">
           <Link href="/admin/parts/import">
             <Button variant="secondary">
@@ -208,7 +208,7 @@ export default function AdminPartsPage() {
           >
             前へ
           </Button>
-          <span className="flex items-center px-4 text-sm text-gray-600">
+          <span className="flex items-center px-4 text-sm text-gray-600 dark:text-gray-400">
             {page} / {totalPages}
           </span>
           <Button
@@ -225,23 +225,23 @@ export default function AdminPartsPage() {
       {/* パーツ一覧 */}
       <Card padding="none" shadow="sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   名前
                 </th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   カテゴリ
                 </th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   メーカー
                 </th>
                 <th
-                  className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700"
+                  className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider cursor-pointer select-none hover:text-gray-700 dark:hover:text-gray-300"
                   onClick={() => {
                     setPriceSort((prev) => {
                       if (prev === null) return 'asc'
@@ -255,36 +255,36 @@ export default function AdminPartsPage() {
                   {priceSort === 'asc' && ' ▲'}
                   {priceSort === 'desc' && ' ▼'}
                 </th>
-                <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {parts.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-3 md:px-6 py-12 text-center text-gray-500">
+                  <td colSpan={6} className="px-3 md:px-6 py-12 text-center text-gray-500 dark:text-gray-400">
                     パーツが登録されていません
                   </td>
                 </tr>
               ) : (
                 parts.map((part) => (
-                  <tr key={`${part.category}-${part.id}`} className="hover:bg-gray-50">
-                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <tr key={`${part.category}-${part.id}`} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {part.id}
                     </td>
                     <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">{part.name}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{part.name}</div>
                     </td>
                     <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                         {getCategoryLabel(part.category)}
                       </span>
                     </td>
-                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       {part.maker}
                     </td>
-                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
                       {formatPrice(part.price)}
                     </td>
                     <td className="px-3 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -323,7 +323,7 @@ export default function AdminPartsPage() {
           >
             前へ
           </Button>
-          <span className="flex items-center px-4 text-sm text-gray-600">
+          <span className="flex items-center px-4 text-sm text-gray-600 dark:text-gray-400">
             {page} / {totalPages}
           </span>
           <Button

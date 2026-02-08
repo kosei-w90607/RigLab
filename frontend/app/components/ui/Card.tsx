@@ -46,7 +46,7 @@ export function Card({
   return (
     <div
       className={`
-        bg-white rounded-lg border border-gray-200
+        bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700
         ${paddingStyles[padding]}
         ${shadowStyles[shadow]}
         ${hoverable ? 'transition-shadow duration-200 hover:shadow-md' : ''}
@@ -66,7 +66,7 @@ export function CardHeader({
 }: CardHeaderProps) {
   return (
     <div
-      className={`border-b border-gray-200 pb-4 mb-4 ${className}`.trim()}
+      className={`border-b border-gray-200 dark:border-gray-700 pb-4 mb-4 ${className}`.trim()}
       {...props}
     >
       {children}
@@ -93,7 +93,7 @@ export function CardFooter({
 }: CardFooterProps) {
   return (
     <div
-      className={`border-t border-gray-200 pt-4 mt-4 ${className}`.trim()}
+      className={`border-t border-gray-200 dark:border-gray-700 pt-4 mt-4 ${className}`.trim()}
       {...props}
     >
       {children}

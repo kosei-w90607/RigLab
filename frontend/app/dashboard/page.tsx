@@ -76,11 +76,11 @@ function BuildCard({
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex-1">
           <Link href={`/builds/${build.id}`}>
-            <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 truncate" title={build.name}>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 hover:text-blue-600 truncate" title={build.name}>
               {build.name}
             </h2>
           </Link>
-          <p className="text-sm text-gray-500">作成日: {formatDate(build.createdAt)}</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">作成日: {formatDate(build.createdAt)}</p>
         </div>
         <div className="text-xl font-bold text-custom-blue whitespace-nowrap">
           {formatPrice(build.totalPrice)}
@@ -88,7 +88,7 @@ function BuildCard({
       </div>
       <div className="mt-4 flex flex-wrap gap-2 justify-end">
         <Link href={`/configurator?edit=${build.id}`}>
-          <button aria-label={`${build.name}を編集する`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+          <button aria-label={`${build.name}を編集する`} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
             <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
@@ -98,7 +98,7 @@ function BuildCard({
         <button
           onClick={() => onShare(build)}
           aria-label={`${build.name}を共有する`}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
         >
           <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
@@ -141,10 +141,10 @@ function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
   return (
     <Card padding="lg" shadow="sm" className="text-center py-12">
       <div className="text-4xl mb-4">📦</div>
-      <p className="text-gray-900 font-medium mb-2">
+      <p className="text-gray-900 dark:text-gray-100 font-medium mb-2">
         保存した構成がありません
       </p>
-      <p className="text-gray-500 mb-6">
+      <p className="text-gray-500 dark:text-gray-400 mb-6">
         PC構成を作成して保存しましょう
       </p>
       <Button variant="primary" onClick={onCreateClick}>
@@ -173,13 +173,13 @@ function CreateBuildModal({
       <div className="space-y-4">
         <button
           onClick={() => handleSelect('/builder')}
-          className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-custom-blue hover:bg-blue-50 transition-colors text-left"
+          className="w-full p-4 border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-custom-blue hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-left"
         >
           <div className="flex items-start gap-4">
             <div className="text-3xl">🎯</div>
             <div>
-              <h2 className="font-bold text-gray-900 mb-1">おまかせ構成</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-1">おまかせ構成</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 用途と予算を入力するだけで、AIが最適なパーツ構成を提案します。初心者におすすめ。
               </p>
             </div>
@@ -188,13 +188,13 @@ function CreateBuildModal({
 
         <button
           onClick={() => handleSelect('/configurator')}
-          className="w-full p-4 border-2 border-gray-200 rounded-lg hover:border-custom-blue hover:bg-blue-50 transition-colors text-left"
+          className="w-full p-4 border-2 border-gray-200 dark:border-gray-600 rounded-lg hover:border-custom-blue hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-left"
         >
           <div className="flex items-start gap-4">
             <div className="text-3xl">🔧</div>
             <div>
-              <h2 className="font-bold text-gray-900 mb-1">カスタム構成</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="font-bold text-gray-900 dark:text-gray-100 mb-1">カスタム構成</h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 パーツを1つずつ自分で選びます。こだわりの構成を作りたい方向け。
               </p>
             </div>
@@ -351,11 +351,11 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
               ダッシュボード
             </h1>
             {session?.user?.name && (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 こんにちは、{session.user.name}さん
               </p>
             )}
@@ -378,7 +378,7 @@ export default function DashboardPage() {
         {/* Loading State */}
         {isLoading && !error && (
           <>
-            <p className="text-gray-600 mb-4">保存した構成</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">保存した構成</p>
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
@@ -388,7 +388,7 @@ export default function DashboardPage() {
         {/* Builds List */}
         {!isLoading && !error && (
           <>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
               保存した構成 ({builds.length}件)
             </p>
 

@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
+import { useTheme } from 'next-themes'
 
 interface NavLinkProps {
   href: string
@@ -22,7 +23,7 @@ function NavLink({ href, children, onClick }: NavLinkProps) {
       className={`px-4 py-2 rounded-lg transition-colors ${
         isActive
           ? 'bg-custom-blue text-white'
-          : 'text-gray-700 hover:bg-gray-100'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
       }`}
     >
       {children}
@@ -41,11 +42,43 @@ function MobileNavLink({ href, children, onClick }: NavLinkProps) {
       className={`block px-4 py-3 rounded-lg transition-colors ${
         isActive
           ? 'bg-custom-blue text-white'
-          : 'text-gray-700 hover:bg-gray-100'
+          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
       }`}
     >
       {children}
     </Link>
+  )
+}
+
+function ThemeToggleButton() {
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div className="w-9 h-9" />
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      className="p-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      aria-label={theme === 'dark' ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
+    >
+      {theme === 'dark' ? (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ) : (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      )}
+    </button>
   )
 }
 
@@ -57,7 +90,7 @@ export function Header() {
   const closeMenu = () => setIsMenuOpen(false)
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
+    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700">
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -73,12 +106,12 @@ export function Header() {
             {isLoggedIn ? (
               <>
                 <NavLink href="/dashboard">Dashboard</NavLink>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-gray-400">
                   {session?.user?.name || session?.user?.email}
                 </span>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
-                  className="px-4 py-2 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
+                  className="px-4 py-2 rounded-lg transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   ログアウト
                 </button>
@@ -86,14 +119,16 @@ export function Header() {
             ) : (
               <NavLink href="/signin">ログイン</NavLink>
             )}
+            <ThemeToggleButton />
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center gap-1">
+            <ThemeToggleButton />
             <button
               type="button"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 rounded-md text-gray-700 hover:bg-gray-100"
+              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
               aria-label={isMenuOpen ? 'メニューを閉じる' : 'メニューを開く'}
               aria-expanded={isMenuOpen}
             >
@@ -132,14 +167,14 @@ export function Header() {
 
         {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4 space-y-2">
+          <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-4 space-y-2">
             {isLoggedIn && (
-              <div className="px-4 py-3 bg-blue-50 rounded-lg mb-3">
+              <div className="px-4 py-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg mb-3">
                 <div className="flex items-center gap-2">
                   <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  <span className="text-base font-bold text-gray-900">
+                  <span className="text-base font-bold text-gray-900 dark:text-gray-100">
                     {session?.user?.name || session?.user?.email}さん
                   </span>
                 </div>
@@ -164,7 +199,7 @@ export function Header() {
                     closeMenu()
                     signOut({ callbackUrl: '/' })
                   }}
-                  className="block w-full text-left px-4 py-3 rounded-lg transition-colors text-gray-700 hover:bg-gray-100"
+                  className="block w-full text-left px-4 py-3 rounded-lg transition-colors text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   ログアウト
                 </button>

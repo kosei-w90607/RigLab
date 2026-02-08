@@ -27,7 +27,7 @@ export function ScrollToTopButton({ threshold = 300 }: ScrollToTopButtonProps) {
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-4 right-4 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-50"
+      className="fixed bottom-4 right-4 bg-blue-600 dark:bg-gray-700 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 dark:hover:bg-gray-600 transition-colors z-50"
       aria-label="トップへ戻る"
     >
       <svg

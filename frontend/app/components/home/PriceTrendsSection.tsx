@@ -73,7 +73,7 @@ export function PriceTrendsSection() {
 
   return (
     <section className="w-full max-w-4xl px-4 mb-12">
-      <h2 className="text-2xl font-bold text-gray-900 mb-1">最新価格動向</h2>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">最新価格動向</h2>
       <p className="text-xs text-gray-400 mb-6">過去30日間のデータに基づく</p>
 
       {loading ? (
@@ -90,7 +90,7 @@ export function PriceTrendsSection() {
           {/* Category Summary Cards */}
           {hasTrends && (
             <>
-              <h3 className="text-sm font-semibold text-gray-600 mb-3">カテゴリ別 価格トレンド</h3>
+              <h3 className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">カテゴリ別 価格トレンド</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {trends
                   .filter((t) => ['cpu', 'gpu', 'memory', 'storage'].includes(t.category))
@@ -115,8 +115,8 @@ export function PriceTrendsSection() {
                   onClick={() => setActiveTab('drops')}
                   className={`px-3 py-1 text-sm rounded-full transition-colors ${
                     activeTab === 'drops'
-                      ? 'bg-green-100 text-green-800 font-bold'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 font-bold'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   値下がりTOP5
@@ -125,8 +125,8 @@ export function PriceTrendsSection() {
                   onClick={() => setActiveTab('rises')}
                   className={`px-3 py-1 text-sm rounded-full transition-colors ${
                     activeTab === 'rises'
-                      ? 'bg-red-100 text-red-800 font-bold'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 font-bold'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   値上がりTOP5
@@ -141,17 +141,17 @@ export function PriceTrendsSection() {
                     <Link
                       key={`${item.partType}-${item.partId}`}
                       href={`/price-trends/${item.partType}/${item.partId}`}
-                      className="flex items-center justify-between py-2 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 rounded px-1 transition-colors"
+                      className="flex items-center justify-between py-2 border-b border-gray-50 dark:border-gray-700 last:border-b-0 hover:bg-gray-50 dark:hover:bg-gray-700 rounded px-1 transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-xs text-gray-400 w-4">{idx + 1}</span>
                         <div className="min-w-0">
-                          <p className="text-sm text-gray-900 truncate">{item.partName}</p>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 truncate">{item.partName}</p>
                           <span className="text-xs text-gray-400">{CATEGORY_LABELS[item.partType] || item.partType}</span>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0 ml-2">
-                        <p className="text-sm font-medium text-gray-900">{formatPrice(item.currentPrice)}</p>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{formatPrice(item.currentPrice)}</p>
                         <span className={`text-xs font-bold ${item.changePercent < 0 ? 'text-green-600' : 'text-red-600'}`}>
                           {item.changePercent > 0 ? '+' : ''}{item.changePercent}%
                         </span>
@@ -164,7 +164,7 @@ export function PriceTrendsSection() {
           )}
 
           <div className="text-center mt-4">
-            <Link href="/price-trends" className="text-sm text-blue-600 hover:text-blue-800">
+            <Link href="/price-trends" className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
               価格動向をもっと見る →
             </Link>
           </div>

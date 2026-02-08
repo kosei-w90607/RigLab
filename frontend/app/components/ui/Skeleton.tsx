@@ -36,7 +36,7 @@ export function Skeleton({
   return (
     <div
       className={`
-        bg-gray-200
+        bg-gray-200 dark:bg-gray-700
         ${variantStyles[variant]}
         ${animationStyles[animation]}
         ${className}

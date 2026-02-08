@@ -39,14 +39,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={selectId}
-            className="block text-sm font-medium text-gray-700 mb-1"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
           >
             {label}
           </label>
         )}
         <div className="relative">
           {leftIcon && (
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
               {leftIcon}
             </div>
           )}
@@ -56,17 +56,17 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             className={`
               block w-full rounded-lg border
               px-4 py-2 pr-10
-              text-gray-900
+              text-gray-900 dark:text-gray-100
               transition-colors duration-200
               focus:outline-none focus:ring-2 focus:ring-offset-0
-              disabled:bg-gray-100 disabled:cursor-not-allowed
+              disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:cursor-not-allowed
               appearance-none
-              bg-white
+              bg-white dark:bg-gray-800
               ${leftIcon ? 'pl-10' : ''}
               ${
                 error
                   ? 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                  : 'border-gray-300 focus:border-custom-blue focus:ring-custom-blue'
+                  : 'border-gray-300 dark:border-gray-600 focus:border-custom-blue focus:ring-custom-blue'
               }
               ${className}
             `.trim().replace(/\s+/g, ' ')}
@@ -91,7 +91,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               </option>
             ))}
           </select>
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+          <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
             <svg
               className="h-5 w-5"
               xmlns="http://www.w3.org/2000/svg"
@@ -113,7 +113,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           </p>
         )}
         {helperText && !error && (
-          <p id={`${selectId}-helper`} className="mt-1 text-sm text-gray-500">
+          <p id={`${selectId}-helper`} className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             {helperText}
           </p>
         )}

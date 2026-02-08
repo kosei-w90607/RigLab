@@ -62,7 +62,7 @@ export function BuyNowSection() {
           <circle cx="21" cy="13" r="1" fill="white" />
           <path d="M14 16 Q18 19 22 16" stroke="white" strokeWidth="1.5" fill="none" />
         </svg>
-        <h2 className="text-2xl font-bold text-gray-900">注目の値下がりパーツ</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">注目の値下がりパーツ</h2>
       </div>
       <p className="text-xs text-gray-400 mb-6">過去7日間の価格変動</p>
 
@@ -82,7 +82,7 @@ export function BuyNowSection() {
                     <span className="text-xs font-medium text-gray-400">
                       {CATEGORY_LABELS[deal.partType] || deal.partType}
                     </span>
-                    <p className="text-sm font-bold text-gray-900 truncate">{deal.partName}</p>
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">{deal.partName}</p>
                     <p className="text-lg font-bold text-custom-blue mt-1">
                       {formatPrice(deal.currentPrice)}
                     </p>
@@ -106,7 +106,7 @@ export function BuyNowSection() {
       )}
 
       <div className="text-center mt-4">
-        <Link href="/price-trends" className="text-sm text-blue-600 hover:text-blue-800">
+        <Link href="/price-trends" className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300">
           価格動向をもっと見る →
         </Link>
       </div>

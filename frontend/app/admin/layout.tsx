@@ -115,27 +115,27 @@ function AdminHeader({ onMenuToggle }: { onMenuToggle: () => void }) {
   const { data: session } = useSession()
 
   return (
-    <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button
             onClick={onMenuToggle}
-            className="text-gray-600 hover:text-gray-900 lg:hidden"
+            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 lg:hidden"
             aria-label="メニューを開く"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">管理者ダッシュボード</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">管理者ダッシュボード</h1>
         </div>
         <div className="flex items-center gap-2 sm:gap-4">
-          <span className="text-sm text-gray-600 hidden sm:inline">
+          <span className="text-sm text-gray-600 dark:text-gray-400 hidden sm:inline">
             {session?.user?.name || session?.user?.email}
           </span>
           <Link
             href="/"
-            className="text-sm text-blue-600 hover:text-blue-800"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
           >
             サイトに戻る
           </Link>
@@ -159,7 +159,7 @@ function LoadingSkeleton() {
         </div>
       </div>
       <div className="flex-1">
-        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+        <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-4">
           <Skeleton className="h-8 w-48" />
         </div>
         <div className="p-4 sm:p-6">
@@ -174,8 +174,8 @@ function AccessDenied() {
   const router = useRouter()
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-md text-center">
         <svg
           className="w-16 h-16 mx-auto text-red-500 mb-4"
           fill="none"
@@ -189,10 +189,10 @@ function AccessDenied() {
             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
           />
         </svg>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           アクセス権限がありません
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           このページは管理者のみアクセスできます。
         </p>
         <button
@@ -242,7 +242,7 @@ export default function AdminLayout({
 
   // 管理者の場合
   return (
-    <div className="lg:flex min-h-screen bg-gray-100">
+    <div className="lg:flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <AdminSidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader onMenuToggle={toggleSidebar} />

@@ -56,17 +56,17 @@ function PartRow({ label, part }: { label: string; part: { name: string; price: 
   if (!part) {
     return (
       <tr className="border-b border-gray-100">
-        <td className="py-2 text-gray-500 w-24">{label}</td>
+        <td className="py-2 text-gray-500 dark:text-gray-400 w-24">{label}</td>
         <td className="py-2 text-gray-400">未設定</td>
         <td className="py-2 text-right text-gray-400">-</td>
       </tr>
     )
   }
   return (
-    <tr className="border-b border-gray-100">
-      <td className="py-2 text-gray-500 w-24">{label}</td>
-      <td className="py-2 text-gray-900">{part.name}</td>
-      <td className="py-2 text-right text-gray-600">{formatPrice(part.price)}</td>
+    <tr className="border-b border-gray-100 dark:border-gray-700">
+      <td className="py-2 text-gray-500 dark:text-gray-400 w-24">{label}</td>
+      <td className="py-2 text-gray-900 dark:text-gray-100">{part.name}</td>
+      <td className="py-2 text-right text-gray-600 dark:text-gray-400">{formatPrice(part.price)}</td>
     </tr>
   )
 }
@@ -150,7 +150,7 @@ function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
         <div>
           <Link href={`/builds/${preset.id}?type=preset`}>
-            <h2 className="text-lg font-bold text-gray-900 hover:text-blue-600 cursor-pointer">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 hover:text-blue-600 cursor-pointer">
               {preset.name}
             </h2>
           </Link>
@@ -163,7 +163,7 @@ function PresetCard({ preset, index }: { preset: ApiPreset; index: number }) {
         </div>
       </div>
 
-      <div className="border-t border-gray-200 pt-4 mb-4">
+      <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mb-4">
         <table className="w-full text-sm">
           <tbody>
             <PartRow label="CPU" part={preset.cpu} />
@@ -274,11 +274,11 @@ export default function BuilderResultPage() {
   return (
     <div className="flex-1 px-4 py-8 md:py-12">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           検索結果
         </h1>
         {conditionText && (
-          <p className="text-gray-600 mb-8">{conditionText}</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-8">{conditionText}</p>
         )}
 
         {isLoading && (
@@ -300,10 +300,10 @@ export default function BuilderResultPage() {
         {!isLoading && !error && presets.length === 0 && (
           <Card padding="lg" shadow="sm" className="text-center py-12">
             <div className="text-4xl mb-4">🔍</div>
-            <p className="text-gray-900 font-medium mb-2">
+            <p className="text-gray-900 dark:text-gray-100 font-medium mb-2">
               条件に合う構成が見つかりませんでした
             </p>
-            <p className="text-gray-500 mb-6">
+            <p className="text-gray-500 dark:text-gray-400 mb-6">
               条件を変更して再度お試しください
             </p>
             <Link href="/builder">

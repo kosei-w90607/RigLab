@@ -7,7 +7,10 @@
   --background-rgb: 240, 240, 240;
 }
 
-/* Dark mode disabled - not in current scope */
+.dark {
+  --foreground-rgb: 243, 244, 246;
+  --background-rgb: 17, 24, 39;
+}
 
 body {
   color: rgb(var(--foreground-rgb));
