@@ -951,7 +951,167 @@ GET /api/v1/share_tokens/:token
 
 ---
 
-## 9. 全エンドポイント一覧（統合版）
+## 9. 楽天API連携・価格分析 API（Phase 7〜8.5）
+
+### 9.1 楽天商品検索（要管理者権限）
+
+```
+GET /api/v1/rakuten/search
+```
+
+**クエリパラメータ:**
+| パラメータ | 型 | 説明 |
+|-----------|-----|------|
+| keyword | string | 検索キーワード |
+| category | string | パーツカテゴリ（genreIdの自動付与に使用） |
+| page | integer | ページ番号 |
+
+**レスポンス (200):**
+```json
+{
+  "items": [
+    {
+      "itemName": "Intel Core i7-14700K",
+      "itemPrice": 52000,
+      "shopName": "PCショップ",
+      "itemUrl": "https://...",
+      "imageUrl": "https://...",
+      "detectedCategory": "cpu"
+    }
+  ],
+  "page": 1,
+  "pageCount": 10
+}
+```
+
+### 9.2 パーツランキング
+
+```
+GET /api/v1/rankings
+```
+
+**クエリパラメータ:**
+| パラメータ | 型 | 説明 |
+|-----------|-----|------|
+| category | string | パーツカテゴリ (cpu, gpu, memory, ssd, motherboard, psu, case) |
+
+**レスポンス (200):**
+```json
+{
+  "data": [
+    {
+      "rank": 1,
+      "itemName": "Intel Core i7-14700K",
+      "itemPrice": 52000,
+      "shopName": "PCショップ",
+      "itemUrl": "https://...",
+      "imageUrl": "https://..."
+    }
+  ],
+  "category": "cpu"
+}
+```
+
+### 9.3 価格動向一覧
+
+```
+GET /api/v1/price_trends
+```
+
+**レスポンス (200):**
+```json
+{
+  "data": {
+    "cpu": {
+      "parts_count": 15,
+      "avg_price": 45000,
+      "trend": "down"
+    },
+    "gpu": {
+      "parts_count": 12,
+      "avg_price": 75000,
+      "trend": "stable"
+    }
+  }
+}
+```
+
+### 9.4 カテゴリ別価格動向
+
+```
+GET /api/v1/price_trends/:category
+```
+
+**レスポンス (200):**
+```json
+{
+  "data": {
+    "category": "cpu",
+    "parts": [
+      {
+        "id": 1,
+        "name": "Intel Core i7-14700K",
+        "current_price": 52000,
+        "price_change_pct": -2.1,
+        "daily_averages": [
+          { "date": "2026-02-01", "avg_price": 53000 },
+          { "date": "2026-02-02", "avg_price": 52500 }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 9.5 パーツ別価格動向
+
+```
+GET /api/v1/price_trends/:category/:part_id
+```
+
+**レスポンス (200):**
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Intel Core i7-14700K",
+    "category": "cpu",
+    "current_price": 52000,
+    "price_history": [
+      { "date": "2026-02-01", "price": 53000 },
+      { "date": "2026-02-02", "price": 52500 }
+    ],
+    "buy_timing": {
+      "recommendation": "buy",
+      "message": "直近7日で5%下落中。今が買い時です！"
+    }
+  }
+}
+```
+
+### 9.6 買い時判定
+
+```
+GET /api/v1/buy_timing
+```
+
+**レスポンス (200):**
+```json
+{
+  "data": [
+    {
+      "category": "gpu",
+      "message": "GPUは値下がり傾向。購入を検討してもいいかも！",
+      "trend": "down",
+      "confidence": "high"
+    }
+  ]
+}
+```
+
+---
+
+## 10. 全エンドポイント一覧（統合版）
 
 | メソッド | エンドポイント | 認証 | 説明 |
 |---------|---------------|------|------|
@@ -980,10 +1140,16 @@ GET /api/v1/share_tokens/:token
 | DELETE | /api/v1/admin/presets/:id | Admin | プリセット削除 |
 | GET | /api/v1/admin/users | Admin | ユーザー一覧 |
 | PATCH | /api/v1/admin/users/:id | Admin | ユーザー権限更新 |
+| GET | /api/v1/rakuten/search | Admin | 楽天商品検索 |
+| GET | /api/v1/rankings | - | パーツランキング |
+| GET | /api/v1/price_trends | - | 価格動向一覧 |
+| GET | /api/v1/price_trends/:category | - | カテゴリ別価格動向 |
+| GET | /api/v1/price_trends/:category/:part_id | - | パーツ別価格動向 |
+| GET | /api/v1/buy_timing | - | 買い時判定 |
 
 ---
 
-## 10. 改訂履歴
+## 11. 改訂履歴
 
 | 日付 | 内容 |
 |------|------|
@@ -992,3 +1158,4 @@ GET /api/v1/share_tokens/:token
 | 2025-01-17 | パーツ詳細取得にcategoryパラメータを必須追加（理由: DB設計上パーツが8テーブルに分散しており、IDのみでは一意特定不可のため） |
 | 2026-02-01 | 共有トークンAPI追加（セクション8）- 未保存構成の共有機能を統一 |
 | 2026-02-01 | Phase 6 完了に伴うAPI設計書の実装との同期: (1) パーツ一覧に互換性フィルタパラメータ追加（cpu_socket, memory_type, form_factor, min_gpu_length）、(2) パーツ推奨API追加（GET /api/v1/parts/recommendations）、(3) 管理者ユーザーAPI追加（GET/PATCH /api/v1/admin/users）、(4) プリセット一覧のレスポンス形式をフラット形式に修正、(5) 認証APIエンドポイント名を実装に合わせて修正（/auth/register, /auth/login, /auth/me）、(6) エンドポイント一覧を統合・更新 |
+| 2026-02-09 | Phase 7〜8.5のAPI追加: 楽天商品検索API、ランキングAPI、価格動向API（一覧/カテゴリ別/パーツ別）、買い時判定API |
