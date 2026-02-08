@@ -16,8 +16,9 @@ module Api
           )
 
           if result.success?
+            items = RakutenApiClient.filter_noise(result.items, params[:category])
             items = RakutenApiClient.filter_results(
-              result.items,
+              items,
               trusted_only: params[:trusted_only] == 'true'
             )
             render json: {

@@ -286,15 +286,18 @@ export default function RakutenImportPage() {
               options={CATEGORIES}
             />
           </div>
-          <label className="flex items-center gap-1.5 text-sm text-gray-700 whitespace-nowrap cursor-pointer">
-            <input
-              type="checkbox"
-              checked={trustedOnly}
-              onChange={(e) => setTrustedOnly(e.target.checked)}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            信頼ショップのみ
-          </label>
+          <div className="flex flex-col justify-center">
+            <label className="flex items-center gap-1.5 text-sm text-gray-700 whitespace-nowrap cursor-pointer">
+              <input
+                type="checkbox"
+                checked={trustedOnly}
+                onChange={(e) => setTrustedOnly(e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              信頼ショップのみ
+            </label>
+            <p className="text-xs text-gray-400">中古品・アクセサリは自動除外されます</p>
+          </div>
           <Button type="submit" disabled={loading || !keyword.trim()}>
             {loading ? '検索中...' : '検索'}
           </Button>

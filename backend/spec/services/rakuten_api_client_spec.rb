@@ -115,6 +115,44 @@ RSpec.describe RakutenApiClient do
       end
     end
 
+    context 'NGKeyword・imageFlag・minPrice' do
+      it 'カテゴリ指定時にNGKeywordを送信する' do
+        stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
+          .with(query: hash_including('NGKeyword' => /中古/))
+          .to_return(status: 200, body: success_response_body,
+                     headers: { 'Content-Type' => 'application/json' })
+        described_class.search(keyword: 'Core i9', category: 'cpu')
+        expect(stub).to have_been_requested
+      end
+
+      it 'CPUカテゴリのNGKeywordにクーラー等のノイズワードを含む' do
+        stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
+          .with(query: hash_including('NGKeyword' => /クーラー/))
+          .to_return(status: 200, body: success_response_body,
+                     headers: { 'Content-Type' => 'application/json' })
+        described_class.search(keyword: 'Core i9', category: 'cpu')
+        expect(stub).to have_been_requested
+      end
+
+      it 'imageFlag=1を常に送信する' do
+        stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
+          .with(query: hash_including('imageFlag' => '1'))
+          .to_return(status: 200, body: success_response_body,
+                     headers: { 'Content-Type' => 'application/json' })
+        described_class.search(keyword: 'Core i9', category: 'cpu')
+        expect(stub).to have_been_requested
+      end
+
+      it 'CPUカテゴリでminPrice=5000を送信する' do
+        stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
+          .with(query: hash_including('minPrice' => '5000'))
+          .to_return(status: 200, body: success_response_body,
+                     headers: { 'Content-Type' => 'application/json' })
+        described_class.search(keyword: 'Core i9', category: 'cpu')
+        expect(stub).to have_been_requested
+      end
+    end
+
     context 'detected_category' do
       it 'parse_itemにdetected_categoryを含める' do
         response_with_known_genre = {
@@ -277,6 +315,42 @@ RSpec.describe RakutenApiClient do
       end
     end
 
+    context 'ノイズ除外と順位正規化' do
+      it 'ランキングからノイズ商品を除外して順位を振り直す' do
+        noisy_ranking = {
+          'Items' => [
+            { 'Item' => { 'rank' => 13, 'itemName' => 'RTX 4080 SUPER', 'itemPrice' => 150000, 'itemUrl' => 'https://example.com/1', 'mediumImageUrls' => [], 'shopName' => 'Shop', 'itemCode' => 'a', 'reviewCount' => 0, 'reviewAverage' => 0 } },
+            { 'Item' => { 'rank' => 15, 'itemName' => 'GPUライザーケーブル', 'itemPrice' => 2000, 'itemUrl' => 'https://example.com/2', 'mediumImageUrls' => [], 'shopName' => 'Shop', 'itemCode' => 'b', 'reviewCount' => 0, 'reviewAverage' => 0 } },
+            { 'Item' => { 'rank' => 18, 'itemName' => 'RTX 4070 Ti', 'itemPrice' => 110000, 'itemUrl' => 'https://example.com/3', 'mediumImageUrls' => [], 'shopName' => 'Shop', 'itemCode' => 'c', 'reviewCount' => 0, 'reviewAverage' => 0 } },
+            { 'Item' => { 'rank' => 22, 'itemName' => '【中古】RTX 3070', 'itemPrice' => 30000, 'itemUrl' => 'https://example.com/4', 'mediumImageUrls' => [], 'shopName' => 'Shop', 'itemCode' => 'd', 'reviewCount' => 0, 'reviewAverage' => 0 } },
+          ]
+        }.to_json
+
+        stub_request(:get, /#{Regexp.escape(ranking_url)}/)
+          .to_return(status: 200, body: noisy_ranking, headers: { 'Content-Type' => 'application/json' })
+
+        result = described_class.ranking(category: 'gpu')
+
+        expect(result.items.map { |i| i[:name] }).to eq(['RTX 4080 SUPER', 'RTX 4070 Ti'])
+        expect(result.items.map { |i| i[:rank] }).to eq([1, 2])
+      end
+
+      it '最大10件に絞る' do
+        items = (1..15).map do |i|
+          { 'Item' => { 'rank' => i, 'itemName' => "GPU #{i}", 'itemPrice' => 50000 + i * 1000, 'itemUrl' => "https://example.com/#{i}", 'mediumImageUrls' => [], 'shopName' => 'Shop', 'itemCode' => "code#{i}", 'reviewCount' => 0, 'reviewAverage' => 0 } }
+        end
+        ranking_body = { 'Items' => items }.to_json
+
+        stub_request(:get, /#{Regexp.escape(ranking_url)}/)
+          .to_return(status: 200, body: ranking_body, headers: { 'Content-Type' => 'application/json' })
+
+        result = described_class.ranking(category: 'gpu')
+
+        expect(result.items.size).to eq(10)
+        expect(result.items.last[:rank]).to eq(10)
+      end
+    end
+
     context 'RAKUTEN_ACCESS_KEY未設定' do
       before do
         allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return(nil)
@@ -288,6 +362,42 @@ RSpec.describe RakutenApiClient do
         expect(result.success?).to be false
         expect(result.error).to eq 'RAKUTEN_ACCESS_KEY が設定されていません'
       end
+    end
+  end
+
+  describe '.filter_noise' do
+    it 'CPUカテゴリからクーラー・シェルケースを除外する' do
+      items = [
+        { name: 'Intel Core i9-14900K', price: 72800 },
+        { name: 'CPUクーラー 虎徹 Mark3', price: 3500 },
+        { name: 'CPUシェルケース 10個セット', price: 500 },
+      ]
+      result = described_class.filter_noise(items, 'cpu')
+      expect(result.map { |i| i[:name] }).to eq(['Intel Core i9-14900K'])
+    end
+
+    it '中古品を除外する' do
+      items = [
+        { name: 'RTX 4070 新品', price: 80000 },
+        { name: '【中古】RTX 3070', price: 30000 },
+        { name: 'RTX 4060 訳あり品', price: 40000 },
+      ]
+      result = described_class.filter_noise(items, 'gpu')
+      expect(result.map { |i| i[:name] }).to eq(['RTX 4070 新品'])
+    end
+
+    it '価格が最低価格未満の商品を除外する' do
+      items = [
+        { name: 'Core i7-14700K', price: 52800 },
+        { name: 'Intel CPU 何か', price: 300 },
+      ]
+      result = described_class.filter_noise(items, 'cpu')
+      expect(result.map { |i| i[:name] }).to eq(['Core i7-14700K'])
+    end
+
+    it 'カテゴリnilの場合はフィルタしない' do
+      items = [{ name: '何か', price: 1000 }]
+      expect(described_class.filter_noise(items, nil)).to eq(items)
     end
   end
 

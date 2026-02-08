@@ -7,9 +7,8 @@ module Api
 
       def index
         category = params[:category]
-        page = params[:page] || 1
 
-        result = RakutenApiClient.ranking(category: category, page: page)
+        result = RakutenApiClient.ranking(category: category, page: 1)
 
         if result.success?
           render json: { data: { items: result.items, total_count: result.total_count } }
