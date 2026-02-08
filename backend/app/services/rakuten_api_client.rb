@@ -1,34 +1,22 @@
 # frozen_string_literal: true
 
 class RakutenApiClient
-  BASE_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20220601'
-  RANKING_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Ranking/20220601'
-  PC_PARTS_GENRE_ID = '100087'
+  BASE_URL = 'https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20220601'
+  RANKING_URL = 'https://openapi.rakuten.co.jp/ichibaranking/api/IchibaItem/Ranking/20220601'
+  ALLOWED_WEBSITE = 'https://rig-lab.vercel.app'
 
   Result = Struct.new(:success?, :items, :total_count, :error, keyword_init: true)
-
-  CATEGORY_GENRE_MAP = {
-    'cpu' => '564500',
-    'gpu' => '564498',
-    'memory' => '564504',
-    'storage' => '564506',
-    'motherboard' => '564496',
-    'psu' => '564508',
-    'case' => '564494',
-    'os' => '553888'
-  }.freeze
 
   class << self
     def search(keyword:, category: nil, page: 1, hits: 20)
       return Result.new(success?: false, items: [], total_count: 0, error: 'RAKUTEN_APPLICATION_ID が設定されていません') unless application_id.present?
+      return Result.new(success?: false, items: [], total_count: 0, error: 'RAKUTEN_ACCESS_KEY が設定されていません') unless access_key.present?
       return Result.new(success?: false, items: [], total_count: 0, error: 'キーワードを入力してください') if keyword.blank?
 
       enforce_rate_limit
 
-      params = build_params(keyword: keyword, category: category, page: page, hits: hits)
-      uri = URI("#{BASE_URL}?#{URI.encode_www_form(params)}")
-
-      response = Net::HTTP.get_response(uri)
+      params = build_params(keyword: keyword, page: page, hits: hits)
+      response = get_with_headers("#{BASE_URL}?#{URI.encode_www_form(params)}")
 
       if response.is_a?(Net::HTTPSuccess)
         data = JSON.parse(response.body)
@@ -36,7 +24,7 @@ class RakutenApiClient
         Result.new(success?: true, items: items, total_count: data['count'] || 0, error: nil)
       else
         error_data = JSON.parse(response.body) rescue {}
-        error_msg = error_data.dig('error_description') || "楽天API エラー: #{response.code}"
+        error_msg = error_data.dig('error_description') || error_data.dig('errors', 'errorMessage') || "楽天API エラー: #{response.code}"
         Result.new(success?: false, items: [], total_count: 0, error: error_msg)
       end
     rescue StandardError => e
@@ -45,19 +33,17 @@ class RakutenApiClient
 
     def ranking(category:, page: 1)
       return Result.new(success?: false, items: [], total_count: 0, error: 'RAKUTEN_APPLICATION_ID が設定されていません') unless application_id.present?
+      return Result.new(success?: false, items: [], total_count: 0, error: 'RAKUTEN_ACCESS_KEY が設定されていません') unless access_key.present?
 
       enforce_rate_limit
 
-      genre_id = CATEGORY_GENRE_MAP[category] || PC_PARTS_GENRE_ID
       params = {
         applicationId: application_id,
-        genreId: genre_id,
+        accessKey: access_key,
         page: page,
         format: 'json'
       }
-      uri = URI("#{RANKING_URL}?#{URI.encode_www_form(params)}")
-
-      response = Net::HTTP.get_response(uri)
+      response = get_with_headers("#{RANKING_URL}?#{URI.encode_www_form(params)}")
 
       if response.is_a?(Net::HTTPSuccess)
         data = JSON.parse(response.body)
@@ -78,7 +64,7 @@ class RakutenApiClient
         Result.new(success?: true, items: items, total_count: items.size, error: nil)
       else
         error_data = JSON.parse(response.body) rescue {}
-        error_msg = error_data.dig('error_description') || "楽天API エラー: #{response.code}"
+        error_msg = error_data.dig('error_description') || error_data.dig('errors', 'errorMessage') || "楽天API エラー: #{response.code}"
         Result.new(success?: false, items: [], total_count: 0, error: error_msg)
       end
     rescue StandardError => e
@@ -89,6 +75,20 @@ class RakutenApiClient
 
     def application_id
       ENV['RAKUTEN_APPLICATION_ID']
+    end
+
+    def access_key
+      ENV['RAKUTEN_ACCESS_KEY']
+    end
+
+    def get_with_headers(url)
+      uri = URI(url)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      req = Net::HTTP::Get.new(uri)
+      req['Referer'] = "#{ALLOWED_WEBSITE}/"
+      req['Origin'] = ALLOWED_WEBSITE
+      http.request(req)
     end
 
     def enforce_rate_limit
@@ -102,19 +102,15 @@ class RakutenApiClient
       end
     end
 
-    def build_params(keyword:, category:, page:, hits:)
-      params = {
+    def build_params(keyword:, page:, hits:)
+      {
         applicationId: application_id,
+        accessKey: access_key,
         keyword: keyword,
         page: page,
         hits: hits,
         format: 'json'
       }
-
-      genre_id = CATEGORY_GENRE_MAP[category] || PC_PARTS_GENRE_ID
-      params[:genreId] = genre_id
-
-      params
     end
 
     def parse_item(item)
