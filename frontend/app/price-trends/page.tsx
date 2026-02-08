@@ -11,7 +11,8 @@ const CATEGORIES = [
   { key: 'cpu', label: 'CPU' },
   { key: 'gpu', label: 'GPU' },
   { key: 'memory', label: 'メモリ' },
-  { key: 'storage', label: 'ストレージ' },
+  { key: 'ssd', label: 'SSD' },
+  { key: 'hdd', label: 'HDD' },
   { key: 'motherboard', label: 'マザーボード' },
   { key: 'psu', label: '電源' },
   { key: 'case', label: 'ケース' },
@@ -104,7 +105,7 @@ export default function PriceTrendsPage() {
   return (
     <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100">
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">価格分析</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">価格動向</h1>
         <p className="text-sm text-gray-500 mb-6">PCパーツの価格推移をカテゴリ別にチェック</p>
 
         {/* Category Tabs */}

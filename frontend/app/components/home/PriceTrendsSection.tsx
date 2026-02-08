@@ -165,7 +165,7 @@ export function PriceTrendsSection() {
 
           <div className="text-center mt-4">
             <Link href="/price-trends" className="text-sm text-blue-600 hover:text-blue-800">
-              価格分析をもっと見る →
+              価格動向をもっと見る →
             </Link>
           </div>
         </>

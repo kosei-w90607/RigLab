@@ -439,6 +439,29 @@ RSpec.describe RakutenApiClient do
       result = described_class.filter_noise(items, 'hdd')
       expect(result.map { |i| i[:name] }).to eq(['Seagate Barracuda 8TB HDD 3.5インチ内蔵ハードディスク'])
     end
+
+    it 'GPUカテゴリから電源・パワーサプライを除外する' do
+      items = [
+        { name: 'NVIDIA GeForce RTX 4070 SUPER', price: 94980 },
+        { name: 'ATX電源 850W 80PLUS Gold', price: 15000 },
+        { name: '玄人志向 パワーサプライ 750W', price: 12000 },
+        { name: 'Corsair PSU RM850x', price: 18000 },
+      ]
+      result = described_class.filter_noise(items, 'gpu')
+      expect(result.map { |i| i[:name] }).to eq(['NVIDIA GeForce RTX 4070 SUPER'])
+    end
+
+    it 'ケースカテゴリからデスク・NAS・スマホケースを除外しPCケースのみ返す' do
+      items = [
+        { name: 'NZXT H5 Flow ATX ミドルタワー PCケース', price: 12980 },
+        { name: 'デスク下PCラック 収納棚', price: 5000 },
+        { name: 'Synology NAS DS224+', price: 45000 },
+        { name: 'iPhone 15 Pro ケース', price: 3000 },
+        { name: 'ネットワークサーバーラック', price: 25000 },
+      ]
+      result = described_class.filter_noise(items, 'case')
+      expect(result.map { |i| i[:name] }).to eq(['NZXT H5 Flow ATX ミドルタワー PCケース'])
+    end
   end
 
   describe '.filter_results' do

@@ -5,15 +5,27 @@ class BuyTimeAdvisorService
 
   CATEGORY_MODELS = {
     'cpu' => PartsCpu, 'gpu' => PartsGpu, 'memory' => PartsMemory,
+    'ssd' => PartsStorage, 'hdd' => PartsStorage,
     'storage' => PartsStorage, 'os' => PartsOs, 'motherboard' => PartsMotherboard,
     'psu' => PartsPsu, 'case' => PartsCase
   }.freeze
 
   CATEGORY_LABELS = {
     'cpu' => 'CPU', 'gpu' => 'グラフィックボード', 'memory' => 'メモリ',
-    'storage' => 'ストレージ', 'os' => 'OS', 'motherboard' => 'マザーボード',
-    'psu' => '電源', 'case' => 'ケース'
+    'ssd' => 'SSD', 'hdd' => 'HDD', 'storage' => 'ストレージ',
+    'os' => 'OS', 'motherboard' => 'マザーボード', 'psu' => '電源', 'case' => 'ケース'
   }.freeze
+
+  # 価格動向画面に表示するカテゴリ（storageとosを除外）
+  DISPLAY_CATEGORIES = %w[cpu gpu memory ssd hdd motherboard psu case].freeze
+
+  # ssd/hdd → storage マッピング（price history検索用）
+  def self.price_history_part_type(category)
+    case category
+    when 'ssd', 'hdd' then 'storage'
+    else category
+    end
+  end
 
   def initialize(part_type:, part_id:, days: 30)
     @part_type = part_type
@@ -140,11 +152,17 @@ class BuyTimeAdvisorService
 
   # カテゴリ別日次平均価格（スパークラインチャート用）
   def self.category_daily_averages(category:, days: 30)
-    histories = PartsPriceHistory.where(part_type: category)
+    pt = price_history_part_type(category)
+    histories = PartsPriceHistory.where(part_type: pt)
                                  .where('fetched_at >= ?', days.days.ago)
-                                 .order(fetched_at: :asc)
 
-    histories.group_by { |h| h.fetched_at.to_date }.map do |date, records|
+    # ssd/hdd の場合は該当パーツIDに絞り込み
+    if %w[ssd hdd].include?(category)
+      part_ids = CATEGORY_MODELS[category].public_send(category).pluck(:id)
+      histories = histories.where(part_id: part_ids)
+    end
+
+    histories.order(fetched_at: :asc).group_by { |h| h.fetched_at.to_date }.map do |date, records|
       prices = records.map(&:price)
       { date: date.to_s, avg_price: (prices.sum.to_f / prices.size).round }
     end

@@ -40,7 +40,7 @@ class RakutenApiClient
   # カテゴリ別ノイズ除外キーワード（アクセサリ・関連商品を排除）
   CATEGORY_NOISE_KEYWORDS = {
     'cpu'         => %w[クーラー ファン グリス シリコン 殻割り シェルケース 殻 スッポン CPUスタンド],
-    'gpu'         => %w[ライザー 延長 ブラケット サポート ホルダー ステー VGAケーブル],
+    'gpu'         => %w[ライザー 延長 ブラケット サポート ホルダー ステー VGAケーブル 電源 パワーサプライ PSU],
     'memory'      => %w[カバー ヒートシンク メモリスロット ダミー SODIMM SO-DIMM ノートPC ノートパソコン
                          USBメモリ フラッシュメモリ USBフラッシュ USB3 外付け ポータブル SSD HDD
                          microSD SDカード コンパクトフラッシュ],
@@ -49,14 +49,16 @@ class RakutenApiClient
     'storage'     => %w[ケース エンクロージャ スタンド マウント 変換 アダプタ],
     'motherboard' => %w[バックプレート スペーサー マウンティング],
     'psu'         => %w[延長ケーブル スリーブ テスター チェッカー],
-    'case'        => %w[ファン フィルター ダストフィルター]
+    'case'        => %w[ファン フィルター ダストフィルター デスク NAS ネットワーク サーバー ラック 棚 収納
+                         スマホ タブレット iPhone iPad ケーブル]
   }.freeze
 
   # カテゴリ別必須キーワード（いずれか1つを含む必要がある）
   CATEGORY_REQUIRE_KEYWORDS = {
     'memory' => %w[DDR4 DDR5 DIMM],
     'ssd'    => %w[SSD ソリッドステート NVMe M.2],
-    'hdd'    => %w[HDD ハードディスク]
+    'hdd'    => %w[HDD ハードディスク],
+    'case'   => %w[PCケース ミドルタワー フルタワー ミニタワー ATX Micro-ATX Mini-ITX]
   }.freeze
 
   # カテゴリ別最低価格（アクセサリは安い、本体は高い）
