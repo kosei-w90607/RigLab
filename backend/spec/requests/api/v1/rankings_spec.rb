@@ -8,6 +8,7 @@ RSpec.describe 'Api::V1::Rankings', type: :request do
       before do
         allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(nil)
+        allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return(nil)
       end
 
       it 'エラーを返す' do
@@ -43,7 +44,8 @@ RSpec.describe 'Api::V1::Rankings', type: :request do
       before do
         allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return('test_app_id')
-        stub_request(:get, /app\.rakuten\.co\.jp\/services\/api\/IchibaItem\/Ranking/)
+        allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return('test_access_key')
+        stub_request(:get, /openapi\.rakuten\.co\.jp\/ichibaranking\/api\/IchibaItem\/Ranking/)
           .to_return(status: 200, body: ranking_response, headers: { 'Content-Type' => 'application/json' })
       end
 

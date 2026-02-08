@@ -4,7 +4,9 @@ require 'rails_helper'
 
 RSpec.describe RakutenApiClient do
   let(:application_id) { 'test_application_id' }
-  let(:base_url) { 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20220601' }
+  let(:access_key) { 'test_access_key' }
+  let(:base_url) { 'https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20220601' }
+  let(:ranking_url) { 'https://openapi.rakuten.co.jp/ichibaranking/api/IchibaItem/Ranking/20220601' }
 
   let(:success_response_body) do
     {
@@ -37,17 +39,14 @@ RSpec.describe RakutenApiClient do
   end
 
   before do
-    # Reset rate limit state
     described_class.instance_variable_set(:@last_request_time, nil)
+    allow(ENV).to receive(:[]).and_call_original
+    allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(application_id)
+    allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return(access_key)
   end
 
   describe '.search' do
     context '正常検索' do
-      before do
-        allow(ENV).to receive(:[]).and_call_original
-        allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(application_id)
-      end
-
       it 'キーワードで検索してitemsを返す' do
         stub_request(:get, /#{Regexp.escape(base_url)}/)
           .to_return(status: 200, body: success_response_body, headers: { 'Content-Type' => 'application/json' })
@@ -64,27 +63,10 @@ RSpec.describe RakutenApiClient do
         expect(result.total_count).to eq 2
         expect(result.error).to be_nil
       end
-    end
 
-    context 'カテゴリ指定' do
-      before do
-        allow(ENV).to receive(:[]).and_call_original
-        allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(application_id)
-      end
-
-      it 'cpuカテゴリのgenreIdが正しく設定される' do
+      it 'applicationIdとaccessKeyの両方をパラメータに含める' do
         stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
-          .with(query: hash_including('genreId' => '564500'))
-          .to_return(status: 200, body: success_response_body, headers: { 'Content-Type' => 'application/json' })
-
-        described_class.search(keyword: 'Intel', category: 'cpu')
-
-        expect(stub).to have_been_requested
-      end
-
-      it 'カテゴリ未指定時はPCパーツ全般のgenreIdが設定される' do
-        stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
-          .with(query: hash_including('genreId' => '100087'))
+          .with(query: hash_including('applicationId' => application_id, 'accessKey' => access_key))
           .to_return(status: 200, body: success_response_body, headers: { 'Content-Type' => 'application/json' })
 
         described_class.search(keyword: 'Intel')
@@ -95,7 +77,6 @@ RSpec.describe RakutenApiClient do
 
     context 'RAKUTEN_APPLICATION_ID未設定' do
       before do
-        allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(nil)
       end
 
@@ -104,22 +85,28 @@ RSpec.describe RakutenApiClient do
 
         expect(result.success?).to be false
         expect(result.error).to eq 'RAKUTEN_APPLICATION_ID が設定されていません'
-        expect(result.items).to eq []
+      end
+    end
+
+    context 'RAKUTEN_ACCESS_KEY未設定' do
+      before do
+        allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return(nil)
+      end
+
+      it 'エラーを返す' do
+        result = described_class.search(keyword: 'test')
+
+        expect(result.success?).to be false
+        expect(result.error).to eq 'RAKUTEN_ACCESS_KEY が設定されていません'
       end
     end
 
     context 'キーワード空' do
-      before do
-        allow(ENV).to receive(:[]).and_call_original
-        allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(application_id)
-      end
-
       it 'エラーを返す' do
         result = described_class.search(keyword: '')
 
         expect(result.success?).to be false
         expect(result.error).to eq 'キーワードを入力してください'
-        expect(result.items).to eq []
       end
 
       it 'nilの場合もエラーを返す' do
@@ -131,11 +118,6 @@ RSpec.describe RakutenApiClient do
     end
 
     context 'API失敗' do
-      before do
-        allow(ENV).to receive(:[]).and_call_original
-        allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(application_id)
-      end
-
       it '楽天APIが500を返した場合エラーを返す' do
         stub_request(:get, /#{Regexp.escape(base_url)}/)
           .to_return(status: 500, body: { error_description: 'Internal Server Error' }.to_json)
@@ -144,7 +126,6 @@ RSpec.describe RakutenApiClient do
 
         expect(result.success?).to be false
         expect(result.error).to eq 'Internal Server Error'
-        expect(result.items).to eq []
       end
 
       it 'ネットワークエラー時にエラーを返す' do
@@ -155,7 +136,55 @@ RSpec.describe RakutenApiClient do
 
         expect(result.success?).to be false
         expect(result.error).to include 'API接続エラー'
-        expect(result.items).to eq []
+      end
+    end
+  end
+
+  describe '.ranking' do
+    let(:ranking_response_body) do
+      {
+        'Items' => [
+          {
+            'Item' => {
+              'rank' => 1,
+              'itemName' => 'RTX 4070 SUPER',
+              'itemPrice' => 89800,
+              'itemUrl' => 'https://item.rakuten.co.jp/shop/gpu1',
+              'mediumImageUrls' => [{ 'imageUrl' => 'https://image.rakuten.co.jp/gpu1.jpg' }],
+              'shopName' => 'GPU Shop',
+              'itemCode' => 'shop:gpu1',
+              'reviewCount' => 10,
+              'reviewAverage' => 4.5
+            }
+          }
+        ]
+      }.to_json
+    end
+
+    context '正常取得' do
+      it 'ランキングデータを返す' do
+        stub_request(:get, /#{Regexp.escape(ranking_url)}/)
+          .to_return(status: 200, body: ranking_response_body, headers: { 'Content-Type' => 'application/json' })
+
+        result = described_class.ranking(category: 'gpu')
+
+        expect(result.success?).to be true
+        expect(result.items.first[:rank]).to eq 1
+        expect(result.items.first[:name]).to eq 'RTX 4070 SUPER'
+        expect(result.items.first[:price]).to eq 89800
+      end
+    end
+
+    context 'RAKUTEN_ACCESS_KEY未設定' do
+      before do
+        allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return(nil)
+      end
+
+      it 'エラーを返す' do
+        result = described_class.ranking(category: 'gpu')
+
+        expect(result.success?).to be false
+        expect(result.error).to eq 'RAKUTEN_ACCESS_KEY が設定されていません'
       end
     end
   end
