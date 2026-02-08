@@ -2,54 +2,52 @@
 
 ## 現在のフェーズ
 
-**Phase 6: プロダクト品質向上 ✅ 完了** - v1.0リリース準備完了
+**Phase 8: TOPページ改善 & 価格分析ページ ✅ 完了**
 
 ---
 
-## 直近の作業サマリー（2026-02-07）
+## 直近の作業サマリー（2026-02-09）
 
-### 完了: v1.0最終仕上げ（残タスク一掃）
+### 完了: Phase 8 - TOPページ改善 & 価格分析ページ
 
 | カテゴリ | 内容 |
 |----------|------|
-| A-13 NextAuth v5 | next-auth v4→v5移行完了（NextAuth()関数形式、handlers.GET/POST、AUTH_SECRET対応） |
-| OPS-02 Sentry | @sentry/nextjs + sentry-rails セットアップ（DSN未設定時no-op） |
-| OPS-03 本番設定 | CORS環境変数化、.env.example更新（backend/frontend両方） |
-| OPS-04 バックアップ | docs/08にDB定期バックアップ・復元手順追記 |
-| OPS-05 デプロイ | docs/08をNext.js向けに最新化、環境変数一覧整理 |
-| DOC-02 規約 | /terms, /privacy ページ作成（利用規約・プライバシーポリシー） |
-| DOC-03 運用 | docs/11_admin-manual.md 管理者向け運用マニュアル作成 |
-| B7 ページネーション | 管理画面パーツ一覧にページネーション上部追加 |
-| E Phase 7 | GitHub Issue #29 としてPhase 7（API活用）を作成 |
+| P8-01 TOPページ改善 | BuyNowSection・PriceTrendsSection・RankingSectionの強化 |
+| P8-02 価格分析ページ | /price-trends 一覧、/price-trends/[category]、/price-trends/[category]/[partId] の3階層ページ |
+| P8-03 バックエンドAPI | price_trends_controller, rankings_controller 新規作成、routes追加 |
+| P8-04 テスト | price_trends_spec, rankings_spec 追加 |
+| P8-05 型定義更新 | PriceTrend, RankingPart等の型追加 |
+| P8-06 ヘッダー | 価格分析リンク追加 |
 
-### 変更ファイル
-- `backend/.env.example` - JWT/CORS/Sentry環境変数整理
-- `backend/Gemfile` / `backend/Gemfile.lock` - sentry-ruby, sentry-rails追加
-- `backend/config/initializers/cors.rb` - ENV['CORS_ORIGINS']対応追加
-- `backend/config/initializers/sentry.rb` - 新規作成
-- `frontend/.env.example` - NEXTAUTH_URL/SECRET/SENTRY_DSN整理
-- `frontend/lib/auth.ts` - NextAuth v5形式に移行
-- `frontend/app/api/auth/[...nextauth]/route.ts` - handlers.GET/POST形式
-- `frontend/types/next-auth.d.ts` - v5型定義
-- `frontend/app/providers.tsx` - SessionProvider v5対応
-- `frontend/next.config.ts` - withSentryConfig追加
-- `frontend/sentry.server.config.ts` - 新規作成
-- `frontend/instrumentation.ts` / `instrumentation-client.ts` - 新規作成
-- `frontend/app/terms/page.tsx` - 新規作成（利用規約）
-- `frontend/app/privacy/page.tsx` - 新規作成（プライバシーポリシー）
-- `frontend/app/admin/parts/page.tsx` - ページネーション上部追加
-- `frontend/package.json` - next-auth@5, @sentry/nextjs追加
-- `docs/08_deploy-guide.md` - 本番設定/バックアップ/デプロイ手順更新
-- `docs/11_admin-manual.md` - 新規作成（管理者向け運用マニュアル）
-- `Plans.md` - 全チェックボックス更新
+### 変更ファイル（modified）
+- `backend/app/controllers/api/v1/price_histories_controller.rb` - 価格履歴取得拡張
+- `backend/app/services/buy_time_advisor_service.rb` - 買い時アドバイスロジック拡張
+- `backend/app/services/rakuten_api_client.rb` - 楽天API検索機能拡張
+- `backend/config/routes.rb` - price_trends, rankings ルート追加
+- `frontend/app/admin/parts/import/page.tsx` - インポートUI調整
+- `frontend/app/components/Header.tsx` - 価格分析リンク追加
+- `frontend/app/components/home/BuyNowSection.tsx` - 買い時セクション改善
+- `frontend/app/components/home/PriceTrendsSection.tsx` - 価格動向セクション改善
+- `frontend/app/page.tsx` - TOPページセクション統合
+- `frontend/types/index.ts` - 価格分析関連型追加
 
-### 検証結果
-- `docker compose exec front npx next build` ✅ 成功
-- `docker compose exec back bundle exec rspec` ✅ 251 examples, 0 failures
+### 新規ファイル
+- `backend/app/controllers/api/v1/price_trends_controller.rb` - 価格トレンドAPI
+- `backend/app/controllers/api/v1/rankings_controller.rb` - ランキングAPI
+- `backend/spec/requests/api/v1/price_trends_spec.rb` - 価格トレンドテスト
+- `backend/spec/requests/api/v1/rankings_spec.rb` - ランキングテスト
+- `frontend/app/components/home/RankingSection.tsx` - 人気パーツランキングセクション
+- `frontend/app/components/price-trends/CategoryPriceChart.tsx` - カテゴリ別価格チャート
+- `frontend/app/components/price-trends/MiniTrendChart.tsx` - ミニトレンドチャート
+- `frontend/app/components/price-trends/PartPriceChart.tsx` - パーツ別価格チャート
+- `frontend/app/price-trends/page.tsx` - 価格分析一覧ページ
+- `frontend/app/price-trends/[category]/page.tsx` - カテゴリ別価格分析ページ
+- `frontend/app/price-trends/[category]/[partId]/page.tsx` - パーツ別価格分析ページ
 
 ### 次回アクション
-- **Phase 7: API活用** → GitHub Issue #29 で管理
-- v1.0リリース準備完了（全Phase 6タスク完了）
+- Vercelデプロイ（手動作業）
+- 楽天API登録（手動作業 - 公開URL必要）
+- Phase 7 残タスク（Amazon PA-API等）
 
 ### 本番リリースチェックリスト
 
@@ -57,7 +55,7 @@
 
 - [ ] **Sentry**: アカウント作成→プロジェクト作成→DSN取得→`SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN`環境変数設定
 - [ ] **CORS**: 本番ドメイン確定→`CORS_ORIGINS`環境変数設定
-- [ ] **デプロイ先**: デプロイ先決定（Vercel/Render/Railway等）→アカウント作成→プロジェクト設定→環境変数設定（参照: docs/08_deploy-guide.md）
+- [ ] **デプロイ先**: Vercelデプロイ（Root Directory: `frontend`、環境変数設定）
 - [ ] **認証シークレット**: 本番用`AUTH_SECRET`生成（`openssl rand -base64 32`）→環境変数設定
 - [ ] **利用規約/プライバシー**: /terms, /privacy ページの内容確認・必要に応じてカスタマイズ
 - [ ] **本番DB**: 本番DB作成→マイグレーション実行→初期データ投入（`rails db:seed`）
@@ -575,18 +573,49 @@
 - ユーザーの購買判断を支援（価格推移・買い時アドバイス）
 - サイトの再訪率向上（定期的に更新される価格情報）
 
-### 7.1 候補タスク（未着手）
+### 7.1 実装済みタスク
 
 - [ ] API-01: Amazon PA-API連携（パーツ情報取得）
-- [ ] API-02: 楽天商品検索API連携（価格比較）
-- [ ] API-03: 価格推移データの収集・保存（定期バッチ）
-- [ ] API-04: 価格推移グラフUI（Chart.js or Recharts）
-- [ ] API-05: 「PC買い時おじさん」コメント生成ロジック
-- [ ] API-06: TOPページへの情報掲載UI
+- [x] API-02: 楽天商品検索API連携（価格比較）(PR #40)
+- [x] API-03: 価格推移データの収集・保存（定期バッチ）(PR #40)
+- [x] API-04: 価格推移グラフUI（Recharts）(PR #39)
+- [x] API-05: 「PC買い時おじさん」コメント生成ロジック (PR #39)
+- [x] API-06: TOPページへの情報掲載UI (PR #40)
 - [ ] REFACTOR-01: 共有URL 3形式→1形式（token形式）に統一
   - 現状: `/share?build=xxx`（ダッシュボード共有）、`/share?token=xxx`（Configurator/Builder共有）、`/share?cpu=1&gpu=2...`（レガシー個別ID形式）の3形式が混在
   - 方針: token形式に統一。ダッシュボード共有時もshare_tokens APIでトークン生成する方式に変更
   - 対象: `lib/share.ts`, `share/page.tsx`, `dashboard/page.tsx`, `builds/[id]/page.tsx`, `share_tokens_controller.rb`
+
+---
+
+## Phase 8: TOPページ改善 & 価格分析ページ ✅
+
+> Phase 7で実装した価格分析基盤を活用し、TOPページのUX改善と独立した価格分析ページを構築。
+
+### 8.1 TOPページ改善
+
+- [x] P8-01: BuyNowSection改善（買い時情報の見やすさ向上）
+- [x] P8-02: PriceTrendsSection改善（価格動向のビジュアル強化）
+- [x] P8-03: RankingSection新規作成（人気パーツランキング表示）
+
+### 8.2 価格分析ページ
+
+- [x] P8-04: /price-trends 一覧ページ（カテゴリ別価格サマリー）
+- [x] P8-05: /price-trends/[category] カテゴリ別ページ（パーツ一覧+価格チャート）
+- [x] P8-06: /price-trends/[category]/[partId] パーツ詳細ページ（個別価格推移）
+
+### 8.3 バックエンドAPI
+
+- [x] P8-07: PriceTrendsController（価格トレンドAPI）
+- [x] P8-08: RankingsController（ランキングAPI）
+- [x] P8-09: routes.rb ルーティング追加
+
+### 8.4 テスト・その他
+
+- [x] P8-10: price_trends_spec.rb テスト
+- [x] P8-11: rankings_spec.rb テスト
+- [x] P8-12: 型定義更新（PriceTrend, RankingPart等）
+- [x] P8-13: Header.tsx に価格分析リンク追加
 
 ---
 
@@ -625,8 +654,9 @@
 | Phase 6.1-6.7: 品質検証 | 34 | 34 | 100% ✅ |
 | Phase 6-L: テスト不合格修正 | 5 | 5 | 100% ✅ |
 | Phase 6-M: UX改善 | 10 | 10 | 100% ✅ |
-| Phase 7: API活用 | 7 | 0 | 0%（GitHub Issue #29） |
-| **合計** | **173** | **166** | **96%** |
+| Phase 7: API活用 | 7 | 5 | 71% |
+| Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
+| **合計** | **186** | **184** | **99%** |
 
 ---
 

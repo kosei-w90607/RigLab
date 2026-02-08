@@ -206,8 +206,9 @@ export default function RakutenImportPage() {
       )
       setItems(response.data.items || [])
       setTotalCount(response.data.totalCount || 0)
-    } catch {
-      addToast({ type: 'error', message: '楽天APIの検索に失敗しました' })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '楽天APIの検索に失敗しました'
+      addToast({ type: 'error', message })
       setItems([])
     } finally {
       setLoading(false)

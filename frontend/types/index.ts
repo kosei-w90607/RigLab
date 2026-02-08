@@ -250,6 +250,7 @@ export interface BuyAdviceSummary {
     partName: string
     currentPrice: number
     changePercent: number
+    priceDiff?: number
     verdict: BuyVerdict
     message: string
   }[]
@@ -266,8 +267,6 @@ export interface BuyAdviceSummary {
     partName: string
     currentPrice: number
     changePercent: number
-    verdict: BuyVerdict
-    message: string
   }[]
   biggestRises: {
     partType: string
@@ -275,7 +274,5 @@ export interface BuyAdviceSummary {
     partName: string
     currentPrice: number
     changePercent: number
-    verdict: BuyVerdict
-    message: string
   }[]
 }

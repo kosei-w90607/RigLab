@@ -77,12 +77,18 @@ class BuyTimeAdvisorService
         next if result.trend_summary.nil?
         next unless result.verdict == 'buy_now'
 
+        price_7d_ago = PartsPriceHistory.for_part(part_type, part.id)
+                                        .where('fetched_at <= ?', 7.days.ago)
+                                        .order(fetched_at: :desc).first&.price
+        price_diff = price_7d_ago ? part.price - price_7d_ago : nil
+
         deals << {
           part_type: part_type,
           part_id: part.id,
           part_name: part.name,
           current_price: part.price,
           change_percent: result.trend_summary[:change_percent],
+          price_diff: price_diff,
           verdict: result.verdict,
           message: result.message
         }
@@ -92,7 +98,7 @@ class BuyTimeAdvisorService
     deals.sort_by { |d| d[:change_percent] }.first(limit)
   end
 
-  # 最大値下がり/値上がりパーツ
+  # 最大値下がり/値上がりパーツ（カテゴリ多様性付き）
   def self.biggest_changes(direction: :down, limit: 5)
     changes = []
 
@@ -114,10 +120,33 @@ class BuyTimeAdvisorService
       end
     end
 
-    if direction == :down
-      changes.sort_by { |c| c[:change_percent] }.first(limit)
-    else
-      changes.sort_by { |c| -c[:change_percent] }.first(limit)
+    sorted = if direction == :down
+               changes.sort_by { |c| c[:change_percent] }
+             else
+               changes.sort_by { |c| -c[:change_percent] }
+             end
+
+    # カテゴリ多様性: 1カテゴリあたり最大2件
+    category_counts = Hash.new(0)
+    sorted.select do |c|
+      if category_counts[c[:part_type]] < 2
+        category_counts[c[:part_type]] += 1
+        true
+      else
+        false
+      end
+    end.first(limit)
+  end
+
+  # カテゴリ別日次平均価格（スパークラインチャート用）
+  def self.category_daily_averages(category:, days: 30)
+    histories = PartsPriceHistory.where(part_type: category)
+                                 .where('fetched_at >= ?', days.days.ago)
+                                 .order(fetched_at: :asc)
+
+    histories.group_by { |h| h.fetched_at.to_date }.map do |date, records|
+      prices = records.map(&:price)
+      { date: date.to_s, avg_price: (prices.sum.to_f / prices.size).round }
     end
   end
 

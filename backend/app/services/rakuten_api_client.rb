@@ -2,6 +2,7 @@
 
 class RakutenApiClient
   BASE_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20220601'
+  RANKING_URL = 'https://app.rakuten.co.jp/services/api/IchibaItem/Ranking/20220601'
   PC_PARTS_GENRE_ID = '100087'
 
   Result = Struct.new(:success?, :items, :total_count, :error, keyword_init: true)
@@ -33,6 +34,48 @@ class RakutenApiClient
         data = JSON.parse(response.body)
         items = data['Items']&.map { |item| parse_item(item['Item']) } || []
         Result.new(success?: true, items: items, total_count: data['count'] || 0, error: nil)
+      else
+        error_data = JSON.parse(response.body) rescue {}
+        error_msg = error_data.dig('error_description') || "楽天API エラー: #{response.code}"
+        Result.new(success?: false, items: [], total_count: 0, error: error_msg)
+      end
+    rescue StandardError => e
+      Result.new(success?: false, items: [], total_count: 0, error: "API接続エラー: #{e.message}")
+    end
+
+    def ranking(category:, page: 1)
+      return Result.new(success?: false, items: [], total_count: 0, error: 'RAKUTEN_APPLICATION_ID が設定されていません') unless application_id.present?
+
+      enforce_rate_limit
+
+      genre_id = CATEGORY_GENRE_MAP[category] || PC_PARTS_GENRE_ID
+      params = {
+        applicationId: application_id,
+        genreId: genre_id,
+        page: page,
+        format: 'json'
+      }
+      uri = URI("#{RANKING_URL}?#{URI.encode_www_form(params)}")
+
+      response = Net::HTTP.get_response(uri)
+
+      if response.is_a?(Net::HTTPSuccess)
+        data = JSON.parse(response.body)
+        items = data['Items']&.each_with_index&.map do |item_wrapper, idx|
+          item = item_wrapper['Item']
+          {
+            rank: item['rank'] || idx + 1,
+            name: item['itemName'],
+            price: item['itemPrice'],
+            url: item['itemUrl'],
+            image_url: item['mediumImageUrls']&.first&.dig('imageUrl'),
+            shop_name: item['shopName'],
+            item_code: item['itemCode'],
+            review_count: item['reviewCount'] || 0,
+            review_average: item['reviewAverage'] || 0.0
+          }
+        end || []
+        Result.new(success?: true, items: items, total_count: items.size, error: nil)
       else
         error_data = JSON.parse(response.body) rescue {}
         error_msg = error_data.dig('error_description') || "楽天API エラー: #{response.code}"

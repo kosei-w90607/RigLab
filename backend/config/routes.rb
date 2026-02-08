@@ -43,6 +43,13 @@ Rails.application.routes.draw do
       get 'parts/:part_type/:part_id/buy_advice', to: 'buy_advice#show'
       get 'buy_advice/summary', to: 'buy_advice#summary'
 
+      # Rankings API
+      resources :rankings, only: [:index]
+
+      # Price Trends API
+      get 'price_trends/categories', to: 'price_trends#categories'
+      get 'price_trends/categories/:category', to: 'price_trends#category_detail'
+
       # Admin API
       namespace :admin do
         resources :parts, only: %i[create update destroy] do
