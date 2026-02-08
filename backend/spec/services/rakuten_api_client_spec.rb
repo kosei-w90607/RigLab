@@ -47,6 +47,24 @@ RSpec.describe RakutenApiClient do
     allow(ENV).to receive(:fetch).with('RAKUTEN_ALLOWED_WEBSITE', 'https://rig-lab.vercel.app').and_return('https://rig-lab.vercel.app')
   end
 
+  describe '.detect_category' do
+    it 'CPUジャンルIDからcpuを返す' do
+      expect(described_class.detect_category(211582)).to eq('cpu')
+    end
+
+    it '文字列ジャンルIDも検出する' do
+      expect(described_class.detect_category('100081')).to eq('gpu')
+    end
+
+    it '不明なIDはnilを返す' do
+      expect(described_class.detect_category('999999')).to be_nil
+    end
+
+    it 'nil入力はnilを返す' do
+      expect(described_class.detect_category(nil)).to be_nil
+    end
+  end
+
   describe '.search' do
     context '正常検索' do
       it 'キーワードで検索してitemsを返す' do
@@ -74,6 +92,54 @@ RSpec.describe RakutenApiClient do
         described_class.search(keyword: 'Intel')
 
         expect(stub).to have_been_requested
+      end
+    end
+
+    context 'genreId' do
+      it 'カテゴリ指定時にサブジャンルIDを送信する' do
+        stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
+          .with(query: hash_including('genreId' => '211582'))
+          .to_return(status: 200, body: success_response_body,
+                     headers: { 'Content-Type' => 'application/json' })
+        described_class.search(keyword: 'Core i9', category: 'cpu')
+        expect(stub).to have_been_requested
+      end
+
+      it 'カテゴリ未指定でもPCパーツ親ジャンルで絞る' do
+        stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
+          .with(query: hash_including('genreId' => '100087'))
+          .to_return(status: 200, body: success_response_body,
+                     headers: { 'Content-Type' => 'application/json' })
+        described_class.search(keyword: 'RTX 4070')
+        expect(stub).to have_been_requested
+      end
+    end
+
+    context 'detected_category' do
+      it 'parse_itemにdetected_categoryを含める' do
+        response_with_known_genre = {
+          'count' => 1,
+          'Items' => [
+            {
+              'Item' => {
+                'itemName' => 'RTX 4070',
+                'itemPrice' => 80000,
+                'itemUrl' => 'https://item.rakuten.co.jp/shop/gpu1',
+                'mediumImageUrls' => [{ 'imageUrl' => 'https://image.rakuten.co.jp/gpu1.jpg' }],
+                'shopName' => 'GPUショップ',
+                'itemCode' => 'shop:gpu1',
+                'genreId' => '100081'
+              }
+            }
+          ]
+        }.to_json
+
+        stub_request(:get, /#{Regexp.escape(base_url)}/)
+          .to_return(status: 200, body: response_with_known_genre,
+                     headers: { 'Content-Type' => 'application/json' })
+
+        result = described_class.search(keyword: 'RTX 4070')
+        expect(result.items.first[:detected_category]).to eq('gpu')
       end
     end
 
@@ -191,6 +257,26 @@ RSpec.describe RakutenApiClient do
       end
     end
 
+    context 'genreId送信' do
+      it 'GPUカテゴリでgenreId=100081を送信する' do
+        stub = stub_request(:get, /#{Regexp.escape(ranking_url)}/)
+          .with(query: hash_including('genreId' => '100081'))
+          .to_return(status: 200, body: ranking_response_body,
+                     headers: { 'Content-Type' => 'application/json' })
+        described_class.ranking(category: 'gpu')
+        expect(stub).to have_been_requested
+      end
+
+      it 'マッピング外カテゴリはPCパーツ親ジャンルにフォールバック' do
+        stub = stub_request(:get, /#{Regexp.escape(ranking_url)}/)
+          .with(query: hash_including('genreId' => '100087'))
+          .to_return(status: 200, body: ranking_response_body,
+                     headers: { 'Content-Type' => 'application/json' })
+        described_class.ranking(category: 'os')
+        expect(stub).to have_been_requested
+      end
+    end
+
     context 'RAKUTEN_ACCESS_KEY未設定' do
       before do
         allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return(nil)
@@ -202,6 +288,40 @@ RSpec.describe RakutenApiClient do
         expect(result.success?).to be false
         expect(result.error).to eq 'RAKUTEN_ACCESS_KEY が設定されていません'
       end
+    end
+  end
+
+  describe '.filter_results' do
+    let(:items) do
+      [
+        { name: 'A', price: 50000, shop_name: 'パソコン工房' },
+        { name: 'B', price: 40000, shop_name: '怪しいショップ' },
+        { name: 'C', price: 45000, shop_name: 'ツクモ' },
+      ]
+    end
+
+    it 'trusted_only: trueで信頼ショップのみ返す' do
+      result = described_class.filter_results(items, trusted_only: true)
+      expect(result.map { |i| i[:shop_name] }).to contain_exactly('パソコン工房', 'ツクモ')
+    end
+
+    it '信頼ショップ優先 + 価格順でソート' do
+      result = described_class.filter_results(items, trusted_only: false)
+      expect(result.first[:shop_name]).to eq('ツクモ')
+    end
+  end
+
+  describe '.trusted_shop?' do
+    it '信頼ショップ名を含む場合trueを返す' do
+      expect(described_class.trusted_shop?('パソコン工房 楽天市場店')).to be true
+    end
+
+    it '信頼ショップ名を含まない場合falseを返す' do
+      expect(described_class.trusted_shop?('怪しいショップ')).to be false
+    end
+
+    it 'nilの場合falseを返す' do
+      expect(described_class.trusted_shop?(nil)).to be false
     end
   end
 end

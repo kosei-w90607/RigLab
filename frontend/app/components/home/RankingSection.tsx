@@ -26,6 +26,9 @@ const CATEGORIES = [
   { key: 'gpu', label: 'GPU' },
   { key: 'memory', label: 'メモリ' },
   { key: 'storage', label: 'ストレージ' },
+  { key: 'motherboard', label: 'マザーボード' },
+  { key: 'psu', label: '電源' },
+  { key: 'case', label: 'ケース' },
 ] as const
 
 function StarRating({ average }: { average: number }) {

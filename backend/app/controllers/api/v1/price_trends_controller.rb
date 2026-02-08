@@ -43,7 +43,6 @@ module Api
         sort_order = params[:sort_order] || 'asc'
 
         parts = model.all.map do |part|
-          histories = PartsPriceHistory.for_part(category, part.id).order(fetched_at: :asc)
           current_price = part.price
 
           price_7d_ago = PartsPriceHistory.for_part(category, part.id)
@@ -74,7 +73,16 @@ module Api
 
         parts = sort_parts(parts, sort_by, sort_order)
 
-        render json: { data: { category: category, label: CATEGORY_LABELS[category], parts: parts } }
+        daily_averages = BuyTimeAdvisorService.category_daily_averages(category: category, days: 30)
+
+        render json: {
+          data: {
+            category: category,
+            label: CATEGORY_LABELS[category],
+            parts: parts,
+            daily_averages: daily_averages
+          }
+        }
       end
 
       private

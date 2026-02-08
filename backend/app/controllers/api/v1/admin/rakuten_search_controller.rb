@@ -16,9 +16,13 @@ module Api
           )
 
           if result.success?
+            items = RakutenApiClient.filter_results(
+              result.items,
+              trusted_only: params[:trusted_only] == 'true'
+            )
             render json: {
               data: {
-                items: result.items,
+                items: items,
                 total_count: result.total_count
               }
             }

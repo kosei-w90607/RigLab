@@ -6,6 +6,30 @@ class RakutenApiClient
 
   Result = Struct.new(:success?, :items, :total_count, :error, keyword_init: true)
 
+  # PCパーツ親ジャンル
+  PC_PARTS_GENRE_ID = 100087
+
+  # 楽天ジャンルID（PCパーツサブカテゴリ）
+  # https://www.rakuten.co.jp/category/100087/ で確認
+  GENRE_IDS = {
+    'cpu'         => 211582,
+    'gpu'         => 100081,
+    'memory'      => 565174,
+    'storage'     => 408515,
+    'motherboard' => 211607,
+    'psu'         => 565175,
+    'case'        => 211592
+  }.freeze
+
+  GENRE_TO_CATEGORY = GENRE_IDS.invert.transform_keys(&:to_s).freeze
+
+  TRUSTED_SHOP_NAMES = %w[
+    パソコン工房 ツクモ TSUKUMO ドスパラ Dospara
+    アーク ark ソフマップ Sofmap コジマ Joshin
+    ビックカメラ ヨドバシ PCワンズ FRONTIER フロンティア
+    NTT-X
+  ].freeze
+
   class << self
     def search(keyword:, category: nil, page: 1, hits: 20)
       return Result.new(success?: false, items: [], total_count: 0, error: 'RAKUTEN_APPLICATION_ID が設定されていません') unless application_id.present?
@@ -14,7 +38,10 @@ class RakutenApiClient
 
       enforce_rate_limit
 
-      params = build_params(keyword: keyword, page: page, hits: hits)
+      # カテゴリ固有 or PCパーツ親ジャンルで常に絞る
+      genre_id = category.present? ? GENRE_IDS[category] : nil
+      genre_id ||= PC_PARTS_GENRE_ID
+      params = build_params(keyword: keyword, page: page, hits: hits, genre_id: genre_id)
       response = get_with_headers("#{BASE_URL}?#{URI.encode_www_form(params)}")
 
       if response.is_a?(Net::HTTPSuccess)
@@ -42,6 +69,10 @@ class RakutenApiClient
         page: page,
         format: 'json'
       }
+      # カテゴリ固有ジャンル → PCパーツ親ジャンル → フォールバックなし
+      genre_id = GENRE_IDS[category] || PC_PARTS_GENRE_ID
+      params[:genreId] = genre_id
+
       response = get_with_headers("#{RANKING_URL}?#{URI.encode_www_form(params)}")
 
       if response.is_a?(Net::HTTPSuccess)
@@ -68,6 +99,21 @@ class RakutenApiClient
       end
     rescue StandardError => e
       Result.new(success?: false, items: [], total_count: 0, error: "API接続エラー: #{e.message}")
+    end
+
+    def detect_category(genre_id)
+      return nil if genre_id.blank?
+      GENRE_TO_CATEGORY[genre_id.to_s]
+    end
+
+    def filter_results(items, trusted_only: false)
+      results = trusted_only ? items.select { |i| trusted_shop?(i[:shop_name]) } : items
+      results.sort_by { |i| [trusted_shop?(i[:shop_name]) ? 0 : 1, i[:price]] }
+    end
+
+    def trusted_shop?(shop_name)
+      return false if shop_name.blank?
+      TRUSTED_SHOP_NAMES.any? { |name| shop_name.include?(name) }
     end
 
     private
@@ -105,8 +151,8 @@ class RakutenApiClient
       end
     end
 
-    def build_params(keyword:, page:, hits:)
-      {
+    def build_params(keyword:, page:, hits:, genre_id: nil)
+      params = {
         applicationId: application_id,
         accessKey: access_key,
         keyword: keyword,
@@ -114,9 +160,12 @@ class RakutenApiClient
         hits: hits,
         format: 'json'
       }
+      params[:genreId] = genre_id if genre_id
+      params
     end
 
     def parse_item(item)
+      genre_id = item['genreId']
       {
         name: item['itemName'],
         price: item['itemPrice'],
@@ -124,7 +173,8 @@ class RakutenApiClient
         image_url: item['mediumImageUrls']&.first&.dig('imageUrl'),
         shop_name: item['shopName'],
         item_code: item['itemCode'],
-        genre_id: item['genreId']
+        genre_id: genre_id,
+        detected_category: detect_category(genre_id)
       }
     end
   end

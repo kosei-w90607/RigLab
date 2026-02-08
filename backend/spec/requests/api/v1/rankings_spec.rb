@@ -9,6 +9,9 @@ RSpec.describe 'Api::V1::Rankings', type: :request do
         allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(nil)
         allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return(nil)
+        allow(ENV).to receive(:fetch).and_call_original
+        allow(ENV).to receive(:fetch).with('RAKUTEN_ALLOWED_WEBSITE', anything)
+          .and_return('https://rig-lab.vercel.app')
       end
 
       it 'エラーを返す' do
@@ -45,6 +48,9 @@ RSpec.describe 'Api::V1::Rankings', type: :request do
         allow(ENV).to receive(:[]).and_call_original
         allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return('test_app_id')
         allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return('test_access_key')
+        allow(ENV).to receive(:fetch).and_call_original
+        allow(ENV).to receive(:fetch).with('RAKUTEN_ALLOWED_WEBSITE', anything)
+          .and_return('https://rig-lab.vercel.app')
         stub_request(:get, /openapi\.rakuten\.co\.jp\/ichibaranking\/api\/IchibaItem\/Ranking/)
           .to_return(status: 200, body: ranking_response, headers: { 'Content-Type' => 'application/json' })
       end
