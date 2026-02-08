@@ -3,7 +3,7 @@ import { Card } from './components/ui/Card'
 import { Button } from './components/ui/Button'
 import { BuyNowSection } from './components/home/BuyNowSection'
 import { PriceTrendsSection } from './components/home/PriceTrendsSection'
-import { PopularPartsSection } from './components/home/PopularPartsSection'
+import { RankingSection } from './components/home/RankingSection'
 
 export default function Home() {
   return (
@@ -109,7 +109,7 @@ export default function Home() {
       <div className="flex flex-col items-center">
         <BuyNowSection />
         <PriceTrendsSection />
-        <PopularPartsSection />
+        <RankingSection />
       </div>
     </div>
   )

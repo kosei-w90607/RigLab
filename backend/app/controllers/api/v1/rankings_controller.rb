@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+module Api
+  module V1
+    class RankingsController < ApplicationController
+      skip_before_action :authenticate_user!, raise: false
+
+      def index
+        category = params[:category]
+        page = params[:page] || 1
+
+        result = RakutenApiClient.ranking(category: category, page: page)
+
+        if result.success?
+          render json: { data: { items: result.items, total_count: result.total_count } }
+        else
+          render json: { error: { code: 'API_ERROR', message: result.error } }, status: :unprocessable_entity
+        end
+      end
+    end
+  end
+end

@@ -69,6 +69,7 @@ export function Header() {
           <div className="hidden md:flex items-center space-x-4">
             <NavLink href="/builder">Builder</NavLink>
             <NavLink href="/configurator">Configurator</NavLink>
+            <NavLink href="/price-trends">価格動向</NavLink>
             {isLoggedIn ? (
               <>
                 <NavLink href="/dashboard">Dashboard</NavLink>
@@ -149,6 +150,9 @@ export function Header() {
             </MobileNavLink>
             <MobileNavLink href="/configurator" onClick={closeMenu}>
               Configurator
+            </MobileNavLink>
+            <MobileNavLink href="/price-trends" onClick={closeMenu}>
+              価格動向
             </MobileNavLink>
             {isLoggedIn ? (
               <>

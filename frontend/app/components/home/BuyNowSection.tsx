@@ -11,12 +11,18 @@ function formatPrice(price: number): string {
   return `¥${price.toLocaleString()}`
 }
 
+function formatPriceDiff(diff: number): string {
+  const sign = diff < 0 ? '' : '+'
+  return `${sign}¥${diff.toLocaleString()}`
+}
+
 interface BuyDeal {
   partType: string
   partId: number
   partName: string
   currentPrice: number
   changePercent: number
+  priceDiff?: number
   verdict: string
   message: string
 }
@@ -48,7 +54,7 @@ export function BuyNowSection() {
 
   return (
     <section className="w-full max-w-4xl px-4 mb-12">
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2 mb-1">
         <svg width="28" height="28" viewBox="0 0 36 36" fill="currentColor" className="text-green-600">
           <circle cx="18" cy="14" r="8" opacity="0.2" />
           <circle cx="18" cy="14" r="6" />
@@ -56,8 +62,9 @@ export function BuyNowSection() {
           <circle cx="21" cy="13" r="1" fill="white" />
           <path d="M14 16 Q18 19 22 16" stroke="white" strokeWidth="1.5" fill="none" />
         </svg>
-        <h2 className="text-2xl font-bold text-gray-900">今が買い時!</h2>
+        <h2 className="text-2xl font-bold text-gray-900">注目の値下がりパーツ</h2>
       </div>
+      <p className="text-xs text-gray-400 mb-6">過去7日間の価格変動</p>
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -68,30 +75,39 @@ export function BuyNowSection() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {deals.map((deal) => (
-            <Card key={`${deal.partType}-${deal.partId}`} padding="md" shadow="sm" hoverable>
-              <div className="flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <span className="text-xs font-medium text-gray-400">
-                    {CATEGORY_LABELS[deal.partType] || deal.partType}
-                  </span>
-                  <p className="text-sm font-bold text-gray-900 truncate">{deal.partName}</p>
-                  <p className="text-lg font-bold text-custom-blue mt-1">
-                    {formatPrice(deal.currentPrice)}
-                  </p>
+            <Link key={`${deal.partType}-${deal.partId}`} href={`/price-trends/${deal.partType}/${deal.partId}`}>
+              <Card padding="md" shadow="sm" hoverable>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-medium text-gray-400">
+                      {CATEGORY_LABELS[deal.partType] || deal.partType}
+                    </span>
+                    <p className="text-sm font-bold text-gray-900 truncate">{deal.partName}</p>
+                    <p className="text-lg font-bold text-custom-blue mt-1">
+                      {formatPrice(deal.currentPrice)}
+                    </p>
+                  </div>
+                  <div className="flex flex-col items-end flex-shrink-0 ml-2">
+                    <span className="inline-flex items-center px-2 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800">
+                      {deal.changePercent}%
+                    </span>
+                    {deal.priceDiff != null && deal.priceDiff !== 0 && (
+                      <span className="text-xs text-green-600 mt-1">
+                        {formatPriceDiff(deal.priceDiff)} (先週比)
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className="inline-flex items-center px-2 py-1 text-xs font-bold rounded-full bg-green-100 text-green-800 flex-shrink-0 ml-2">
-                  {deal.changePercent}%
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 mt-2 line-clamp-2">{deal.message}</p>
-            </Card>
+                <p className="text-xs text-gray-500 mt-2 line-clamp-2">{deal.message}</p>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
 
       <div className="text-center mt-4">
-        <Link href="/configurator" className="text-sm text-blue-600 hover:text-blue-800">
-          Configurator で構成を組む →
+        <Link href="/price-trends" className="text-sm text-blue-600 hover:text-blue-800">
+          価格分析をもっと見る →
         </Link>
       </div>
     </section>

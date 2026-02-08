@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Card } from '@/app/components/ui/Card'
 import { Skeleton } from '@/app/components/ui/Skeleton'
 import { api } from '@/lib/api'
@@ -72,7 +73,8 @@ export function PriceTrendsSection() {
 
   return (
     <section className="w-full max-w-4xl px-4 mb-12">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">最新価格動向</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-1">最新価格動向</h2>
+      <p className="text-xs text-gray-400 mb-6">過去30日間のデータに基づく</p>
 
       {loading ? (
         <div className="space-y-4">
@@ -87,17 +89,22 @@ export function PriceTrendsSection() {
         <>
           {/* Category Summary Cards */}
           {hasTrends && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-              {trends
-                .filter((t) => ['cpu', 'gpu', 'memory', 'storage'].includes(t.category))
-                .map((t) => (
-                  <Card key={t.category} padding="sm" shadow="sm">
-                    <p className="text-xs text-gray-400 mb-1">{CATEGORY_LABELS[t.category] || t.label}</p>
-                    <TrendBadge direction={t.direction} percent={t.avgChangePercent} />
-                    <p className="text-xs text-gray-400 mt-1">{t.partCount}製品</p>
-                  </Card>
-                ))}
-            </div>
+            <>
+              <h3 className="text-sm font-semibold text-gray-600 mb-3">カテゴリ別 価格トレンド</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                {trends
+                  .filter((t) => ['cpu', 'gpu', 'memory', 'storage'].includes(t.category))
+                  .map((t) => (
+                    <Link key={t.category} href={`/price-trends/${t.category}`}>
+                      <Card padding="sm" shadow="sm" hoverable>
+                        <p className="text-xs text-gray-400 mb-1">{CATEGORY_LABELS[t.category] || t.label}</p>
+                        <TrendBadge direction={t.direction} percent={t.avgChangePercent} />
+                        <p className="text-xs text-gray-400 mt-1">{t.partCount}製品</p>
+                      </Card>
+                    </Link>
+                  ))}
+              </div>
+            </>
           )}
 
           {/* Drops / Rises Tabs */}
@@ -131,7 +138,11 @@ export function PriceTrendsSection() {
               ) : (
                 <div className="space-y-2">
                   {activeList.map((item, idx) => (
-                    <div key={`${item.partType}-${item.partId}`} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-b-0">
+                    <Link
+                      key={`${item.partType}-${item.partId}`}
+                      href={`/price-trends/${item.partType}/${item.partId}`}
+                      className="flex items-center justify-between py-2 border-b border-gray-50 last:border-b-0 hover:bg-gray-50 rounded px-1 transition-colors"
+                    >
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-xs text-gray-400 w-4">{idx + 1}</span>
                         <div className="min-w-0">
@@ -145,12 +156,18 @@ export function PriceTrendsSection() {
                           {item.changePercent > 0 ? '+' : ''}{item.changePercent}%
                         </span>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}
             </Card>
           )}
+
+          <div className="text-center mt-4">
+            <Link href="/price-trends" className="text-sm text-blue-600 hover:text-blue-800">
+              価格分析をもっと見る →
+            </Link>
+          </div>
         </>
       )}
     </section>

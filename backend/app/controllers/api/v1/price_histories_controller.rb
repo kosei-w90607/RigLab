@@ -30,6 +30,13 @@ module Api
         initial_record = PartsPriceHistory.for_part(part_type, part_id).order(fetched_at: :asc).first
         current_price = histories.last&.price || part.price
 
+        price_7d_ago = PartsPriceHistory.for_part(part_type, part_id)
+                                        .where('fetched_at <= ?', 7.days.ago)
+                                        .order(fetched_at: :desc).first&.price
+        price_30d_ago = PartsPriceHistory.for_part(part_type, part_id)
+                                         .where('fetched_at <= ?', 30.days.ago)
+                                         .order(fetched_at: :desc).first&.price
+
         render json: {
           data: {
             part_type: part_type,
@@ -38,6 +45,8 @@ module Api
             current_price: current_price,
             initial_price: initial_record&.price,
             price_since_launch: initial_record ? calculate_change_percent(initial_record.price, current_price) : nil,
+            price_diff_7d: price_7d_ago ? current_price - price_7d_ago : nil,
+            price_diff_30d: price_30d_ago ? current_price - price_30d_ago : nil,
             rakuten_url: part.try(:rakuten_url),
             rakuten_image_url: part.try(:rakuten_image_url),
             histories: histories.map { |h| { price: h.price, source: h.source, fetched_at: h.fetched_at.strftime('%Y-%m-%d') } },
