@@ -391,6 +391,107 @@ presets = [
     motherboard: "MSI MAG X670E TOMAHAWK WIFI",
     psu: "Seasonic FOCUS GX-850",
     case: "Corsair 5000D Airflow"
+  },
+
+  # ===== 追加プリセット =====
+
+  # エントリー × gaming: コスパ最強エントリーPC (~12万円)
+  {
+    name: "コスパ最強エントリーPC",
+    description: "DDR4とIntel Arc B580で圧倒的コスパ。フルHDゲーミングを最小コストで実現。",
+    budget_range: "entry",
+    use_case: "gaming",
+    cpu: "Intel Core i5-14400",
+    gpu: "Intel Arc B580",
+    memory: "Crucial DDR4-3200 16GB (8GBx2)",
+    storage1: "WD Blue SN580 1TB",
+    os: "Windows 11 Home",
+    motherboard: "ASRock B760M Pro RS/D4",
+    psu: "Corsair RM650",
+    case: "Thermaltake S100 TG"
+  },
+
+  # ミドル × gaming: 次世代AMDゲーミングPC (~30万円)
+  {
+    name: "次世代AMDゲーミングPC",
+    description: "Zen 5 3D V-CacheとRTX 5070の次世代コンビ。WQHDゲーミングの新定番。",
+    budget_range: "middle",
+    use_case: "gaming",
+    cpu: "AMD Ryzen 7 9800X3D",
+    gpu: "NVIDIA GeForce RTX 5070",
+    memory: "G.Skill Trident Z5 DDR5-6000 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    os: "Windows 11 Home",
+    motherboard: "MSI MAG B650 TOMAHAWK WIFI",
+    psu: "Corsair RM850",
+    case: "NZXT H5 Flow"
+  },
+
+  # ミドル × gaming: オールAMD構成PC (~28万円)
+  {
+    name: "オールAMD構成PC",
+    description: "CPU・GPUともにAMDで統一。3D V-CacheとRDNA 4の組み合わせで高コスパゲーミング。",
+    budget_range: "middle",
+    use_case: "gaming",
+    cpu: "AMD Ryzen 7 7800X3D",
+    gpu: "AMD Radeon RX 9070 XT",
+    memory: "Kingston FURY Beast DDR5-6000 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    os: "Windows 11 Home",
+    motherboard: "ASUS ROG STRIX B650E-F GAMING WIFI",
+    psu: "Corsair RM850",
+    case: "Corsair 3500X"
+  },
+
+  # ハイエンド × gaming: 4Kゲーミング最強PC (~45万円)
+  {
+    name: "4Kゲーミング最強PC",
+    description: "Zen 5 3D V-CacheとRTX 5080で4K最高画質を制圧。妥協なきゲーミング体験。",
+    budget_range: "high",
+    use_case: "gaming",
+    cpu: "AMD Ryzen 9 9900X3D",
+    gpu: "NVIDIA GeForce RTX 5080",
+    memory: "G.Skill Trident Z5 DDR5-6400 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    storage2: "WD Black SN850X 2TB",
+    os: "Windows 11 Pro",
+    motherboard: "ASUS ROG STRIX X670E-E GAMING WIFI",
+    psu: "Corsair RM1000",
+    case: "Lian Li O11 Dynamic EVO"
+  },
+
+  # ハイエンド × creative: 次世代クリエイターPC (~65万円)
+  {
+    name: "次世代クリエイターPC",
+    description: "Ryzen 9 9950X3DとRTX 5090で8K編集もAI処理も圧倒的パフォーマンス。",
+    budget_range: "high",
+    use_case: "creative",
+    cpu: "AMD Ryzen 9 9950X3D",
+    gpu: "NVIDIA GeForce RTX 5090",
+    memory: "Corsair Vengeance DDR5-5600 64GB (32GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    storage2: "Samsung 990 Pro 2TB",
+    storage3: "Seagate Barracuda 4TB",
+    os: "Windows 11 Pro",
+    motherboard: "ASUS ROG STRIX X670E-E GAMING WIFI",
+    psu: "Seasonic PRIME TX-1000",
+    case: "Fractal Design Torrent"
+  },
+
+  # エントリー × office: コスパ重視オフィスPC (~8万円)
+  {
+    name: "コスパ重視オフィスPC",
+    description: "内蔵GPU活用でGPUレス構成。事務作業に十分な性能をDDR4で低コスト実現。",
+    budget_range: "entry",
+    use_case: "office",
+    cpu: "Intel Core i5-14400",
+    gpu: nil,
+    memory: "Crucial DDR4-3200 16GB (8GBx2)",
+    storage1: "WD Blue SN580 1TB",
+    os: "Windows 11 Home",
+    motherboard: "ASRock B760M Pro RS/D4",
+    psu: "Corsair RM650",
+    case: "Thermaltake S100 TG"
   }
 ]
 
@@ -401,7 +502,7 @@ presets.each do |preset_data|
   preset.budget_range = preset_data[:budget_range]
   preset.use_case = preset_data[:use_case]
   preset.cpu = find_cpu(preset_data[:cpu])
-  preset.gpu = find_gpu(preset_data[:gpu])
+  preset.gpu = preset_data[:gpu] ? find_gpu(preset_data[:gpu]) : nil
   preset.memory = find_memory(preset_data[:memory])
   preset.storage1 = find_storage(preset_data[:storage1])
   preset.storage2 = preset_data[:storage2] ? find_storage(preset_data[:storage2]) : nil
