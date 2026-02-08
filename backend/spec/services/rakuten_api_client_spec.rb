@@ -43,6 +43,8 @@ RSpec.describe RakutenApiClient do
     allow(ENV).to receive(:[]).and_call_original
     allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(application_id)
     allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return(access_key)
+    allow(ENV).to receive(:fetch).and_call_original
+    allow(ENV).to receive(:fetch).with('RAKUTEN_ALLOWED_WEBSITE', 'https://rig-lab.vercel.app').and_return('https://rig-lab.vercel.app')
   end
 
   describe '.search' do
@@ -136,6 +138,20 @@ RSpec.describe RakutenApiClient do
 
         expect(result.success?).to be false
         expect(result.error).to include 'API接続エラー'
+      end
+    end
+
+    context 'RAKUTEN_ALLOWED_WEBSITE環境変数' do
+      it 'カスタムWebサイトURLをヘッダーに使用する' do
+        allow(ENV).to receive(:fetch).with('RAKUTEN_ALLOWED_WEBSITE', 'https://rig-lab.vercel.app').and_return('https://custom-site.example.com')
+
+        stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
+          .with(headers: { 'Referer' => 'https://custom-site.example.com/', 'Origin' => 'https://custom-site.example.com' })
+          .to_return(status: 200, body: success_response_body, headers: { 'Content-Type' => 'application/json' })
+
+        described_class.search(keyword: 'test')
+
+        expect(stub).to have_been_requested
       end
     end
   end

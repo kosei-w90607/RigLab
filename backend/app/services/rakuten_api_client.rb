@@ -3,7 +3,6 @@
 class RakutenApiClient
   BASE_URL = 'https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20220601'
   RANKING_URL = 'https://openapi.rakuten.co.jp/ichibaranking/api/IchibaItem/Ranking/20220601'
-  ALLOWED_WEBSITE = 'https://rig-lab.vercel.app'
 
   Result = Struct.new(:success?, :items, :total_count, :error, keyword_init: true)
 
@@ -81,13 +80,17 @@ class RakutenApiClient
       ENV['RAKUTEN_ACCESS_KEY']
     end
 
+    def allowed_website
+      ENV.fetch('RAKUTEN_ALLOWED_WEBSITE', 'https://rig-lab.vercel.app')
+    end
+
     def get_with_headers(url)
       uri = URI(url)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       req = Net::HTTP::Get.new(uri)
-      req['Referer'] = "#{ALLOWED_WEBSITE}/"
-      req['Origin'] = ALLOWED_WEBSITE
+      req['Referer'] = "#{allowed_website}/"
+      req['Origin'] = allowed_website
       http.request(req)
     end
 
