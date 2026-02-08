@@ -2,36 +2,38 @@
 
 ## 現在のフェーズ
 
-**Phase 8: TOPページ改善 & 価格分析ページ ✅ 完了**
+**Phase 8.5: UX改善 — 価格分析・ランキング・管理画面検索 ✅ 完了**
 
 ---
 
 ## 直近の作業サマリー（2026-02-09）
 
-### 完了: Phase 8 バグ修正 & 本番リリース準備（PR #43）
+### 完了: Phase 8.5 UX改善 — 価格分析タブ化・ランキングgenreId・検索品質向上（PR #44）
 
 | カテゴリ | 内容 |
 |----------|------|
-| ビルド修正 | recharts依存関係をpackage-lock.jsonに同期、Vercelビルドエラー解消 |
-| 環境設定 | backend/.env.example, frontend/.env.example 再作成 |
-| セキュリティ | next.config.tsにセキュリティヘッダー追加（X-Content-Type-Options, X-Frame-Options等） |
-| API改善 | 楽天APIクライアントのALLOWED_WEBSITEを環境変数化（RAKUTEN_ALLOWED_WEBSITE） |
+| ランキング品質 | 楽天Ranking APIにgenreId送信（美容液等の非PC商品を排除）、カテゴリ4→7に拡張 |
+| 検索品質 | 検索APIにgenreIdフィルタ追加、信頼ショップフィルタリング機能、カテゴリ自動検出バッジ |
+| 価格分析ページ | カードグリッド→カテゴリタブ+パーツテーブルに全面リライト、空状態メッセージ改善 |
+| カテゴリ自動入力 | 楽天検索結果からパーツ登録時にgenreIdからカテゴリを自動検出して入力 |
 
 ### 変更ファイル
-- `frontend/package-lock.json` - recharts含む依存関係同期
-- `backend/.env.example` - 環境変数テンプレート再作成
-- `frontend/.env.example` - 環境変数テンプレート再作成
-- `backend/app/services/rakuten_api_client.rb` - ALLOWED_WEBSITE環境変数化
-- `backend/spec/services/rakuten_api_client_spec.rb` - ENV stub追加 + 新テスト
-- `frontend/next.config.ts` - セキュリティヘッダー追加
+- `backend/app/services/rakuten_api_client.rb` - GENRE_IDS, detect_category, filter_results, trusted_shop, genreId送信
+- `backend/spec/services/rakuten_api_client_spec.rb` - 新テスト12件追加
+- `backend/spec/requests/api/v1/rankings_spec.rb` - ENV.fetchスタブ追加
+- `backend/app/controllers/api/v1/admin/rakuten_search_controller.rb` - filter_results適用
+- `backend/app/controllers/api/v1/price_trends_controller.rb` - daily_averages追加
+- `frontend/app/components/home/RankingSection.tsx` - カテゴリ7つに拡張
+- `frontend/app/admin/parts/import/page.tsx` - 信頼ショップトグル, detectedCategory, カテゴリバッジ
+- `frontend/app/price-trends/page.tsx` - タブ化全面リライト
 
 ### テスト結果
-- Backend RSpec: 317 examples, 0 failures
-- Frontend `next build`: 成功（rechartsエラー解消）
+- Backend RSpec: 331 examples, 0 failures
+- Frontend `next build`: 成功
 
 ### 次回アクション
-- PR #43 マージ → Vercel自動デプロイでビルド成功確認
-- 楽天API登録（手動作業 - 公開URL必要）
+- PR #44 マージ → Vercel自動デプロイで動作確認
+- ブラウザでの手動検証（ランキング・価格分析・管理画面検索）
 - 本番リリースチェックリスト消化
 
 ### 本番リリースチェックリスト
@@ -607,6 +609,30 @@
 
 ---
 
+## Phase 8.5: UX改善 — 価格分析・ランキング・管理画面検索 ✅
+
+> Phase 8完了後、実際のサイト操作で発覚した5つのUX問題を修正。
+
+### 8.5.1 ランキング品質改善
+
+- [x] P8.5-01: GENRE_IDSマッピング追加（PCパーツ7カテゴリ） (PR #44)
+- [x] P8.5-02: ランキングAPIにgenreId送信（美容液等の排除） (PR #44)
+- [x] P8.5-03: ランキングカテゴリ4→7に拡張（マザーボード・電源・ケース追加） (PR #44)
+
+### 8.5.2 管理画面検索品質改善
+
+- [x] P8.5-04: 検索APIにgenreIdフィルタ追加 (PR #44)
+- [x] P8.5-05: 信頼ショップフィルタリング機能（filter_results, trusted_shop?） (PR #44)
+- [x] P8.5-06: カテゴリ自動検出（detect_category + detectedCategoryバッジ） (PR #44)
+- [x] P8.5-07: パーツ登録時カテゴリ自動入力 (PR #44)
+
+### 8.5.3 価格分析ページ改善
+
+- [x] P8.5-08: 価格分析ページをカテゴリタブ+パーツテーブルに全面リライト (PR #44)
+- [x] P8.5-09: category_detailにdaily_averages追加 (PR #44)
+
+---
+
 ## TDD ワークフロー
 
 「go」と言うと、次の未完了タスクのテストを書き、実装します。
@@ -644,7 +670,8 @@
 | Phase 6-M: UX改善 | 10 | 10 | 100% ✅ |
 | Phase 7: API活用 | 7 | 5 | 71% |
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
-| **合計** | **186** | **184** | **99%** |
+| Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
+| **合計** | **195** | **193** | **99%** |
 
 ---
 
