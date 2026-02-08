@@ -8,51 +8,39 @@
 
 ## 直近の作業サマリー（2026-02-09）
 
-### 完了: Phase 8 - TOPページ改善 & 価格分析ページ
+### 完了: Phase 8 バグ修正 & 本番リリース準備（PR #43）
 
 | カテゴリ | 内容 |
 |----------|------|
-| P8-01 TOPページ改善 | BuyNowSection・PriceTrendsSection・RankingSectionの強化 |
-| P8-02 価格分析ページ | /price-trends 一覧、/price-trends/[category]、/price-trends/[category]/[partId] の3階層ページ |
-| P8-03 バックエンドAPI | price_trends_controller, rankings_controller 新規作成、routes追加 |
-| P8-04 テスト | price_trends_spec, rankings_spec 追加 |
-| P8-05 型定義更新 | PriceTrend, RankingPart等の型追加 |
-| P8-06 ヘッダー | 価格分析リンク追加 |
+| ビルド修正 | recharts依存関係をpackage-lock.jsonに同期、Vercelビルドエラー解消 |
+| 環境設定 | backend/.env.example, frontend/.env.example 再作成 |
+| セキュリティ | next.config.tsにセキュリティヘッダー追加（X-Content-Type-Options, X-Frame-Options等） |
+| API改善 | 楽天APIクライアントのALLOWED_WEBSITEを環境変数化（RAKUTEN_ALLOWED_WEBSITE） |
 
-### 変更ファイル（modified）
-- `backend/app/controllers/api/v1/price_histories_controller.rb` - 価格履歴取得拡張
-- `backend/app/services/buy_time_advisor_service.rb` - 買い時アドバイスロジック拡張
-- `backend/app/services/rakuten_api_client.rb` - 楽天API検索機能拡張
-- `backend/config/routes.rb` - price_trends, rankings ルート追加
-- `frontend/app/admin/parts/import/page.tsx` - インポートUI調整
-- `frontend/app/components/Header.tsx` - 価格分析リンク追加
-- `frontend/app/components/home/BuyNowSection.tsx` - 買い時セクション改善
-- `frontend/app/components/home/PriceTrendsSection.tsx` - 価格動向セクション改善
-- `frontend/app/page.tsx` - TOPページセクション統合
-- `frontend/types/index.ts` - 価格分析関連型追加
+### 変更ファイル
+- `frontend/package-lock.json` - recharts含む依存関係同期
+- `backend/.env.example` - 環境変数テンプレート再作成
+- `frontend/.env.example` - 環境変数テンプレート再作成
+- `backend/app/services/rakuten_api_client.rb` - ALLOWED_WEBSITE環境変数化
+- `backend/spec/services/rakuten_api_client_spec.rb` - ENV stub追加 + 新テスト
+- `frontend/next.config.ts` - セキュリティヘッダー追加
 
-### 新規ファイル
-- `backend/app/controllers/api/v1/price_trends_controller.rb` - 価格トレンドAPI
-- `backend/app/controllers/api/v1/rankings_controller.rb` - ランキングAPI
-- `backend/spec/requests/api/v1/price_trends_spec.rb` - 価格トレンドテスト
-- `backend/spec/requests/api/v1/rankings_spec.rb` - ランキングテスト
-- `frontend/app/components/home/RankingSection.tsx` - 人気パーツランキングセクション
-- `frontend/app/components/price-trends/CategoryPriceChart.tsx` - カテゴリ別価格チャート
-- `frontend/app/components/price-trends/MiniTrendChart.tsx` - ミニトレンドチャート
-- `frontend/app/components/price-trends/PartPriceChart.tsx` - パーツ別価格チャート
-- `frontend/app/price-trends/page.tsx` - 価格分析一覧ページ
-- `frontend/app/price-trends/[category]/page.tsx` - カテゴリ別価格分析ページ
-- `frontend/app/price-trends/[category]/[partId]/page.tsx` - パーツ別価格分析ページ
+### テスト結果
+- Backend RSpec: 317 examples, 0 failures
+- Frontend `next build`: 成功（rechartsエラー解消）
 
 ### 次回アクション
-- Vercelデプロイ（手動作業）
+- PR #43 マージ → Vercel自動デプロイでビルド成功確認
 - 楽天API登録（手動作業 - 公開URL必要）
-- Phase 7 残タスク（Amazon PA-API等）
+- 本番リリースチェックリスト消化
 
 ### 本番リリースチェックリスト
 
 > コード準備は完了済み。本番運用開始には以下の手動作業が必要。
 
+- [x] **ビルド修正**: rechartsエラー解消（PR #43）
+- [x] **セキュリティヘッダー**: next.config.tsに追加済み（PR #43）
+- [x] **環境変数テンプレート**: .env.example 再作成済み（PR #43）
 - [ ] **Sentry**: アカウント作成→プロジェクト作成→DSN取得→`SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN`環境変数設定
 - [ ] **CORS**: 本番ドメイン確定→`CORS_ORIGINS`環境変数設定
 - [ ] **デプロイ先**: Vercelデプロイ（Root Directory: `frontend`、環境変数設定）
