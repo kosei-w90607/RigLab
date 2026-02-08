@@ -399,6 +399,46 @@ RSpec.describe RakutenApiClient do
       items = [{ name: '何か', price: 1000 }]
       expect(described_class.filter_noise(items, nil)).to eq(items)
     end
+
+    it 'メモリカテゴリからノートPC用SODIMM・USB・外付けSSDを除外する' do
+      items = [
+        { name: 'Corsair DDR5-5600 32GB (16GBx2) DIMM', price: 15000 },
+        { name: 'Crucial DDR5-4800 SODIMM ノートPC用', price: 8000 },
+        { name: 'エレコム USB3.0フラッシュ 4GB', price: 4249 },
+        { name: 'BUFFALO 外付けSSD USB3.2', price: 63000 },
+      ]
+      result = described_class.filter_noise(items, 'memory')
+      expect(result.map { |i| i[:name] }).to eq(['Corsair DDR5-5600 32GB (16GBx2) DIMM'])
+    end
+
+    it 'メモリカテゴリでDDR/DIMMを含まない商品を除外する' do
+      items = [
+        { name: 'G.Skill DDR5-6000 32GB DIMM', price: 18000 },
+        { name: 'メモリカードリーダー USB', price: 5000 },
+      ]
+      result = described_class.filter_noise(items, 'memory')
+      expect(result.map { |i| i[:name] }).to eq(['G.Skill DDR5-6000 32GB DIMM'])
+    end
+
+    it 'SSDカテゴリからHDD・外付けを除外しSSDのみ返す' do
+      items = [
+        { name: 'Samsung 990 PRO 2TB NVMe M.2 SSD', price: 43000 },
+        { name: 'WD Blue 8TB HDD 3.5インチ', price: 29000 },
+        { name: '外付けSSD ポータブル', price: 10000 },
+      ]
+      result = described_class.filter_noise(items, 'ssd')
+      expect(result.map { |i| i[:name] }).to eq(['Samsung 990 PRO 2TB NVMe M.2 SSD'])
+    end
+
+    it 'HDDカテゴリからSSD・NVMeを除外しHDDのみ返す' do
+      items = [
+        { name: 'Seagate Barracuda 8TB HDD 3.5インチ内蔵ハードディスク', price: 27000 },
+        { name: 'Crucial P3 Plus NVMe M.2 SSD 1TB', price: 20000 },
+        { name: 'ポータブルHDD 外付け', price: 8000 },
+      ]
+      result = described_class.filter_noise(items, 'hdd')
+      expect(result.map { |i| i[:name] }).to eq(['Seagate Barracuda 8TB HDD 3.5インチ内蔵ハードディスク'])
+    end
   end
 
   describe '.filter_results' do

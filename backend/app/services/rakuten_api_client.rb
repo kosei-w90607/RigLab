@@ -15,6 +15,8 @@ class RakutenApiClient
     'cpu'         => 211582,
     'gpu'         => 100081,
     'memory'      => 565174,
+    'ssd'         => 408515,
+    'hdd'         => 408515,
     'storage'     => 408515,
     'motherboard' => 211607,
     'psu'         => 565175,
@@ -39,18 +41,31 @@ class RakutenApiClient
   CATEGORY_NOISE_KEYWORDS = {
     'cpu'         => %w[クーラー ファン グリス シリコン 殻割り シェルケース 殻 スッポン CPUスタンド],
     'gpu'         => %w[ライザー 延長 ブラケット サポート ホルダー ステー VGAケーブル],
-    'memory'      => %w[カバー ヒートシンク メモリスロット ダミー],
+    'memory'      => %w[カバー ヒートシンク メモリスロット ダミー SODIMM SO-DIMM ノートPC ノートパソコン
+                         USBメモリ フラッシュメモリ USBフラッシュ USB3 外付け ポータブル SSD HDD
+                         microSD SDカード コンパクトフラッシュ],
+    'ssd'         => %w[ケース エンクロージャ スタンド マウント 変換 アダプタ 外付け ポータブル HDD ハードディスク],
+    'hdd'         => %w[ケース エンクロージャ スタンド マウント 変換 アダプタ 外付け ポータブル SSD ソリッド NVMe M.2],
     'storage'     => %w[ケース エンクロージャ スタンド マウント 変換 アダプタ],
     'motherboard' => %w[バックプレート スペーサー マウンティング],
     'psu'         => %w[延長ケーブル スリーブ テスター チェッカー],
     'case'        => %w[ファン フィルター ダストフィルター]
   }.freeze
 
+  # カテゴリ別必須キーワード（いずれか1つを含む必要がある）
+  CATEGORY_REQUIRE_KEYWORDS = {
+    'memory' => %w[DDR4 DDR5 DIMM],
+    'ssd'    => %w[SSD ソリッドステート NVMe M.2],
+    'hdd'    => %w[HDD ハードディスク]
+  }.freeze
+
   # カテゴリ別最低価格（アクセサリは安い、本体は高い）
   CATEGORY_MIN_PRICES = {
     'cpu'         => 5000,
     'gpu'         => 8000,
-    'memory'      => 1500,
+    'memory'      => 3000,
+    'ssd'         => 3000,
+    'hdd'         => 3000,
     'storage'     => 1000,
     'motherboard' => 5000,
     'psu'         => 2500,
@@ -158,6 +173,7 @@ class RakutenApiClient
       noise_words = CATEGORY_NOISE_KEYWORDS[category] || []
       used_words = USED_EXCLUDE_KEYWORDS
       exclude_words = noise_words + used_words
+      require_words = CATEGORY_REQUIRE_KEYWORDS[category]
       min_price = CATEGORY_MIN_PRICES[category] || 0
 
       items.select do |item|
@@ -165,6 +181,7 @@ class RakutenApiClient
         price = item[:price].to_i
         next false if min_price > 0 && price < min_price
         next false if exclude_words.any? { |word| name.include?(word) }
+        next false if require_words && require_words.none? { |word| name.include?(word) }
         true
       end
     end
