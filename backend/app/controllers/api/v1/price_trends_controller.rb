@@ -9,8 +9,18 @@ module Api
       CATEGORY_LABELS = BuyTimeAdvisorService::CATEGORY_LABELS
 
       def categories
-        summaries = CATEGORY_MODELS.map do |part_type, model|
-          histories = PartsPriceHistory.where(part_type: part_type).recent(30)
+        summaries = BuyTimeAdvisorService::DISPLAY_CATEGORIES.map do |part_type|
+          model = CATEGORY_MODELS[part_type]
+          next nil unless model
+
+          pt = BuyTimeAdvisorService.price_history_part_type(part_type)
+          scope = model.all
+          scope = scope.public_send(part_type) if %w[ssd hdd].include?(part_type)
+
+          histories = PartsPriceHistory.where(part_type: pt).recent(30)
+          if %w[ssd hdd].include?(part_type)
+            histories = histories.where(part_id: scope.pluck(:id))
+          end
           next nil if histories.empty?
 
           prices = histories.pluck(:price)
@@ -25,7 +35,7 @@ module Api
             label: CATEGORY_LABELS[part_type],
             avg_change_percent: change,
             direction: change < 0 ? 'down' : change > 0 ? 'up' : 'stable',
-            part_count: model.count,
+            part_count: scope.count,
             avg_price: (prices.sum.to_f / prices.size).round,
             daily_averages: daily_averages
           }
@@ -42,14 +52,17 @@ module Api
         sort_by = params[:sort_by] || 'price'
         sort_order = params[:sort_order] || 'asc'
 
-        parts = model.all.map do |part|
-          histories = PartsPriceHistory.for_part(category, part.id).order(fetched_at: :asc)
+        pt = BuyTimeAdvisorService.price_history_part_type(category)
+        scope = model.all
+        scope = scope.public_send(category) if %w[ssd hdd].include?(category)
+
+        parts = scope.map do |part|
           current_price = part.price
 
-          price_7d_ago = PartsPriceHistory.for_part(category, part.id)
+          price_7d_ago = PartsPriceHistory.for_part(pt, part.id)
                                           .where('fetched_at <= ?', 7.days.ago)
                                           .order(fetched_at: :desc).first&.price
-          price_30d_ago = PartsPriceHistory.for_part(category, part.id)
+          price_30d_ago = PartsPriceHistory.for_part(pt, part.id)
                                            .where('fetched_at <= ?', 30.days.ago)
                                            .order(fetched_at: :desc).first&.price
 
@@ -74,7 +87,16 @@ module Api
 
         parts = sort_parts(parts, sort_by, sort_order)
 
-        render json: { data: { category: category, label: CATEGORY_LABELS[category], parts: parts } }
+        daily_averages = BuyTimeAdvisorService.category_daily_averages(category: category, days: 30)
+
+        render json: {
+          data: {
+            category: category,
+            label: CATEGORY_LABELS[category],
+            parts: parts,
+            daily_averages: daily_averages
+          }
+        }
       end
 
       private

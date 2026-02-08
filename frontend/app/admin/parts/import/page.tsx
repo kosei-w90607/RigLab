@@ -31,6 +31,7 @@ interface RakutenItem {
   shopName: string
   itemCode: string
   genreId: string
+  detectedCategory?: string
 }
 
 interface ExistingPart {
@@ -73,7 +74,14 @@ function RakutenItemCard({
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium text-gray-900 line-clamp-2">{item.name}</h3>
           <p className="text-lg font-bold text-custom-blue mt-1">{formatPrice(item.price)}</p>
-          <p className="text-xs text-gray-500">{item.shopName}</p>
+          <div className="flex items-center gap-1">
+            <p className="text-xs text-gray-500">{item.shopName}</p>
+            {item.detectedCategory && (
+              <span className="text-xs px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 ml-1">
+                {CATEGORIES.find(c => c.value === item.detectedCategory)?.label || item.detectedCategory}
+              </span>
+            )}
+          </div>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
@@ -187,6 +195,7 @@ export default function RakutenImportPage() {
 
   const [keyword, setKeyword] = useState('')
   const [category, setCategory] = useState('')
+  const [trustedOnly, setTrustedOnly] = useState(false)
   const [items, setItems] = useState<RakutenItem[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -200,6 +209,7 @@ export default function RakutenImportPage() {
     try {
       const params = new URLSearchParams({ keyword: keyword.trim() })
       if (category) params.set('category', category)
+      if (trustedOnly) params.set('trusted_only', 'true')
       const response = await api.get<{ data: { items: RakutenItem[]; totalCount: number } }>(
         `/admin/rakuten_search?${params}`,
         session.accessToken
@@ -216,14 +226,15 @@ export default function RakutenImportPage() {
   }
 
   const handleRegister = (item: RakutenItem) => {
-    // PartFormにプリフィルして遷移
     const params = new URLSearchParams({
       name: item.name,
       price: String(item.price),
       rakuten_url: item.url,
       rakuten_image_url: item.imageUrl || '',
     })
-    if (category) params.set('category', category)
+    // 優先順位: ドロップダウン選択 > genreIdからの自動検出
+    const resolvedCategory = category || item.detectedCategory
+    if (resolvedCategory) params.set('category', resolvedCategory)
     router.push(`/admin/parts/new?${params}`)
   }
 
@@ -274,6 +285,18 @@ export default function RakutenImportPage() {
               onChange={(e) => setCategory(e.target.value)}
               options={CATEGORIES}
             />
+          </div>
+          <div className="flex flex-col justify-center">
+            <label className="flex items-center gap-1.5 text-sm text-gray-700 whitespace-nowrap cursor-pointer">
+              <input
+                type="checkbox"
+                checked={trustedOnly}
+                onChange={(e) => setTrustedOnly(e.target.checked)}
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              信頼ショップのみ
+            </label>
+            <p className="text-xs text-gray-400">中古品・アクセサリは自動除外されます</p>
           </div>
           <Button type="submit" disabled={loading || !keyword.trim()}>
             {loading ? '検索中...' : '検索'}

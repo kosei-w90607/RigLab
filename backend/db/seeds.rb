@@ -26,6 +26,12 @@ cpus = [
   { name: "AMD Ryzen 7 9700X", price: 52980, maker: "AMD", socket: "AM5", tdp: 65, memory_type: "DDR5", specs: { cores: 8, threads: 16, base_clock: 3.8, boost_clock: 5.5 } },
   { name: "AMD Ryzen 9 9900X", price: 72980, maker: "AMD", socket: "AM5", tdp: 120, memory_type: "DDR5", specs: { cores: 12, threads: 24, base_clock: 4.4, boost_clock: 5.6 } },
   { name: "AMD Ryzen 9 9950X", price: 99980, maker: "AMD", socket: "AM5", tdp: 170, memory_type: "DDR5", specs: { cores: 16, threads: 32, base_clock: 4.3, boost_clock: 5.7 } },
+  { name: "AMD Ryzen 7 9800X3D", price: 69800, maker: "AMD", socket: "AM5", tdp: 120, memory_type: "DDR5", specs: { cores: 8, threads: 16, base_clock: 4.7, boost_clock: 5.2 } },
+  { name: "AMD Ryzen 9 9900X3D", price: 89980, maker: "AMD", socket: "AM5", tdp: 120, memory_type: "DDR5", specs: { cores: 12, threads: 24, base_clock: 4.4, boost_clock: 5.5 } },
+  { name: "AMD Ryzen 9 9950X3D", price: 115980, maker: "AMD", socket: "AM5", tdp: 170, memory_type: "DDR5", specs: { cores: 16, threads: 32, base_clock: 4.3, boost_clock: 5.7 } },
+  { name: "AMD Ryzen 5 7600X", price: 30980, maker: "AMD", socket: "AM5", tdp: 105, memory_type: "DDR5", specs: { cores: 6, threads: 12, base_clock: 4.7, boost_clock: 5.3 } },
+  { name: "AMD Ryzen 7 7800X3D", price: 61500, maker: "AMD", socket: "AM5", tdp: 120, memory_type: "DDR5", specs: { cores: 8, threads: 16, base_clock: 4.2, boost_clock: 5.0 } },
+  { name: "Intel Core i5-14400", price: 28980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR4,DDR5", specs: { cores: 10, threads: 16, base_clock: 2.5, boost_clock: 4.7 } },
 ]
 
 cpus.each do |cpu|
@@ -48,6 +54,14 @@ gpus = [
   { name: "AMD Radeon RX 7700 XT", price: 64980, maker: "AMD", tdp: 245, length_mm: 267, specs: { vram: 12, memory_type: "GDDR6" } },
   { name: "AMD Radeon RX 7800 XT", price: 74980, maker: "AMD", tdp: 263, length_mm: 267, specs: { vram: 16, memory_type: "GDDR6" } },
   { name: "AMD Radeon RX 7900 XT", price: 114980, maker: "AMD", tdp: 315, length_mm: 276, specs: { vram: 20, memory_type: "GDDR6" } },
+  { name: "NVIDIA GeForce RTX 5090", price: 398000, maker: "NVIDIA", tdp: 575, length_mm: 304, specs: { vram: 32, memory_type: "GDDR7" } },
+  { name: "NVIDIA GeForce RTX 5080", price: 206580, maker: "NVIDIA", tdp: 360, length_mm: 304, specs: { vram: 16, memory_type: "GDDR7" } },
+  { name: "NVIDIA GeForce RTX 5070 Ti", price: 174980, maker: "NVIDIA", tdp: 300, length_mm: 285, specs: { vram: 16, memory_type: "GDDR7" } },
+  { name: "NVIDIA GeForce RTX 5070", price: 104800, maker: "NVIDIA", tdp: 250, length_mm: 242, specs: { vram: 12, memory_type: "GDDR7" } },
+  { name: "Intel Arc B580", price: 42980, maker: "Intel", tdp: 150, length_mm: 267, specs: { vram: 12, memory_type: "GDDR6" } },
+  { name: "AMD Radeon RX 9070 XT", price: 112980, maker: "AMD", tdp: 300, length_mm: 276, specs: { vram: 16, memory_type: "GDDR6" } },
+  { name: "AMD Radeon RX 9070", price: 103800, maker: "AMD", tdp: 250, length_mm: 267, specs: { vram: 16, memory_type: "GDDR6" } },
+  { name: "NVIDIA GeForce RTX 4060 Ti 16GB", price: 52499, maker: "NVIDIA", tdp: 165, length_mm: 240, specs: { vram: 16, memory_type: "GDDR6" } },
 ]
 
 gpus.each do |gpu|
@@ -66,6 +80,13 @@ memories = [
   { name: "Corsair Vengeance DDR5-5600 64GB (32GBx2)", price: 35980, maker: "Corsair", memory_type: "DDR5", specs: { capacity: 64, speed: 5600, modules: 2 } },
   { name: "Crucial DDR4-3200 16GB (8GBx2)", price: 5980, maker: "Crucial", memory_type: "DDR4", specs: { capacity: 16, speed: 3200, modules: 2 } },
   { name: "Crucial DDR4-3200 32GB (16GBx2)", price: 10980, maker: "Crucial", memory_type: "DDR4", specs: { capacity: 32, speed: 3200, modules: 2 } },
+  { name: "Kingston FURY Beast DDR5-5600 32GB (16GBx2)", price: 13980, maker: "Kingston", memory_type: "DDR5", specs: { capacity: 32, speed: 5600, modules: 2 } },
+  { name: "Kingston FURY Beast DDR5-6000 32GB (16GBx2)", price: 15480, maker: "Kingston", memory_type: "DDR5", specs: { capacity: 32, speed: 6000, modules: 2 } },
+  { name: "Team T-Force Delta DDR5-6000 32GB (16GBx2)", price: 14980, maker: "Team", memory_type: "DDR5", specs: { capacity: 32, speed: 6000, modules: 2 } },
+  { name: "Corsair Vengeance DDR5-6000 32GB (16GBx2)", price: 16980, maker: "Corsair", memory_type: "DDR5", specs: { capacity: 32, speed: 6000, modules: 2 } },
+  { name: "Crucial DDR5-6000 32GB (16GBx2)", price: 12480, maker: "Crucial", memory_type: "DDR5", specs: { capacity: 32, speed: 6000, modules: 2 } },
+  { name: "Kingston FURY Beast DDR4-3200 32GB (16GBx2)", price: 9980, maker: "Kingston", memory_type: "DDR4", specs: { capacity: 32, speed: 3200, modules: 2 } },
+  { name: "Corsair Vengeance LPX DDR4-3600 32GB (16GBx2)", price: 12980, maker: "Corsair", memory_type: "DDR4", specs: { capacity: 32, speed: 3600, modules: 2 } },
 ]
 
 memories.each do |memory|
@@ -86,6 +107,14 @@ storages = [
   { name: "Samsung 870 EVO 1TB", price: 11980, maker: "Samsung", specs: { capacity: 1000, storage_type: "SATA SSD", interface: "SATA III", read_speed: 560, write_speed: 530 } },
   { name: "Seagate Barracuda 2TB", price: 8980, maker: "Seagate", specs: { capacity: 2000, storage_type: "HDD", interface: "SATA III", read_speed: 220, write_speed: 220 } },
   { name: "Seagate Barracuda 4TB", price: 12980, maker: "Seagate", specs: { capacity: 4000, storage_type: "HDD", interface: "SATA III", read_speed: 190, write_speed: 190 } },
+  { name: "Samsung 990 EVO Plus 1TB", price: 13580, maker: "Samsung", specs: { capacity: 1000, storage_type: "NVMe SSD", interface: "PCIe 5.0 x4", read_speed: 7250, write_speed: 6300 } },
+  { name: "Samsung 990 EVO Plus 2TB", price: 22980, maker: "Samsung", specs: { capacity: 2000, storage_type: "NVMe SSD", interface: "PCIe 5.0 x4", read_speed: 7250, write_speed: 6300 } },
+  { name: "WD Blue SN580 1TB", price: 9480, maker: "Western Digital", specs: { capacity: 1000, storage_type: "NVMe SSD", interface: "PCIe 4.0 x4", read_speed: 4150, write_speed: 4150 } },
+  { name: "Crucial T500 1TB", price: 13980, maker: "Crucial", specs: { capacity: 1000, storage_type: "NVMe SSD", interface: "PCIe 4.0 x4", read_speed: 7300, write_speed: 6800 } },
+  { name: "Crucial T500 2TB", price: 24980, maker: "Crucial", specs: { capacity: 2000, storage_type: "NVMe SSD", interface: "PCIe 4.0 x4", read_speed: 7400, write_speed: 7000 } },
+  { name: "WD Blue 2TB HDD", price: 8480, maker: "Western Digital", specs: { capacity: 2000, storage_type: "HDD", interface: "SATA", read_speed: 220, write_speed: 220 } },
+  { name: "WD Blue 4TB HDD", price: 11480, maker: "Western Digital", specs: { capacity: 4000, storage_type: "HDD", interface: "SATA", read_speed: 190, write_speed: 190 } },
+  { name: "Seagate Barracuda 8TB", price: 18980, maker: "Seagate", specs: { capacity: 8000, storage_type: "HDD", interface: "SATA", read_speed: 190, write_speed: 190 } },
 ]
 
 storages.each do |storage|
@@ -125,6 +154,13 @@ motherboards = [
   { name: "MSI MAG X670E TOMAHAWK WIFI", price: 42980, maker: "MSI", socket: "AM5", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "X670E", memory_slots: 4, max_memory: 128, m2_slots: 4 } },
   { name: "ASUS ROG STRIX B650E-F GAMING WIFI", price: 38980, maker: "ASUS", socket: "AM5", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "B650E", memory_slots: 4, max_memory: 128, m2_slots: 3 } },
   { name: "Gigabyte B650 AORUS ELITE AX", price: 28980, maker: "Gigabyte", socket: "AM5", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "B650", memory_slots: 4, max_memory: 128, m2_slots: 2 } },
+  { name: "ASRock B650M Pro RS WiFi", price: 17980, maker: "ASRock", socket: "AM5", memory_type: "DDR5", form_factor: "mATX", specs: { chipset: "B650", memory_slots: 2, max_memory: 64, m2_slots: 2 } },
+  { name: "Gigabyte B650M AORUS ELITE AX", price: 19980, maker: "Gigabyte", socket: "AM5", memory_type: "DDR5", form_factor: "mATX", specs: { chipset: "B650", memory_slots: 2, max_memory: 64, m2_slots: 2 } },
+  { name: "ASRock B760M Pro RS/D4", price: 14980, maker: "ASRock", socket: "LGA1700", memory_type: "DDR4", form_factor: "mATX", specs: { chipset: "B760", memory_slots: 2, max_memory: 64, m2_slots: 1 } },
+  { name: "MSI MAG B650 TOMAHAWK WIFI", price: 28980, maker: "MSI", socket: "AM5", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "B650", memory_slots: 4, max_memory: 128, m2_slots: 2 } },
+  { name: "ASRock Z890 Taichi", price: 79980, maker: "ASRock", socket: "LGA1851", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "Z890", memory_slots: 4, max_memory: 192, m2_slots: 5 } },
+  { name: "ASUS TUF GAMING B860-PLUS WIFI", price: 40980, maker: "ASUS", socket: "LGA1851", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "B860", memory_slots: 4, max_memory: 192, m2_slots: 3 } },
+  { name: "MSI MAG B860 TOMAHAWK WIFI", price: 28980, maker: "MSI", socket: "LGA1851", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "B860", memory_slots: 4, max_memory: 192, m2_slots: 3 } },
 ]
 
 motherboards.each do |mb|
@@ -144,6 +180,11 @@ psus = [
   { name: "Seasonic FOCUS GX-750", price: 15980, maker: "Seasonic", wattage: 750, form_factor: "ATX", specs: { efficiency: "80+ Gold", modular: "Full" } },
   { name: "Seasonic FOCUS GX-850", price: 18980, maker: "Seasonic", wattage: 850, form_factor: "ATX", specs: { efficiency: "80+ Gold", modular: "Full" } },
   { name: "Seasonic PRIME TX-1000", price: 39980, maker: "Seasonic", wattage: 1000, form_factor: "ATX", specs: { efficiency: "80+ Titanium", modular: "Full" } },
+  { name: "Corsair SF750", price: 25980, maker: "Corsair", wattage: 750, form_factor: "SFX", specs: { efficiency: "80+ Platinum", modular: "Full" } },
+  { name: "Corsair SF850L", price: 19980, maker: "Corsair", wattage: 850, form_factor: "SFX", specs: { efficiency: "80+ Gold", modular: "Full" } },
+  { name: "Super Flower Leadex III Gold 850W", price: 17980, maker: "Super Flower", wattage: 850, form_factor: "ATX", specs: { efficiency: "80+ Gold", modular: "Full" } },
+  { name: "Thermaltake Toughpower GF3 850W", price: 17980, maker: "Thermaltake", wattage: 850, form_factor: "ATX", specs: { efficiency: "80+ Gold", modular: "Full" } },
+  { name: "NZXT C850", price: 14980, maker: "NZXT", wattage: 850, form_factor: "ATX", specs: { efficiency: "80+ Gold", modular: "Full" } },
 ]
 
 psus.each do |psu|
@@ -162,6 +203,12 @@ cases = [
   { name: "Lian Li O11 Dynamic EVO", price: 22980, maker: "Lian Li", form_factor: "ATX", max_gpu_length_mm: 420, specs: { max_cpu_cooler_height: 167 } },
   { name: "Corsair 4000D Airflow", price: 12980, maker: "Corsair", form_factor: "ATX", max_gpu_length_mm: 360, specs: { max_cpu_cooler_height: 170 } },
   { name: "Corsair 5000D Airflow", price: 19980, maker: "Corsair", form_factor: "ATX", max_gpu_length_mm: 400, specs: { max_cpu_cooler_height: 170 } },
+  { name: "Fractal Design Define 7 Compact", price: 16980, maker: "Fractal Design", form_factor: "mATX", max_gpu_length_mm: 360, specs: { max_cpu_cooler_height: 169 } },
+  { name: "Cooler Master NR200P V2", price: 16980, maker: "Cooler Master", form_factor: "ITX", max_gpu_length_mm: 336, specs: { max_cpu_cooler_height: 155 } },
+  { name: "Lian Li A4-H2O", price: 26980, maker: "Lian Li", form_factor: "ITX", max_gpu_length_mm: 320, specs: { max_cpu_cooler_height: 55 } },
+  { name: "ASUS Prime AP201", price: 12980, maker: "ASUS", form_factor: "mATX", max_gpu_length_mm: 338, specs: { max_cpu_cooler_height: 170 } },
+  { name: "Thermaltake S100 TG", price: 6480, maker: "Thermaltake", form_factor: "mATX", max_gpu_length_mm: 330, specs: { max_cpu_cooler_height: 160 } },
+  { name: "Corsair 3500X", price: 14980, maker: "Corsair", form_factor: "ATX", max_gpu_length_mm: 410, specs: { max_cpu_cooler_height: 170 } },
 ]
 
 cases.each do |pc_case|
@@ -344,6 +391,107 @@ presets = [
     motherboard: "MSI MAG X670E TOMAHAWK WIFI",
     psu: "Seasonic FOCUS GX-850",
     case: "Corsair 5000D Airflow"
+  },
+
+  # ===== 追加プリセット =====
+
+  # エントリー × gaming: コスパ最強エントリーPC (~12万円)
+  {
+    name: "コスパ最強エントリーPC",
+    description: "DDR4とIntel Arc B580で圧倒的コスパ。フルHDゲーミングを最小コストで実現。",
+    budget_range: "entry",
+    use_case: "gaming",
+    cpu: "Intel Core i5-14400",
+    gpu: "Intel Arc B580",
+    memory: "Crucial DDR4-3200 16GB (8GBx2)",
+    storage1: "WD Blue SN580 1TB",
+    os: "Windows 11 Home",
+    motherboard: "ASRock B760M Pro RS/D4",
+    psu: "Corsair RM650",
+    case: "Thermaltake S100 TG"
+  },
+
+  # ミドル × gaming: 次世代AMDゲーミングPC (~30万円)
+  {
+    name: "次世代AMDゲーミングPC",
+    description: "Zen 5 3D V-CacheとRTX 5070の次世代コンビ。WQHDゲーミングの新定番。",
+    budget_range: "middle",
+    use_case: "gaming",
+    cpu: "AMD Ryzen 7 9800X3D",
+    gpu: "NVIDIA GeForce RTX 5070",
+    memory: "G.Skill Trident Z5 DDR5-6000 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    os: "Windows 11 Home",
+    motherboard: "MSI MAG B650 TOMAHAWK WIFI",
+    psu: "Corsair RM850",
+    case: "NZXT H5 Flow"
+  },
+
+  # ミドル × gaming: オールAMD構成PC (~28万円)
+  {
+    name: "オールAMD構成PC",
+    description: "CPU・GPUともにAMDで統一。3D V-CacheとRDNA 4の組み合わせで高コスパゲーミング。",
+    budget_range: "middle",
+    use_case: "gaming",
+    cpu: "AMD Ryzen 7 7800X3D",
+    gpu: "AMD Radeon RX 9070 XT",
+    memory: "Kingston FURY Beast DDR5-6000 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    os: "Windows 11 Home",
+    motherboard: "ASUS ROG STRIX B650E-F GAMING WIFI",
+    psu: "Corsair RM850",
+    case: "Corsair 3500X"
+  },
+
+  # ハイエンド × gaming: 4Kゲーミング最強PC (~45万円)
+  {
+    name: "4Kゲーミング最強PC",
+    description: "Zen 5 3D V-CacheとRTX 5080で4K最高画質を制圧。妥協なきゲーミング体験。",
+    budget_range: "high",
+    use_case: "gaming",
+    cpu: "AMD Ryzen 9 9900X3D",
+    gpu: "NVIDIA GeForce RTX 5080",
+    memory: "G.Skill Trident Z5 DDR5-6400 32GB (16GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    storage2: "WD Black SN850X 2TB",
+    os: "Windows 11 Pro",
+    motherboard: "ASUS ROG STRIX X670E-E GAMING WIFI",
+    psu: "Corsair RM1000",
+    case: "Lian Li O11 Dynamic EVO"
+  },
+
+  # ハイエンド × creative: 次世代クリエイターPC (~65万円)
+  {
+    name: "次世代クリエイターPC",
+    description: "Ryzen 9 9950X3DとRTX 5090で8K編集もAI処理も圧倒的パフォーマンス。",
+    budget_range: "high",
+    use_case: "creative",
+    cpu: "AMD Ryzen 9 9950X3D",
+    gpu: "NVIDIA GeForce RTX 5090",
+    memory: "Corsair Vengeance DDR5-5600 64GB (32GBx2)",
+    storage1: "Samsung 990 Pro 2TB",
+    storage2: "Samsung 990 Pro 2TB",
+    storage3: "Seagate Barracuda 4TB",
+    os: "Windows 11 Pro",
+    motherboard: "ASUS ROG STRIX X670E-E GAMING WIFI",
+    psu: "Seasonic PRIME TX-1000",
+    case: "Fractal Design Torrent"
+  },
+
+  # エントリー × office: コスパ重視オフィスPC (~8万円)
+  {
+    name: "コスパ重視オフィスPC",
+    description: "内蔵GPU活用でGPUレス構成。事務作業に十分な性能をDDR4で低コスト実現。",
+    budget_range: "entry",
+    use_case: "office",
+    cpu: "Intel Core i5-14400",
+    gpu: nil,
+    memory: "Crucial DDR4-3200 16GB (8GBx2)",
+    storage1: "WD Blue SN580 1TB",
+    os: "Windows 11 Home",
+    motherboard: "ASRock B760M Pro RS/D4",
+    psu: "Corsair RM650",
+    case: "Thermaltake S100 TG"
   }
 ]
 
@@ -354,7 +502,7 @@ presets.each do |preset_data|
   preset.budget_range = preset_data[:budget_range]
   preset.use_case = preset_data[:use_case]
   preset.cpu = find_cpu(preset_data[:cpu])
-  preset.gpu = find_gpu(preset_data[:gpu])
+  preset.gpu = preset_data[:gpu] ? find_gpu(preset_data[:gpu]) : nil
   preset.memory = find_memory(preset_data[:memory])
   preset.storage1 = find_storage(preset_data[:storage1])
   preset.storage2 = preset_data[:storage2] ? find_storage(preset_data[:storage2]) : nil

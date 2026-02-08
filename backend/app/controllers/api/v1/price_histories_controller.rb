@@ -7,6 +7,7 @@ module Api
 
       CATEGORY_MODELS = {
         'cpu' => PartsCpu, 'gpu' => PartsGpu, 'memory' => PartsMemory,
+        'ssd' => PartsStorage, 'hdd' => PartsStorage,
         'storage' => PartsStorage, 'os' => PartsOs, 'motherboard' => PartsMotherboard,
         'psu' => PartsPsu, 'case' => PartsCase
       }.freeze
@@ -20,20 +21,26 @@ module Api
         model = CATEGORY_MODELS[part_type]
         return render_not_found('不正なパーツタイプ') unless model
 
-        part = model.find_by(id: part_id)
+        part = if %w[ssd hdd].include?(part_type)
+                 model.public_send(part_type).find_by(id: part_id)
+               else
+                 model.find_by(id: part_id)
+               end
         return render_not_found('パーツが見つかりません') unless part
 
-        histories = PartsPriceHistory.for_part(part_type, part_id).recent(days).order(fetched_at: :asc)
+        pt = BuyTimeAdvisorService.price_history_part_type(part_type)
+
+        histories = PartsPriceHistory.for_part(pt, part_id).recent(days).order(fetched_at: :asc)
         histories = histories.by_source(source) if source.present?
 
         trend = calculate_trend(histories)
-        initial_record = PartsPriceHistory.for_part(part_type, part_id).order(fetched_at: :asc).first
+        initial_record = PartsPriceHistory.for_part(pt, part_id).order(fetched_at: :asc).first
         current_price = histories.last&.price || part.price
 
-        price_7d_ago = PartsPriceHistory.for_part(part_type, part_id)
+        price_7d_ago = PartsPriceHistory.for_part(pt, part_id)
                                         .where('fetched_at <= ?', 7.days.ago)
                                         .order(fetched_at: :desc).first&.price
-        price_30d_ago = PartsPriceHistory.for_part(part_type, part_id)
+        price_30d_ago = PartsPriceHistory.for_part(pt, part_id)
                                          .where('fetched_at <= ?', 30.days.ago)
                                          .order(fetched_at: :desc).first&.price
 

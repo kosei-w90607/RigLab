@@ -9,7 +9,7 @@ import { api } from '@/lib/api'
 import { CategoryPriceChart } from '@/app/components/price-trends/CategoryPriceChart'
 
 const CATEGORY_LABELS: Record<string, string> = {
-  cpu: 'CPU', gpu: 'GPU', memory: 'メモリ', storage: 'ストレージ',
+  cpu: 'CPU', gpu: 'GPU', memory: 'メモリ', ssd: 'SSD', hdd: 'HDD', storage: 'ストレージ',
   motherboard: 'マザーボード', psu: '電源', case: 'ケース',
 }
 
@@ -97,7 +97,7 @@ export default function CategoryDetailPage() {
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="text-sm text-gray-500 mb-4">
-          <Link href="/price-trends" className="hover:text-blue-600">価格分析</Link>
+          <Link href="/price-trends" className="hover:text-blue-600">価格動向</Link>
           <span className="mx-2">/</span>
           <span className="text-gray-900 font-medium">{label}</span>
         </nav>

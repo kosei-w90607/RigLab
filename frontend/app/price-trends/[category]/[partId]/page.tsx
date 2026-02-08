@@ -10,7 +10,7 @@ import { api } from '@/lib/api'
 import { PartPriceChart } from '@/app/components/price-trends/PartPriceChart'
 
 const CATEGORY_LABELS: Record<string, string> = {
-  cpu: 'CPU', gpu: 'GPU', memory: 'メモリ', storage: 'ストレージ',
+  cpu: 'CPU', gpu: 'GPU', memory: 'メモリ', ssd: 'SSD', hdd: 'HDD', storage: 'ストレージ',
   motherboard: 'マザーボード', psu: '電源', case: 'ケース',
 }
 
@@ -77,7 +77,7 @@ export default function PartDetailPage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="text-sm text-gray-500 mb-4">
-          <Link href="/price-trends" className="hover:text-blue-600">価格分析</Link>
+          <Link href="/price-trends" className="hover:text-blue-600">価格動向</Link>
           <span className="mx-2">/</span>
           <Link href={`/price-trends/${category}`} className="hover:text-blue-600">{categoryLabel}</Link>
           <span className="mx-2">/</span>
