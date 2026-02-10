@@ -16,7 +16,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-custom-blue text-white hover:bg-opacity-90 focus-visible:ring-custom-blue',
+    'bg-custom-blue text-white hover:bg-opacity-90 focus-visible:ring-custom-blue dark:bg-custom-blue/80 dark:hover:bg-custom-blue/70',
   secondary:
     'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus-visible:ring-gray-300',
   danger:

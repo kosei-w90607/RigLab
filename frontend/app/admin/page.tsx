@@ -58,8 +58,8 @@ function StatCard({
             <div className="text-white">{icon}</div>
           </div>
           <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{title}</p>
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+            <p className="text-sm text-gray-600">{title}</p>
+            <p className="text-2xl font-bold text-gray-900">{value}</p>
           </div>
         </div>
       </Card>
@@ -82,10 +82,10 @@ function QuickAction({
     <Link href={href}>
       <Card padding="md" shadow="sm" className="hover:shadow-md transition-shadow cursor-pointer h-full">
         <div className="flex items-start gap-3">
-          <div className="text-blue-600 dark:text-blue-400">{icon}</div>
+          <div className="text-blue-600">{icon}</div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">{title}</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{description}</p>
+            <h3 className="font-semibold text-gray-900">{title}</h3>
+            <p className="text-sm text-gray-600">{description}</p>
           </div>
         </div>
       </Card>
@@ -144,7 +144,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">管理ダッシュボード</h1>
+      <h1 className="text-2xl font-bold text-gray-900">管理ダッシュボード</h1>
 
       {/* 統計カード */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -185,7 +185,7 @@ export default function AdminDashboard() {
 
       {/* クイックアクション */}
       <div>
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">クイックアクション</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">クイックアクション</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <QuickAction
             title="パーツを追加"
@@ -232,19 +232,19 @@ export default function AdminDashboard() {
 
       {/* 管理者情報 */}
       <Card padding="lg" shadow="sm">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">管理者情報</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">管理者情報</h2>
         <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <dt className="text-sm text-gray-600 dark:text-gray-400">名前</dt>
-            <dd className="text-gray-900 dark:text-gray-100">{session?.user?.name || '-'}</dd>
+            <dt className="text-sm text-gray-600">名前</dt>
+            <dd className="text-gray-900">{session?.user?.name || '-'}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-600 dark:text-gray-400">メールアドレス</dt>
-            <dd className="text-gray-900 dark:text-gray-100">{session?.user?.email || '-'}</dd>
+            <dt className="text-sm text-gray-600">メールアドレス</dt>
+            <dd className="text-gray-900">{session?.user?.email || '-'}</dd>
           </div>
           <div>
-            <dt className="text-sm text-gray-600 dark:text-gray-400">権限</dt>
-            <dd className="text-gray-900 dark:text-gray-100">
+            <dt className="text-sm text-gray-600">権限</dt>
+            <dd className="text-gray-900">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                 {session?.user?.role || 'user'}
               </span>

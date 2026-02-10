@@ -93,7 +93,7 @@ export default function CategoryDetailPage() {
   }
 
   return (
-    <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+    <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100 dark:bg-none dark:bg-gray-900">
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <nav className="text-sm text-gray-500 dark:text-gray-400 mb-4">

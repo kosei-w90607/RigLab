@@ -37,7 +37,7 @@ function SortIcon({ column, sortKey, sortOrder }: {
   if (column === sortKey) {
     return <span className="ml-1">{sortOrder === 'asc' ? '▲' : '▼'}</span>
   }
-  return <span className="ml-1 text-gray-400">⇅</span>
+  return <span className="ml-1 text-gray-400 dark:text-gray-500">⇅</span>
 }
 
 export function GpuComparison({ gpus }: Props) {
@@ -140,7 +140,7 @@ export function GpuComparison({ gpus }: Props) {
                     {gpu.fullName}
                   </td>
                   <td className="p-1">
-                    <div className="relative h-5 w-full rounded bg-gray-200">
+                    <div className="relative h-5 w-full rounded bg-gray-200 dark:bg-gray-700">
                       <div
                         className={`absolute inset-y-0 left-0 rounded ${gpu.barColor}`}
                         style={{ width: `${pct}%`, minWidth: '3rem' }}

@@ -13,7 +13,7 @@ export function SpecComparisonSection({ cpus, gpus }: Props) {
   return (
     <div className="mt-8 space-y-4">
       {/* CPU 性能比較 */}
-      <div className="collapse collapse-arrow bg-base-100 border border-base-300 shadow-sm">
+      <div className="collapse collapse-arrow bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
         <input type="checkbox" />
         <div className="collapse-title text-lg font-bold">
           CPU 性能比較表
@@ -24,7 +24,7 @@ export function SpecComparisonSection({ cpus, gpus }: Props) {
       </div>
 
       {/* GPU 性能比較 */}
-      <div className="collapse collapse-arrow bg-base-100 border border-base-300 shadow-sm">
+      <div className="collapse collapse-arrow bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
         <input type="checkbox" />
         <div className="collapse-title text-lg font-bold">
           GPU 性能比較表

@@ -97,8 +97,7 @@ export function RankingSection() {
         </div>
       ) : error ? (
         <Card padding="lg" shadow="sm" className="text-center py-8">
-          <p className="text-sm text-gray-400">ランキングデータを取得できませんでした</p>
-          <p className="text-xs text-gray-300 mt-1">楽天APIの設定を確認してください</p>
+          <p className="text-sm text-gray-400">ランキングは現在準備中です</p>
         </Card>
       ) : items.length === 0 ? (
         <Card padding="lg" shadow="sm" className="text-center py-8">

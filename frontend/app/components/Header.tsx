@@ -22,7 +22,7 @@ function NavLink({ href, children, onClick }: NavLinkProps) {
       onClick={onClick}
       className={`px-4 py-2 rounded-lg transition-colors ${
         isActive
-          ? 'bg-custom-blue text-white'
+          ? 'bg-custom-blue text-white dark:bg-custom-blue/80'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
       }`}
     >
@@ -41,7 +41,7 @@ function MobileNavLink({ href, children, onClick }: NavLinkProps) {
       onClick={onClick}
       className={`block px-4 py-3 rounded-lg transition-colors ${
         isActive
-          ? 'bg-custom-blue text-white'
+          ? 'bg-custom-blue text-white dark:bg-custom-blue/80'
           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
       }`}
     >
@@ -95,7 +95,7 @@ export function Header() {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center">
-            <span className="text-2xl font-bold text-custom-blue">RigLab</span>
+            <span className="text-2xl font-bold text-custom-blue dark:text-custom-blue/80">RigLab</span>
           </Link>
 
           {/* Navigation Links (Desktop) */}

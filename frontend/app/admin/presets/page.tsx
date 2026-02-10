@@ -132,7 +132,7 @@ export default function AdminPresetsPage() {
     <div className="space-y-6">
       {/* ヘッダー */}
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">プリセット管理</h1>
+        <h1 className="text-2xl font-bold text-gray-900">プリセット管理</h1>
         <Link href="/admin/presets/new">
           <Button>
             <svg className="w-5 h-5 mr-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,44 +170,44 @@ export default function AdminPresetsPage() {
       {/* プリセット一覧 */}
       <Card padding="none" shadow="sm">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   ID
                 </th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   名前
                 </th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   予算帯
                 </th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   用途
                 </th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   合計金額
                 </th>
-                <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                <th className="px-3 md:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   操作
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="bg-white divide-y divide-gray-200">
               {presets.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-3 md:px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={6} className="px-3 md:px-6 py-12 text-center text-gray-500">
                     プリセットが登録されていません
                   </td>
                 </tr>
               ) : (
                 presets.map((preset) => (
-                  <tr key={preset.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                  <tr key={preset.id} className="hover:bg-gray-50">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {preset.id}
                     </td>
                     <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{preset.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{preset.name}</div>
                     </td>
                     <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -219,7 +219,7 @@ export default function AdminPresetsPage() {
                         {getUseCaseLabel(preset.useCase)}
                       </span>
                     </td>
-                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {formatPrice(preset.totalPrice)}
                     </td>
                     <td className="px-3 md:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -258,7 +258,7 @@ export default function AdminPresetsPage() {
           >
             前へ
           </Button>
-          <span className="flex items-center px-4 text-sm text-gray-600 dark:text-gray-400">
+          <span className="flex items-center px-4 text-sm text-gray-600">
             {page} / {totalPages}
           </span>
           <Button
