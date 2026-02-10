@@ -82,6 +82,8 @@ cp frontend/.env.example frontend/.env.local
 NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
 ```
 
+> **Note**: `.env.example`が存在しない場合は、上記の内容で`frontend/.env.local`を直接作成してください。
+
 ### 3.3 Dockerイメージのビルド
 
 ```bash
