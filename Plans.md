@@ -6,44 +6,39 @@
 
 ---
 
-## 直近の作業サマリー（2026-02-09）
+## 直近の作業サマリー（2026-02-11）
 
-### 完了: Phase 9 最終リリース準備 — プリセット充実・サイト説明・ダークモード・ドキュメント整備
+### 完了: 全開発タスク100%完了 — 本番デプロイ待ち
 
 | カテゴリ | 内容 |
 |----------|------|
-| プリセット充実 | 次世代パーツ活用の6プリセット追加（合計15構成）。Arc B580, RTX 5070/5080/5090, RX 9070 XT等 |
-| サイト説明 | TOPページに「RigLabとは」セクション追加。3カラムグリッドで機能紹介 |
-| ダークモード | next-themes + Tailwind dark: + daisyUI darkテーマ。Header切替ボタン、全コンポーネント・ページ対応 |
-| ドキュメント | docs/02-05,09をPhase 7-8.5成果物で更新。Amazon PA-API見送り理由記載 |
+| テーマシステム改善 | darkMode class→data-theme variant変更、管理画面ライトモード固定 |
+| ダークモード追加対応 | プライバシー/利用規約、SpecComparison、RankingSection、price-trends各ページ |
+| お問い合わせリンク | Googleフォームに変更 |
+| REFACTOR-01完了 | 共有URL token統一、OG画像レガシーコード削除（build/個別ID形式を除去） |
+| ドキュメント最終更新 | Plans.md 100%達成、docs/09改訂履歴追記、README.md更新 |
 
 ### 変更ファイル
-- `backend/db/seeds.rb` - 6プリセット追加（次世代パーツ構成）
-- `frontend/package.json` - next-themes追加
-- `frontend/tailwind.config.ts` - darkMode: 'class', daisyUI dark theme
-- `frontend/app/globals.css` - .dark CSS変数
-- `frontend/app/providers.tsx` - ThemeProvider wrap
-- `frontend/app/layout.tsx` - suppressHydrationWarning
-- `frontend/app/page.tsx` - サイト説明セクション + dark対応
-- `frontend/app/components/Header.tsx` - テーマトグル + dark対応
-- `frontend/app/components/ui/*.tsx` (9files) - dark:クラス追加
-- `frontend/app/components/home/*.tsx` (3files) - dark:クラス追加
-- `frontend/app/components/Footer.tsx` - dark:クラス追加
-- 全ページコンポーネント (~15files) - dark:クラス追加
-- `docs/02_deliverables.md` - Phase 7-8.5成果物追加
-- `docs/03_screen-flow.md` - S-11~S-13画面追加
-- `docs/04_wireframes.md` - 価格動向・サイト説明・ダークモードUI追加
-- `docs/05_api-design.md` - 楽天API/価格動向/ランキングエンドポイント追加
-- `docs/09_product-review.md` - Amazon PA-API見送り理由・Phase 8.5完了
+- `frontend/tailwind.config.ts` - darkMode: class→data-theme variant
+- `frontend/app/providers.tsx` - ThemeProvider attribute='data-theme'
+- `frontend/app/admin/layout.tsx` - 管理画面data-theme="light"固定
+- `frontend/app/admin/*.tsx` (3files) - ライトモード対応
+- `frontend/app/privacy/page.tsx`, `terms/page.tsx` - ダークモード対応
+- `frontend/app/components/configurator/SpecComparison/*.tsx` (3files) - dark対応
+- `frontend/app/components/home/RankingSection.tsx` - dark対応・メッセージ改善
+- `frontend/app/components/Footer.tsx` - お問い合わせリンクGoogleフォーム化
+- `frontend/app/share/opengraph-image.tsx` - レガシー共有URL形式削除（token統一）
+- `frontend/app/price-trends/**/*.tsx` (3files) - dark対応
+- `Plans.md` - 進捗100%、REFACTOR-01完了
+- `docs/09_product-review.md` - Phase 9最終調整の改訂履歴追記
+- `README.md` - ダークモード・認証方式更新
 
 ### テスト結果
 - Backend RSpec: 347 examples, 0 failures
-- Frontend `next build`: 成功（全21ページ生成）
-- PcEntrustSet.count: 15（プリセット正常）
+- Frontend TypeScript: 型エラーなし
 
 ### 次回アクション
-- 本番リリースチェックリスト消化
-- ブラウザでの手動検証（ダークモード切替、サイト説明表示、15プリセット確認）
+- 本番リリースチェックリスト消化（手動デプロイ作業7項目）
 
 ### 本番リリースチェックリスト
 
@@ -56,7 +51,7 @@
 - [ ] **CORS**: 本番ドメイン確定→`CORS_ORIGINS`環境変数設定
 - [ ] **デプロイ先**: Vercelデプロイ（Root Directory: `frontend`、環境変数設定）
 - [ ] **認証シークレット**: 本番用`AUTH_SECRET`生成（`openssl rand -base64 32`）→環境変数設定
-- [ ] **利用規約/プライバシー**: /terms, /privacy ページの内容確認・必要に応じてカスタマイズ
+- [x] **利用規約/プライバシー**: /terms, /privacy ページの内容作成済み・ダークモード対応完了
 - [ ] **本番DB**: 本番DB作成→マイグレーション実行→初期データ投入（`rails db:seed`）
 - [ ] **ドメイン**: ドメイン取得→DNS設定→HTTPS確認→`NEXT_PUBLIC_APP_URL`環境変数設定
 - [ ] **管理者ユーザー**: 本番環境で管理者ユーザー作成（rails console or seed）
@@ -580,10 +575,10 @@
 - [x] API-04: 価格推移グラフUI（Recharts）(PR #39)
 - [x] API-05: 「PC買い時おじさん」コメント生成ロジック (PR #39)
 - [x] API-06: TOPページへの情報掲載UI (PR #40)
-- [ ] REFACTOR-01: 共有URL 3形式→1形式（token形式）に統一 → v1.1で対応予定
-  - 現状: `/share?build=xxx`（ダッシュボード共有）、`/share?token=xxx`（Configurator/Builder共有）、`/share?cpu=1&gpu=2...`（レガシー個別ID形式）の3形式が混在
-  - 方針: token形式に統一。ダッシュボード共有時もshare_tokens APIでトークン生成する方式に変更
-  - 対象: `lib/share.ts`, `share/page.tsx`, `dashboard/page.tsx`, `builds/[id]/page.tsx`, `share_tokens_controller.rb`
+- [x] REFACTOR-01: 共有URL 3形式→1形式（token形式）に統一 → v1.0で対応完了
+  - 生成側: `lib/share.ts`, `dashboard/page.tsx`, `builds/[id]/page.tsx`, `builder/result/page.tsx`, `configurator/page.tsx` — 全てtoken生成済み
+  - 読み取り側: `share/page.tsx` — token読み取りのみ
+  - OG画像: `share/opengraph-image.tsx` — レガシー形式（build/個別ID）を削除、token形式のみに統一
 
 ---
 
@@ -672,6 +667,14 @@
 - [x] P9-13: Phase 7-8.5成果物をドキュメント反映（docs/02,03,04,05）
 - [x] P9-14: Plans.md Phase 9追加・進捗サマリー最終更新
 
+### 9.5 最終調整
+
+- [x] P9-15: テーマシステム改善（class→data-theme variant）
+- [x] P9-16: 管理画面ライトモード固定
+- [x] P9-17: プライバシー/利用規約ダークモード対応
+- [x] P9-18: お問い合わせリンクGoogleフォーム化
+- [x] P9-19: SpecComparison/RankingSection dark対応・メッセージ改善
+
 ---
 
 ## TDD ワークフロー
@@ -709,13 +712,13 @@
 | Phase 6.1-6.7: 品質検証 | 34 | 34 | 100% ✅ |
 | Phase 6-L: テスト不合格修正 | 5 | 5 | 100% ✅ |
 | Phase 6-M: UX改善 | 10 | 10 | 100% ✅ |
-| Phase 7: API活用 | 7 | 6 | 86% (REFACTOR-01 v1.1延期) |
+| Phase 7: API活用 | 7 | 7 | 100% ✅ |
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
 | Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
-| Phase 9: 最終リリース準備 | 14 | 14 | 100% ✅ |
-| **合計** | **209** | **208** | **99.5%** |
+| Phase 9: 最終リリース準備 | 19 | 19 | 100% ✅ |
+| **合計** | **214** | **214** | **100%** 🎉 |
 
-> ※ REFACTOR-01（共有URL統一）のみv1.1で対応予定。機能面は100%完了。
+> 全開発タスク100%完了。本番リリースチェックリスト（手動デプロイ作業）のみ残存。
 
 ---
 
