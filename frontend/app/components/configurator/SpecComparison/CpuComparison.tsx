@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import type { PartsCpu } from '@/types'
-import { CPU_BENCHMARKS } from '@/app/data/benchmarks'
+import { CPU_BENCHMARKS, type CpuBenchmark } from '@/app/data/benchmarks'
 import { useSortableData } from './useSortableData'
 
 interface Props {
@@ -37,7 +37,7 @@ export function CpuComparison({ cpus }: Props) {
   const data: CpuTableRow[] = useMemo(() => {
     return cpus
       .map((cpu) => {
-        const benchmark = CPU_BENCHMARKS.find((b) => b.name === cpu.name)
+        const benchmark = CPU_BENCHMARKS.find((b: CpuBenchmark) => b.name === cpu.name)
         if (!benchmark) return null
         const specs = cpu.specs as Record<string, unknown>
         const score = benchmark.passMarkScore

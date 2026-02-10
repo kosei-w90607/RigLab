@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react'
 import type { PartsGpu } from '@/types'
-import { GPU_BENCHMARKS } from '@/app/data/benchmarks'
+import { GPU_BENCHMARKS, type GpuBenchmark } from '@/app/data/benchmarks'
 import { useSortableData } from './useSortableData'
 
 interface Props {
@@ -44,7 +44,7 @@ export function GpuComparison({ gpus }: Props) {
   const data: GpuTableRow[] = useMemo(() => {
     return gpus
       .map((gpu) => {
-        const benchmark = GPU_BENCHMARKS.find((b) => b.name === gpu.name)
+        const benchmark = GPU_BENCHMARKS.find((b: GpuBenchmark) => b.name === gpu.name)
         if (!benchmark) return null
         const specs = gpu.specs as Record<string, unknown>
         const score = benchmark.timeSpyScore
