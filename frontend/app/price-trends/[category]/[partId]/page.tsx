@@ -14,6 +14,12 @@ const CATEGORY_LABELS: Record<string, string> = {
   motherboard: 'マザーボード', psu: '電源', case: 'ケース',
 }
 
+const CONFIGURATOR_PARAM_MAP: Record<string, string> = {
+  cpu: 'cpu', gpu: 'gpu', memory: 'memory',
+  ssd: 'storage1', hdd: 'storage1', storage: 'storage1',
+  motherboard: 'motherboard', psu: 'psu', case: 'case',
+}
+
 interface PriceHistoryData {
   partType: string
   partId: number
@@ -190,7 +196,7 @@ export default function PartDetailPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap gap-3">
-              <Link href={`/configurator?${category}Id=${partId}`}>
+              <Link href={`/configurator?${CONFIGURATOR_PARAM_MAP[category] || category}=${partId}`}>
                 <Button variant="primary" size="lg">
                   このパーツで構成を組む →
                 </Button>

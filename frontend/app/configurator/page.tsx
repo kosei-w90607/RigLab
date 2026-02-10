@@ -205,7 +205,7 @@ export default function ConfiguratorPage() {
     if (sessionStorage.getItem('pendingBuildConfig')) return
 
     // URLパラメータがない場合は何もしない
-    const hasParams = cpuIdParam || gpuIdParam || memoryIdParam || storage1IdParam || osIdParam
+    const hasParams = cpuIdParam || gpuIdParam || memoryIdParam || storage1IdParam || osIdParam || motherboardIdParam || psuIdParam || caseIdParam
     if (!hasParams) return
 
     const initialSelected: SelectedParts = { ...selected }
