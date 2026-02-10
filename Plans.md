@@ -8,53 +8,48 @@
 
 ## 直近の作業サマリー（2026-02-11）
 
-### 完了: 全開発タスク100%完了 — 本番デプロイ待ち
+### 完了: リリースチェックリスト精査・Sentry完了・デプロイ先確定
 
 | カテゴリ | 内容 |
 |----------|------|
-| テーマシステム改善 | darkMode class→data-theme variant変更、管理画面ライトモード固定 |
-| ダークモード追加対応 | プライバシー/利用規約、SpecComparison、RankingSection、price-trends各ページ |
-| お問い合わせリンク | Googleフォームに変更 |
-| REFACTOR-01完了 | 共有URL token統一、OG画像レガシーコード削除（build/個別ID形式を除去） |
-| ドキュメント最終更新 | Plans.md 100%達成、docs/09改訂履歴追記、README.md更新 |
+| Sentry設定 | DSN取得→ローカル環境変数設定完了（docs/12 §5-1〜5-2完了） |
+| .env整理 | frontend/.env→.env.local移行、.env.example追加 |
+| デプロイ先確定 | バックエンド: Railway（MySQLネイティブサポート、Gemfile変更不要） |
+| チェックリスト精査 | 完了済み6項目＋インフラ構築9ステップに整理 |
 
 ### 変更ファイル
-- `frontend/tailwind.config.ts` - darkMode: class→data-theme variant
-- `frontend/app/providers.tsx` - ThemeProvider attribute='data-theme'
-- `frontend/app/admin/layout.tsx` - 管理画面data-theme="light"固定
-- `frontend/app/admin/*.tsx` (3files) - ライトモード対応
-- `frontend/app/privacy/page.tsx`, `terms/page.tsx` - ダークモード対応
-- `frontend/app/components/configurator/SpecComparison/*.tsx` (3files) - dark対応
-- `frontend/app/components/home/RankingSection.tsx` - dark対応・メッセージ改善
-- `frontend/app/components/Footer.tsx` - お問い合わせリンクGoogleフォーム化
-- `frontend/app/share/opengraph-image.tsx` - レガシー共有URL形式削除（token統一）
-- `frontend/app/price-trends/**/*.tsx` (3files) - dark対応
-- `Plans.md` - 進捗100%、REFACTOR-01完了
-- `docs/09_product-review.md` - Phase 9最終調整の改訂履歴追記
-- `README.md` - ダークモード・認証方式更新
+- `Plans.md` - リリースチェックリスト精査・サマリー更新
+- `docs/12_sentry-setup-guide.md` - Sentryセットアップガイド追加（tracked化）
 
-### テスト結果
-- Backend RSpec: 347 examples, 0 failures
-- Frontend TypeScript: 型エラーなし
+### 備考
+- Sentry: docs/12 §5-3（バックエンド本番 SENTRY_DSN）は Railway デプロイ時に実施
+- docs/12 の「Render」記述は「Railway」に読み替えて運用
 
 ### 次回アクション
-- 本番リリースチェックリスト消化（手動デプロイ作業7項目）
+- 本番インフラ構築（チェックリスト手順1〜9を順次消化）
 
 ### 本番リリースチェックリスト
 
 > コード準備は完了済み。本番運用開始には以下の手動作業が必要。
 
+**完了済み:**
 - [x] **ビルド修正**: rechartsエラー解消（PR #43）
 - [x] **セキュリティヘッダー**: next.config.tsに追加済み（PR #43）
-- [x] **環境変数テンプレート**: .env.example 再作成済み（PR #43）
-- [ ] **Sentry**: アカウント作成→プロジェクト作成→DSN取得→`SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN`環境変数設定
-- [ ] **CORS**: 本番ドメイン確定→`CORS_ORIGINS`環境変数設定
-- [ ] **デプロイ先**: Vercelデプロイ（Root Directory: `frontend`、環境変数設定）
-- [ ] **認証シークレット**: 本番用`AUTH_SECRET`生成（`openssl rand -base64 32`）→環境変数設定
-- [x] **利用規約/プライバシー**: /terms, /privacy ページの内容作成済み・ダークモード対応完了
-- [ ] **本番DB**: 本番DB作成→マイグレーション実行→初期データ投入（`rails db:seed`）
-- [ ] **ドメイン**: ドメイン取得→DNS設定→HTTPS確認→`NEXT_PUBLIC_APP_URL`環境変数設定
-- [ ] **管理者ユーザー**: 本番環境で管理者ユーザー作成（rails console or seed）
+- [x] **環境変数テンプレート**: .env.example 再作成済み
+- [x] **利用規約/プライバシー**: /terms, /privacy 作成済み・ダークモード対応完了
+- [x] **Sentry（ローカル）**: DSN取得→ローカル環境変数設定 完了（docs/12 §5-1〜5-2完了、§5-3はデプロイ時）
+- [x] **.env整理**: frontend/.env→.env.local移行、.env.example追加
+
+**インフラ構築（順序あり）:**
+1. [ ] **認証シークレット生成**: `openssl rand -base64 32` → AUTH_SECRET / NEXTAUTH_SECRET（front/backで同一値）
+2. [ ] **Railway**: アカウント作成 → GitHubリポジトリ連携（docs/08 Section 4 参照）
+3. [ ] **本番DB（Railway MySQL）**: DB作成 → DATABASE_URL取得 → マイグレーション → `rails db:seed`
+4. [ ] **バックエンドデプロイ（Railway）**: Root Directory: `backend`、環境変数設定（RAILS_ENV, RAILS_MASTER_KEY, NEXTAUTH_SECRET, CORS_ORIGINS, SENTRY_DSN）
+5. [ ] **フロントエンドデプロイ（Vercel）**: Root Directory: `frontend`、環境変数設定（NEXT_PUBLIC_API_URL, NEXTAUTH_SECRET, NEXT_PUBLIC_SENTRY_DSN 等）
+6. [ ] **CORS設定**: Vercelの本番URL確定後 → Railway側 `CORS_ORIGINS` に設定
+7. [ ] **ドメイン設定**（任意）: 取得 → DNS → HTTPS → NEXT_PUBLIC_APP_URL更新
+8. [ ] **管理者ユーザー作成**: Railway rails console or seed
+9. [ ] **動作確認**: 認証フロー → 構成提案 → 共有機能 → 管理画面
 
 ---
 
