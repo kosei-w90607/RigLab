@@ -536,4 +536,47 @@ user.save!
 
 puts "  Created #{User.count} Users"
 
+# Price Histories (過去60日分のダミーデータ)
+puts "Creating price histories..."
+
+CATEGORY_MODELS_FOR_SEED = {
+  'cpu' => PartsCpu, 'gpu' => PartsGpu, 'memory' => PartsMemory,
+  'storage' => PartsStorage, 'os' => PartsOs, 'motherboard' => PartsMotherboard,
+  'psu' => PartsPsu, 'case' => PartsCase
+}.freeze
+
+CATEGORY_MODELS_FOR_SEED.each do |part_type, model|
+  model.find_each do |part|
+    next if part.price.to_i <= 0
+    current_price = part.price.to_f
+    min_price = current_price * 0.85
+    max_price = current_price * 1.15
+
+    # current_price(今日)から過去に向かってランダムウォークで価格生成
+    prices = [current_price.round]
+    price = current_price
+    60.times do
+      change = price * rand(-0.05..0.05)
+      price = (price + change).clamp(min_price, max_price)
+      prices.unshift(price.round)
+    end
+    # prices[0]=60日前, prices[60]=今日(=current_price)
+
+    prices.each_with_index do |p, i|
+      days_ago = 60 - i
+      fetched_at = days_ago.days.ago.beginning_of_day + 3.hours
+
+      PartsPriceHistory.find_or_create_by!(
+        part_type: part_type,
+        part_id: part.id,
+        fetched_at: fetched_at
+      ) do |record|
+        record.price = p
+        record.source = 'rakuten'
+      end
+    end
+  end
+  puts "  Created price histories for #{part_type}"
+end
+
 puts "Seeding completed!"

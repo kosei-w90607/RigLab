@@ -23,6 +23,7 @@ import type {
 import { api, ApiClientError } from '@/lib/api'
 import { shareConfiguration } from '@/lib/share'
 import { useToast } from '@/app/components/ui/Toast'
+import { SpecComparisonSection } from '@/app/components/configurator/SpecComparison'
 
 // API response types for edit mode
 interface ApiPart {
@@ -1057,6 +1058,7 @@ export default function ConfiguratorPage() {
             </Card>
           </div>
         </div>
+        {parts && <SpecComparisonSection cpus={parts.cpus} gpus={parts.gpus} />}
       </div>
 
       {/* Save Modal */}
