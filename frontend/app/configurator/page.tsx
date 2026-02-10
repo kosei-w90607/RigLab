@@ -205,7 +205,7 @@ export default function ConfiguratorPage() {
     if (sessionStorage.getItem('pendingBuildConfig')) return
 
     // URLパラメータがない場合は何もしない
-    const hasParams = cpuIdParam || gpuIdParam || memoryIdParam || storage1IdParam || osIdParam
+    const hasParams = cpuIdParam || gpuIdParam || memoryIdParam || storage1IdParam || osIdParam || motherboardIdParam || psuIdParam || caseIdParam
     if (!hasParams) return
 
     const initialSelected: SelectedParts = { ...selected }
@@ -533,11 +533,8 @@ export default function ConfiguratorPage() {
     const cpu = selected.cpu
     const gpu = selected.gpu
 
-    // CPU/GPUのどちらかが未選択ならPSUをリセット
-    if (!cpu || !gpu) {
-      setSelected(prev => ({ ...prev, psu: null }))
-      return
-    }
+    // CPU/GPUのどちらかが未選択なら検証不可 → PSUは保持（UIで無効化済み）
+    if (!cpu || !gpu) return
 
     // 推奨ワット数を計算
     const recommendedWattage = Math.ceil((cpu.tdp + gpu.tdp) * 1.5 + 100)
@@ -548,12 +545,6 @@ export default function ConfiguratorPage() {
     }
   }, [selected.cpu, selected.gpu, parts])
 
-  // マザーボードがリセットされたらケースもリセット
-  useEffect(() => {
-    if (!selected.motherboard && selected.case) {
-      setSelected(prev => ({ ...prev, case: null }))
-    }
-  }, [selected.motherboard])
 
   const handleSelect = (key: keyof SelectedParts, id: string) => {
     if (!parts) return
