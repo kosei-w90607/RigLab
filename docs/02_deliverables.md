@@ -93,7 +93,35 @@
 | F-47 | トースト通知 | `frontend/app/components/ui/Toast.tsx` | ✅ 完了 |
 | F-48 | UIコンポーネントエクスポート | `frontend/app/components/ui/index.ts` | ✅ 完了 |
 
-### 2.6 E2Eテスト
+### 2.6 価格分析・ランキングページ（Phase 8〜8.5）
+
+| # | 成果物 | URL | ファイルパス | 状態 |
+|---|--------|-----|-------------|------|
+| F-60 | 価格動向一覧 | `/price-trends` | `frontend/app/price-trends/page.tsx` | ✅ 完了 |
+| F-61 | カテゴリ別価格動向 | `/price-trends/[category]` | `frontend/app/price-trends/[category]/page.tsx` | ✅ 完了 |
+| F-62 | パーツ別価格動向詳細 | `/price-trends/[category]/[partId]` | `frontend/app/price-trends/[category]/[partId]/page.tsx` | ✅ 完了 |
+
+### 2.7 TOPページセクション（Phase 8〜8.5）
+
+| # | 成果物 | ファイルパス | 状態 |
+|---|--------|-------------|------|
+| F-70 | 買い時セクション | `frontend/app/components/home/BuyNowSection.tsx` | ✅ 完了 |
+| F-71 | 価格動向セクション | `frontend/app/components/home/PriceTrendsSection.tsx` | ✅ 完了 |
+| F-72 | ランキングセクション | `frontend/app/components/home/RankingSection.tsx` | ✅ 完了 |
+
+### 2.8 管理画面追加機能（Phase 8.5）
+
+| # | 成果物 | URL | ファイルパス | 状態 |
+|---|--------|-----|-------------|------|
+| F-80 | パーツ楽天検索インポート | `/admin/parts/import` | `frontend/app/admin/parts/import/page.tsx` | ✅ 完了 |
+
+### 2.9 ダークモード対応（Phase 9）
+
+| # | 成果物 | ファイルパス | 状態 |
+|---|--------|-------------|------|
+| F-90 | テーマ切替ボタン | `frontend/app/components/ThemeToggle.tsx` | ✅ 完了 |
+
+### 2.10 E2Eテスト
 
 | # | 成果物 | ファイルパス | 状態 |
 |---|--------|-------------|------|
@@ -148,6 +176,16 @@
 |---|--------|-------------|------|
 | B-42 | JWT認証Concern | `backend/app/controllers/concerns/jwt_authenticatable.rb` | ✅ 完了 |
 
+### 3.6a API連携（Phase 7〜8.5）
+
+| # | 成果物 | ファイルパス | 状態 |
+|---|--------|-------------|------|
+| B-80 | 楽天APIクライアント | `backend/app/services/rakuten_api_client.rb` | ✅ 完了 |
+| B-81 | 価格動向コントローラー | `backend/app/controllers/api/v1/price_trends_controller.rb` | ✅ 完了 |
+| B-82 | ランキングコントローラー | `backend/app/controllers/api/v1/rankings_controller.rb` | ✅ 完了 |
+| B-83 | 楽天検索コントローラー（管理者） | `backend/app/controllers/api/v1/admin/rakuten_search_controller.rb` | ✅ 完了 |
+| B-84 | 買い時判定コントローラー | `backend/app/controllers/api/v1/buy_timing_controller.rb` | ✅ 完了 |
+
 ### 3.6 マイグレーション
 
 | # | 成果物 | 説明 | 状態 |
@@ -197,12 +235,12 @@
 | カテゴリ | 完了 | 未着手 | 合計 |
 |----------|------|--------|------|
 | ドキュメント | 12 | 0 | 12 |
-| フロントエンド | 41 | 0 | 41 |
-| バックエンド | 31 | 0 | 31 |
+| フロントエンド | 52 | 0 | 52 |
+| バックエンド | 36 | 0 | 36 |
 | インフラ | 8 | 0 | 8 |
-| **合計** | **92** | **0** | **92** |
+| **合計** | **108** | **0** | **108** |
 
-**Phase 0〜5 基本機能実装: 100% 完了** ✅
+**Phase 0〜9 全機能実装: 100% 完了** ✅
 
 ---
 
@@ -217,3 +255,4 @@
 | 2026-01-29 | Phase 5完了に伴い全面更新。全成果物を完了ステータスに更新 |
 | 2026-01-31 | Phase 6-2バグ修正・UX改善完了（予算帯修正、保存ボタン、用途タグ等） |
 | 2026-02-03 | テストガイド（D-12）を追加 |
+| 2026-02-09 | Phase 7〜9成果物追加: 価格分析3画面、TOPページセクション3種、ランキング、楽天API連携、管理画面検索インポート、ダークモード対応 |

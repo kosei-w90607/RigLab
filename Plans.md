@@ -2,39 +2,48 @@
 
 ## 現在のフェーズ
 
-**Phase 8.5: UX改善 — 価格分析・ランキング・管理画面検索 ✅ 完了**
+**Phase 9: 最終リリース準備 — プリセット充実・サイト説明・ダークモード・ドキュメント整備 ✅ 完了**
 
 ---
 
 ## 直近の作業サマリー（2026-02-09）
 
-### 完了: Phase 8.5 UX改善 — 価格分析タブ化・ランキングgenreId・検索品質向上（PR #44）
+### 完了: Phase 9 最終リリース準備 — プリセット充実・サイト説明・ダークモード・ドキュメント整備
 
 | カテゴリ | 内容 |
 |----------|------|
-| ランキング品質 | 楽天Ranking APIにgenreId送信（美容液等の非PC商品を排除）、カテゴリ4→7に拡張 |
-| 検索品質 | 検索APIにgenreIdフィルタ追加、信頼ショップフィルタリング機能、カテゴリ自動検出バッジ |
-| 価格分析ページ | カードグリッド→カテゴリタブ+パーツテーブルに全面リライト、空状態メッセージ改善 |
-| カテゴリ自動入力 | 楽天検索結果からパーツ登録時にgenreIdからカテゴリを自動検出して入力 |
+| プリセット充実 | 次世代パーツ活用の6プリセット追加（合計15構成）。Arc B580, RTX 5070/5080/5090, RX 9070 XT等 |
+| サイト説明 | TOPページに「RigLabとは」セクション追加。3カラムグリッドで機能紹介 |
+| ダークモード | next-themes + Tailwind dark: + daisyUI darkテーマ。Header切替ボタン、全コンポーネント・ページ対応 |
+| ドキュメント | docs/02-05,09をPhase 7-8.5成果物で更新。Amazon PA-API見送り理由記載 |
 
 ### 変更ファイル
-- `backend/app/services/rakuten_api_client.rb` - GENRE_IDS, detect_category, filter_results, trusted_shop, genreId送信
-- `backend/spec/services/rakuten_api_client_spec.rb` - 新テスト12件追加
-- `backend/spec/requests/api/v1/rankings_spec.rb` - ENV.fetchスタブ追加
-- `backend/app/controllers/api/v1/admin/rakuten_search_controller.rb` - filter_results適用
-- `backend/app/controllers/api/v1/price_trends_controller.rb` - daily_averages追加
-- `frontend/app/components/home/RankingSection.tsx` - カテゴリ7つに拡張
-- `frontend/app/admin/parts/import/page.tsx` - 信頼ショップトグル, detectedCategory, カテゴリバッジ
-- `frontend/app/price-trends/page.tsx` - タブ化全面リライト
+- `backend/db/seeds.rb` - 6プリセット追加（次世代パーツ構成）
+- `frontend/package.json` - next-themes追加
+- `frontend/tailwind.config.ts` - darkMode: 'class', daisyUI dark theme
+- `frontend/app/globals.css` - .dark CSS変数
+- `frontend/app/providers.tsx` - ThemeProvider wrap
+- `frontend/app/layout.tsx` - suppressHydrationWarning
+- `frontend/app/page.tsx` - サイト説明セクション + dark対応
+- `frontend/app/components/Header.tsx` - テーマトグル + dark対応
+- `frontend/app/components/ui/*.tsx` (9files) - dark:クラス追加
+- `frontend/app/components/home/*.tsx` (3files) - dark:クラス追加
+- `frontend/app/components/Footer.tsx` - dark:クラス追加
+- 全ページコンポーネント (~15files) - dark:クラス追加
+- `docs/02_deliverables.md` - Phase 7-8.5成果物追加
+- `docs/03_screen-flow.md` - S-11~S-13画面追加
+- `docs/04_wireframes.md` - 価格動向・サイト説明・ダークモードUI追加
+- `docs/05_api-design.md` - 楽天API/価格動向/ランキングエンドポイント追加
+- `docs/09_product-review.md` - Amazon PA-API見送り理由・Phase 8.5完了
 
 ### テスト結果
-- Backend RSpec: 331 examples, 0 failures
-- Frontend `next build`: 成功
+- Backend RSpec: 347 examples, 0 failures
+- Frontend `next build`: 成功（全21ページ生成）
+- PcEntrustSet.count: 15（プリセット正常）
 
 ### 次回アクション
-- PR #44 マージ → Vercel自動デプロイで動作確認
-- ブラウザでの手動検証（ランキング・価格分析・管理画面検索）
 - 本番リリースチェックリスト消化
+- ブラウザでの手動検証（ダークモード切替、サイト説明表示、15プリセット確認）
 
 ### 本番リリースチェックリスト
 
@@ -565,13 +574,13 @@
 
 ### 7.1 実装済みタスク
 
-- [ ] API-01: Amazon PA-API連携（パーツ情報取得）
+- [x] API-01: Amazon PA-API連携 → 見送り（楽天APIを採用）
 - [x] API-02: 楽天商品検索API連携（価格比較）(PR #40)
 - [x] API-03: 価格推移データの収集・保存（定期バッチ）(PR #40)
 - [x] API-04: 価格推移グラフUI（Recharts）(PR #39)
 - [x] API-05: 「PC買い時おじさん」コメント生成ロジック (PR #39)
 - [x] API-06: TOPページへの情報掲載UI (PR #40)
-- [ ] REFACTOR-01: 共有URL 3形式→1形式（token形式）に統一
+- [ ] REFACTOR-01: 共有URL 3形式→1形式（token形式）に統一 → v1.1で対応予定
   - 現状: `/share?build=xxx`（ダッシュボード共有）、`/share?token=xxx`（Configurator/Builder共有）、`/share?cpu=1&gpu=2...`（レガシー個別ID形式）の3形式が混在
   - 方針: token形式に統一。ダッシュボード共有時もshare_tokens APIでトークン生成する方式に変更
   - 対象: `lib/share.ts`, `share/page.tsx`, `dashboard/page.tsx`, `builds/[id]/page.tsx`, `share_tokens_controller.rb`
@@ -633,6 +642,38 @@
 
 ---
 
+## Phase 9: 最終リリース準備 ✅
+
+> プリセット充実・サイト説明セクション・ダークモード対応・ドキュメント全面更新
+
+### 9.1 プリセット充実
+
+- [x] P9-01: コスパ最強エントリーPC追加（entry/gaming: i5-14400 + Arc B580）
+- [x] P9-02: 次世代AMDゲーミングPC追加（middle/gaming: Ryzen 7 9800X3D + RTX 5070）
+- [x] P9-03: オールAMD構成PC追加（middle/gaming: Ryzen 7 7800X3D + RX 9070 XT）
+- [x] P9-04: 4Kゲーミング最強PC追加（high/gaming: Ryzen 9 9900X3D + RTX 5080）
+- [x] P9-05: 次世代クリエイターPC追加（high/creative: Ryzen 9 9950X3D + RTX 5090）
+- [x] P9-06: コスパ重視オフィスPC追加（entry/office: i5-14400 + 内蔵GPU）
+
+### 9.2 TOPページ改善
+
+- [x] P9-07: 「RigLabとは」サイト説明セクション追加（3カラムグリッド）
+
+### 9.3 ダークモード対応
+
+- [x] P9-08: 基盤セットアップ（next-themes + tailwind darkMode + daisyUI dark）
+- [x] P9-09: Headerテーマトグルボタン（太陽/月アイコン）
+- [x] P9-10: UIコンポーネントdark化（Card/Button/Input/Select/Modal/Skeleton/Toast/ConfirmDialog/ScrollToTop）
+- [x] P9-11: 全ページコンポーネントdark化（~20ファイル）
+
+### 9.4 ドキュメント更新
+
+- [x] P9-12: Amazon PA-API見送り理由記載（docs/09）
+- [x] P9-13: Phase 7-8.5成果物をドキュメント反映（docs/02,03,04,05）
+- [x] P9-14: Plans.md Phase 9追加・進捗サマリー最終更新
+
+---
+
 ## TDD ワークフロー
 
 「go」と言うと、次の未完了タスクのテストを書き、実装します。
@@ -668,10 +709,13 @@
 | Phase 6.1-6.7: 品質検証 | 34 | 34 | 100% ✅ |
 | Phase 6-L: テスト不合格修正 | 5 | 5 | 100% ✅ |
 | Phase 6-M: UX改善 | 10 | 10 | 100% ✅ |
-| Phase 7: API活用 | 7 | 5 | 71% |
+| Phase 7: API活用 | 7 | 6 | 86% (REFACTOR-01 v1.1延期) |
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
 | Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
-| **合計** | **195** | **193** | **99%** |
+| Phase 9: 最終リリース準備 | 14 | 14 | 100% ✅ |
+| **合計** | **209** | **208** | **99.5%** |
+
+> ※ REFACTOR-01（共有URL統一）のみv1.1で対応予定。機能面は100%完了。
 
 ---
 

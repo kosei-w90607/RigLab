@@ -16,6 +16,9 @@
 | S-08 | 新規登録 | `/signup` | `page.tsx` |
 | S-09 | 共有構成（クエリパラメータ方式） | `/share?c=...` | `page.tsx` + `opengraph-image.tsx` |
 | S-10 | 共有構成（トークン方式） | `/share/[token]` | `page.tsx` + `opengraph-image.tsx` |
+| S-11 | 価格動向一覧 | `/price-trends` | `page.tsx` |
+| S-12 | カテゴリ別価格動向 | `/price-trends/[category]` | `page.tsx` |
+| S-13 | パーツ別価格動向詳細 | `/price-trends/[category]/[partId]` | `page.tsx` |
 
 ### 1.2 管理者向け画面
 
@@ -42,6 +45,9 @@ flowchart TD
         BUILDER_RESULT[S-03: BuilderResult]
         CONFIG[S-04: Configurator]
         DETAIL[S-05: BuildDetail]
+        PRICE_LIST[S-11: PriceTrends]
+        PRICE_CAT[S-12: PriceTrends/Category]
+        PRICE_DETAIL[S-13: PriceTrends/Part]
     end
 
     subgraph Auth[認証]
@@ -56,8 +62,13 @@ flowchart TD
     %% トップページからの遷移
     TOP -->|おまかせで選ぶ| BUILDER
     TOP -->|自分で選ぶ| CONFIG
+    TOP -->|価格動向を見る| PRICE_LIST
     TOP -->|ログイン| SIGNIN
     TOP -->|新規登録| SIGNUP
+
+    %% 価格動向フロー
+    PRICE_LIST -->|カテゴリを選択| PRICE_CAT
+    PRICE_CAT -->|パーツを選択| PRICE_DETAIL
 
     %% おまかせフロー
     BUILDER -->|条件を入力して検索| BUILDER_RESULT
@@ -485,7 +496,32 @@ stateDiagram-v2
 
 ---
 
-## 7. 改訂履歴
+## 7. 価格動向フロー（Phase 8〜8.5）
+
+### 7.1 価格動向閲覧フロー
+
+```
+1. Home（トップページ）
+   ↓ ヘッダーの「価格動向」リンク or TOPページの価格動向セクション
+2. PriceTrends（価格動向一覧）（/price-trends）
+   ↓ カテゴリタブを選択（CPU/GPU/メモリ/ストレージ/マザーボード/電源/ケース）
+   → パーツテーブルが表示される（名前、現在価格、前日比、7日間推移）
+3. PriceTrends/Category（カテゴリ別）（/price-trends/[category]）
+   ↓ パーツを選択
+4. PriceTrends/Part（パーツ詳細）（/price-trends/[category]/[partId]）
+   → 個別パーツの価格推移チャートと詳細情報を確認
+```
+
+---
+
+## 8. ダークモード切替（Phase 9）
+
+ヘッダー右側にダークモード切替トグルボタンを配置。クリックでライト/ダークテーマを即座に切替。
+設定はlocalStorageに保存され、再訪問時にも維持される。システム設定（`prefers-color-scheme`）にも対応。
+
+---
+
+## 9. 改訂履歴
 
 | 日付 | 内容 |
 |------|------|
@@ -494,3 +530,4 @@ stateDiagram-v2
 | 2025-01-15 | Next.js App Router対応、共有構成ページ追加、構成共有フロー更新 |
 | 2026-02-01 | 管理者画面追加（A-06〜A-08: パーツ新規登録、プリセット新規登録、ユーザー管理）、トークンベース共有（S-10）追加、共有機能フローを2方式に整理 |
 | 2026-02-01 | ユーザーフロー網羅的追加（4.1/4.2にログイン済みフロー、4.4ダッシュボードフロー、4.5共有構成閲覧フロー）、管理者フロー新規追加（セクション5）、4.2フロー2の誤記修正 |
+| 2026-02-09 | 価格動向画面追加（S-11〜S-13）、価格動向フロー追加、ダークモード切替フロー追加 |
