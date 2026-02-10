@@ -65,6 +65,25 @@ services:
     volumes:
       - redis_data:/data
 
+  sidekiq:
+    platform: linux/amd64
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env.local
+    command: bundle exec sidekiq
+    volumes:
+      - ./backend:/app
+    environment:
+      TZ: Asia/Tokyo
+      RAILS_ENV: development
+      NEXTAUTH_SECRET: development-secret-key-for-riglab
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+
 volumes:
   mysql_data:
   redis_data:

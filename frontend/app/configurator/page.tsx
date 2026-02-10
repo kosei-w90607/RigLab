@@ -23,6 +23,7 @@ import type {
 import { api, ApiClientError } from '@/lib/api'
 import { shareConfiguration } from '@/lib/share'
 import { useToast } from '@/app/components/ui/Toast'
+import { SpecComparisonSection } from '@/app/components/configurator/SpecComparison'
 
 // API response types for edit mode
 interface ApiPart {
@@ -682,17 +683,17 @@ export default function ConfiguratorPage() {
     <div className="flex-1 px-4 py-8 md:py-12">
       <div className="max-w-6xl mx-auto">
         {editId && (
-          <Link href="/dashboard" className="inline-flex items-center text-gray-600 hover:text-gray-900 mb-4">
+          <Link href="/dashboard" className="inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 mb-4">
             <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             ダッシュボードに戻る
           </Link>
         )}
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           {editId ? '構成を編集' : 'カスタム構成'}
         </h1>
-        <p className="text-gray-600 mb-8">
+        <p className="text-gray-600 dark:text-gray-400 mb-8">
           {editId
             ? '保存済みの構成を編集しています'
             : 'パーツを自由に選んで、あなただけのPC構成を作成しましょう'}
@@ -702,7 +703,7 @@ export default function ConfiguratorPage() {
           {/* Parts Selection */}
           <div className="lg:col-span-2">
             <Card padding="lg" shadow="sm">
-              <h2 className="text-lg font-bold text-gray-900 mb-6">パーツ選択</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">パーツ選択</h2>
 
               {isLoading ? (
                 <PartSelectSkeleton />
@@ -801,8 +802,8 @@ export default function ConfiguratorPage() {
                   />
 
                   {/* セパレーター - 互換性依存パーツ */}
-                  <div className="border-t border-gray-200 pt-4 mt-4">
-                    <p className="text-sm text-gray-500 mb-4">
+                  <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                       以下のパーツは選択状況に応じて有効化されます
                     </p>
                   </div>
@@ -905,40 +906,40 @@ export default function ConfiguratorPage() {
           {/* Summary */}
           <div className="lg:col-span-1">
             <Card padding="lg" shadow="sm" className="sticky top-4">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">構成サマリー</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">構成サマリー</h2>
 
               {/* Selected Parts */}
               <div className="mb-4">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">選択パーツ</h3>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">選択パーツ</h3>
                 <dl className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <dt className="text-gray-500">CPU:</dt>
-                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.cpu?.name}>
+                    <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.cpu?.name}>
                       {selected.cpu?.name || '-'}
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-gray-500">GPU:</dt>
-                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.gpu?.name}>
+                    <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.gpu?.name}>
                       {selected.gpu?.name || '-'}
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-gray-500">Memory:</dt>
-                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.memory?.name}>
+                    <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.memory?.name}>
                       {selected.memory?.name || '-'}
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-gray-500">Storage1:</dt>
-                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.storage1?.name}>
+                    <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.storage1?.name}>
                       {selected.storage1?.name || '-'}
                     </dd>
                   </div>
                   {selected.storage2 && (
                     <div className="flex justify-between">
                       <dt className="text-gray-500">Storage2:</dt>
-                      <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.storage2?.name}>
+                      <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.storage2?.name}>
                         {selected.storage2.name}
                       </dd>
                     </div>
@@ -946,14 +947,14 @@ export default function ConfiguratorPage() {
                   {selected.storage3 && (
                     <div className="flex justify-between">
                       <dt className="text-gray-500">Storage3:</dt>
-                      <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.storage3?.name}>
+                      <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.storage3?.name}>
                         {selected.storage3.name}
                       </dd>
                     </div>
                   )}
                   <div className="flex justify-between">
                     <dt className="text-gray-500">OS:</dt>
-                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.os?.name}>
+                    <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.os?.name}>
                       {selected.os?.name || '-'}
                     </dd>
                   </div>
@@ -962,23 +963,23 @@ export default function ConfiguratorPage() {
 
               {/* System Parts */}
               <div className="mb-4 pt-4 border-t border-gray-200">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">互換性パーツ</h3>
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">互換性パーツ</h3>
                 <dl className="space-y-1 text-sm">
                   <div className="flex justify-between">
                     <dt className="text-gray-500">MB:</dt>
-                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.motherboard?.name}>
+                    <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.motherboard?.name}>
                       {selected.motherboard?.name || '-'}
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-gray-500">電源:</dt>
-                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.psu?.name}>
+                    <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.psu?.name}>
                       {selected.psu?.name || '-'}
                     </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-gray-500">ケース:</dt>
-                    <dd className="text-gray-900 truncate ml-2 max-w-[150px]" title={selected.case?.name}>
+                    <dd className="text-gray-900 dark:text-gray-100 truncate ml-2 max-w-[150px]" title={selected.case?.name}>
                       {selected.case?.name || '-'}
                     </dd>
                   </div>
@@ -986,9 +987,9 @@ export default function ConfiguratorPage() {
               </div>
 
               {/* Total Price */}
-              <div className="pt-4 border-t border-gray-200 mb-6">
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mb-6">
                 <div className="flex justify-between items-center">
-                  <span className="font-medium text-gray-900">合計:</span>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">合計:</span>
                   <span className="text-xl font-bold text-custom-blue">
                     {formatPrice(totalPrice)}
                   </span>
@@ -1048,6 +1049,7 @@ export default function ConfiguratorPage() {
             </Card>
           </div>
         </div>
+        {parts && <SpecComparisonSection cpus={parts.cpus} gpus={parts.gpus} />}
       </div>
 
       {/* Save Modal */}

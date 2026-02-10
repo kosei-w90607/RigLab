@@ -53,10 +53,10 @@ function PartRow({
   if (!name || price === undefined) return null
 
   return (
-    <tr className="border-b border-gray-100 last:border-b-0">
-      <td className="py-3 text-gray-500 w-32">{label}</td>
-      <td className="py-3 text-gray-900">{name}</td>
-      <td className="py-3 text-right text-gray-600">{formatPrice(price)}</td>
+    <tr className="border-b border-gray-100 dark:border-gray-700 last:border-b-0">
+      <td className="py-3 text-gray-500 dark:text-gray-400 w-32">{label}</td>
+      <td className="py-3 text-gray-900 dark:text-gray-100">{name}</td>
+      <td className="py-3 text-right text-gray-600 dark:text-gray-400">{formatPrice(price)}</td>
     </tr>
   )
 }
@@ -234,7 +234,7 @@ export default function SharePage() {
           <>
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
                 {build.name || '共有構成'}
               </h1>
               <Button variant="secondary" onClick={handleCopyUrl}>
@@ -244,7 +244,7 @@ export default function SharePage() {
 
             {/* Parts List */}
             <Card padding="lg" shadow="md" className="mb-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">選択パーツ</h2>
+              <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">選択パーツ</h2>
               <table className="w-full text-sm">
                 <tbody>
                   <PartRow label="CPU" name={build.cpu?.name} price={build.cpu?.price} />
@@ -259,7 +259,7 @@ export default function SharePage() {
 
               {(build.motherboard || build.psu || build.case) && (
                 <>
-                  <h3 className="text-md font-bold text-gray-900 mt-6 mb-4">自動推奨パーツ</h3>
+                  <h3 className="text-md font-bold text-gray-900 dark:text-gray-100 mt-6 mb-4">自動推奨パーツ</h3>
                   <table className="w-full text-sm">
                     <tbody>
                       <PartRow label="マザーボード" name={build.motherboard?.name} price={build.motherboard?.price} />
@@ -270,8 +270,8 @@ export default function SharePage() {
                 </>
               )}
 
-              <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center">
-                <span className="font-medium text-gray-900">合計</span>
+              <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <span className="font-medium text-gray-900 dark:text-gray-100">合計</span>
                 <span className="text-2xl font-bold text-custom-blue">
                   {formatPrice(totalPrice)}
                 </span>
@@ -280,7 +280,7 @@ export default function SharePage() {
 
             {/* Actions */}
             <div className="text-center space-y-4">
-              <p className="text-gray-600">
+              <p className="text-gray-600 dark:text-gray-400">
                 この構成をベースに自分の構成を作成できます
               </p>
               <Link

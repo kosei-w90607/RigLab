@@ -6,60 +6,50 @@
 
 ---
 
-## 直近の作業サマリー（2026-02-09）
+## 直近の作業サマリー（2026-02-11）
 
-### 完了: Phase 9 最終リリース準備 — プリセット充実・サイト説明・ダークモード・ドキュメント整備
+### 完了: リリースチェックリスト精査・Sentry完了・デプロイ先確定
 
 | カテゴリ | 内容 |
 |----------|------|
-| プリセット充実 | 次世代パーツ活用の6プリセット追加（合計15構成）。Arc B580, RTX 5070/5080/5090, RX 9070 XT等 |
-| サイト説明 | TOPページに「RigLabとは」セクション追加。3カラムグリッドで機能紹介 |
-| ダークモード | next-themes + Tailwind dark: + daisyUI darkテーマ。Header切替ボタン、全コンポーネント・ページ対応 |
-| ドキュメント | docs/02-05,09をPhase 7-8.5成果物で更新。Amazon PA-API見送り理由記載 |
+| Sentry設定 | DSN取得→ローカル環境変数設定完了（docs/12 §5-1〜5-2完了） |
+| .env整理 | frontend/.env→.env.local移行、.env.example追加 |
+| デプロイ先確定 | バックエンド: Railway（MySQLネイティブサポート、Gemfile変更不要） |
+| チェックリスト精査 | 完了済み6項目＋インフラ構築9ステップに整理 |
 
 ### 変更ファイル
-- `backend/db/seeds.rb` - 6プリセット追加（次世代パーツ構成）
-- `frontend/package.json` - next-themes追加
-- `frontend/tailwind.config.ts` - darkMode: 'class', daisyUI dark theme
-- `frontend/app/globals.css` - .dark CSS変数
-- `frontend/app/providers.tsx` - ThemeProvider wrap
-- `frontend/app/layout.tsx` - suppressHydrationWarning
-- `frontend/app/page.tsx` - サイト説明セクション + dark対応
-- `frontend/app/components/Header.tsx` - テーマトグル + dark対応
-- `frontend/app/components/ui/*.tsx` (9files) - dark:クラス追加
-- `frontend/app/components/home/*.tsx` (3files) - dark:クラス追加
-- `frontend/app/components/Footer.tsx` - dark:クラス追加
-- 全ページコンポーネント (~15files) - dark:クラス追加
-- `docs/02_deliverables.md` - Phase 7-8.5成果物追加
-- `docs/03_screen-flow.md` - S-11~S-13画面追加
-- `docs/04_wireframes.md` - 価格動向・サイト説明・ダークモードUI追加
-- `docs/05_api-design.md` - 楽天API/価格動向/ランキングエンドポイント追加
-- `docs/09_product-review.md` - Amazon PA-API見送り理由・Phase 8.5完了
+- `Plans.md` - リリースチェックリスト精査・サマリー更新
+- `docs/12_sentry-setup-guide.md` - Sentryセットアップガイド追加（tracked化）
 
-### テスト結果
-- Backend RSpec: 347 examples, 0 failures
-- Frontend `next build`: 成功（全21ページ生成）
-- PcEntrustSet.count: 15（プリセット正常）
+### 備考
+- Sentry: docs/12 §5-3（バックエンド本番 SENTRY_DSN）は Railway デプロイ時に実施
+- docs/12 の「Render」記述は「Railway」に読み替えて運用
 
 ### 次回アクション
-- 本番リリースチェックリスト消化
-- ブラウザでの手動検証（ダークモード切替、サイト説明表示、15プリセット確認）
+- 本番インフラ構築（チェックリスト手順1〜9を順次消化）
 
 ### 本番リリースチェックリスト
 
 > コード準備は完了済み。本番運用開始には以下の手動作業が必要。
 
+**完了済み:**
 - [x] **ビルド修正**: rechartsエラー解消（PR #43）
 - [x] **セキュリティヘッダー**: next.config.tsに追加済み（PR #43）
-- [x] **環境変数テンプレート**: .env.example 再作成済み（PR #43）
-- [ ] **Sentry**: アカウント作成→プロジェクト作成→DSN取得→`SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN`環境変数設定
-- [ ] **CORS**: 本番ドメイン確定→`CORS_ORIGINS`環境変数設定
-- [ ] **デプロイ先**: Vercelデプロイ（Root Directory: `frontend`、環境変数設定）
-- [ ] **認証シークレット**: 本番用`AUTH_SECRET`生成（`openssl rand -base64 32`）→環境変数設定
-- [ ] **利用規約/プライバシー**: /terms, /privacy ページの内容確認・必要に応じてカスタマイズ
-- [ ] **本番DB**: 本番DB作成→マイグレーション実行→初期データ投入（`rails db:seed`）
-- [ ] **ドメイン**: ドメイン取得→DNS設定→HTTPS確認→`NEXT_PUBLIC_APP_URL`環境変数設定
-- [ ] **管理者ユーザー**: 本番環境で管理者ユーザー作成（rails console or seed）
+- [x] **環境変数テンプレート**: .env.example 再作成済み
+- [x] **利用規約/プライバシー**: /terms, /privacy 作成済み・ダークモード対応完了
+- [x] **Sentry（ローカル）**: DSN取得→ローカル環境変数設定 完了（docs/12 §5-1〜5-2完了、§5-3はデプロイ時）
+- [x] **.env整理**: frontend/.env→.env.local移行、.env.example追加
+
+**インフラ構築（順序あり）:**
+1. [ ] **認証シークレット生成**: `openssl rand -base64 32` → AUTH_SECRET / NEXTAUTH_SECRET（front/backで同一値）
+2. [ ] **Railway**: アカウント作成 → GitHubリポジトリ連携（docs/08 Section 4 参照）
+3. [ ] **本番DB（Railway MySQL）**: DB作成 → DATABASE_URL取得 → マイグレーション → `rails db:seed`
+4. [ ] **バックエンドデプロイ（Railway）**: Root Directory: `backend`、環境変数設定（RAILS_ENV, RAILS_MASTER_KEY, NEXTAUTH_SECRET, CORS_ORIGINS, SENTRY_DSN）
+5. [ ] **フロントエンドデプロイ（Vercel）**: Root Directory: `frontend`、環境変数設定（NEXT_PUBLIC_API_URL, NEXTAUTH_SECRET, NEXT_PUBLIC_SENTRY_DSN 等）
+6. [ ] **CORS設定**: Vercelの本番URL確定後 → Railway側 `CORS_ORIGINS` に設定
+7. [ ] **ドメイン設定**（任意）: 取得 → DNS → HTTPS → NEXT_PUBLIC_APP_URL更新
+8. [ ] **管理者ユーザー作成**: Railway rails console or seed
+9. [ ] **動作確認**: 認証フロー → 構成提案 → 共有機能 → 管理画面
 
 ---
 
@@ -580,10 +570,10 @@
 - [x] API-04: 価格推移グラフUI（Recharts）(PR #39)
 - [x] API-05: 「PC買い時おじさん」コメント生成ロジック (PR #39)
 - [x] API-06: TOPページへの情報掲載UI (PR #40)
-- [ ] REFACTOR-01: 共有URL 3形式→1形式（token形式）に統一 → v1.1で対応予定
-  - 現状: `/share?build=xxx`（ダッシュボード共有）、`/share?token=xxx`（Configurator/Builder共有）、`/share?cpu=1&gpu=2...`（レガシー個別ID形式）の3形式が混在
-  - 方針: token形式に統一。ダッシュボード共有時もshare_tokens APIでトークン生成する方式に変更
-  - 対象: `lib/share.ts`, `share/page.tsx`, `dashboard/page.tsx`, `builds/[id]/page.tsx`, `share_tokens_controller.rb`
+- [x] REFACTOR-01: 共有URL 3形式→1形式（token形式）に統一 → v1.0で対応完了
+  - 生成側: `lib/share.ts`, `dashboard/page.tsx`, `builds/[id]/page.tsx`, `builder/result/page.tsx`, `configurator/page.tsx` — 全てtoken生成済み
+  - 読み取り側: `share/page.tsx` — token読み取りのみ
+  - OG画像: `share/opengraph-image.tsx` — レガシー形式（build/個別ID）を削除、token形式のみに統一
 
 ---
 
@@ -672,6 +662,14 @@
 - [x] P9-13: Phase 7-8.5成果物をドキュメント反映（docs/02,03,04,05）
 - [x] P9-14: Plans.md Phase 9追加・進捗サマリー最終更新
 
+### 9.5 最終調整
+
+- [x] P9-15: テーマシステム改善（class→data-theme variant）
+- [x] P9-16: 管理画面ライトモード固定
+- [x] P9-17: プライバシー/利用規約ダークモード対応
+- [x] P9-18: お問い合わせリンクGoogleフォーム化
+- [x] P9-19: SpecComparison/RankingSection dark対応・メッセージ改善
+
 ---
 
 ## TDD ワークフロー
@@ -709,13 +707,13 @@
 | Phase 6.1-6.7: 品質検証 | 34 | 34 | 100% ✅ |
 | Phase 6-L: テスト不合格修正 | 5 | 5 | 100% ✅ |
 | Phase 6-M: UX改善 | 10 | 10 | 100% ✅ |
-| Phase 7: API活用 | 7 | 6 | 86% (REFACTOR-01 v1.1延期) |
+| Phase 7: API活用 | 7 | 7 | 100% ✅ |
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
 | Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
-| Phase 9: 最終リリース準備 | 14 | 14 | 100% ✅ |
-| **合計** | **209** | **208** | **99.5%** |
+| Phase 9: 最終リリース準備 | 19 | 19 | 100% ✅ |
+| **合計** | **214** | **214** | **100%** 🎉 |
 
-> ※ REFACTOR-01（共有URL統一）のみv1.1で対応予定。機能面は100%完了。
+> 全開発タスク100%完了。本番リリースチェックリスト（手動デプロイ作業）のみ残存。
 
 ---
 

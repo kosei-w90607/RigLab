@@ -93,17 +93,17 @@ export default function CategoryDetailPage() {
   }
 
   return (
-    <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100 dark:bg-none dark:bg-gray-900">
       <div className="max-w-5xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <nav className="text-sm text-gray-500 mb-4">
-          <Link href="/price-trends" className="hover:text-blue-600">価格動向</Link>
+        <nav className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <Link href="/price-trends" className="hover:text-blue-600 dark:hover:text-blue-400">価格動向</Link>
           <span className="mx-2">/</span>
-          <span className="text-gray-900 font-medium">{label}</span>
+          <span className="text-gray-900 dark:text-gray-100 font-medium">{label}</span>
         </nav>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{label} 価格動向</h1>
-        <p className="text-sm text-gray-500 mb-8">過去30日間の価格推移</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">{label} 価格動向</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">過去30日間の価格推移</p>
 
         {loading ? (
           <div className="space-y-4">
@@ -113,7 +113,7 @@ export default function CategoryDetailPage() {
         ) : !data || data.parts.length === 0 ? (
           <Card padding="lg" shadow="sm" className="text-center py-12">
             <p className="text-gray-500">このカテゴリの価格データがありません</p>
-            <Link href="/price-trends" className="text-sm text-blue-600 hover:text-blue-800 mt-2 inline-block">
+            <Link href="/price-trends" className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mt-2 inline-block">
               ← カテゴリ一覧に戻る
             </Link>
           </Card>
@@ -122,7 +122,7 @@ export default function CategoryDetailPage() {
             {/* Category Price Chart */}
             {data.dailyAverages && data.dailyAverages.length > 1 && (
               <Card padding="md" shadow="sm" className="mb-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">{label} 平均価格推移</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">{label} 平均価格推移</h2>
                 <div className="h-64">
                   <CategoryPriceChart data={data.dailyAverages} />
                 </div>
@@ -133,7 +133,7 @@ export default function CategoryDetailPage() {
             <Card padding="none" shadow="sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-gray-50 dark:bg-gray-700 border-b dark:border-gray-600">
                     <tr>
                       <th className="text-left px-4 py-3 text-gray-600 font-medium">パーツ</th>
                       <th
@@ -160,7 +160,7 @@ export default function CategoryDetailPage() {
                     {data.parts.map((part) => (
                       <tr
                         key={part.id}
-                        className="border-b border-gray-50 hover:bg-gray-50 transition-colors"
+                        className="border-b border-gray-50 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                       >
                         <td className="px-4 py-3">
                           <Link href={`/price-trends/${category}/${part.id}`} className="flex items-center gap-3 group">
@@ -173,12 +173,12 @@ export default function CategoryDetailPage() {
                               />
                             )}
                             <div className="min-w-0">
-                              <p className="text-gray-900 font-medium truncate group-hover:text-blue-600">{part.name}</p>
+                              <p className="text-gray-900 dark:text-gray-100 font-medium truncate group-hover:text-blue-600">{part.name}</p>
                               {part.maker && <p className="text-xs text-gray-400">{part.maker}</p>}
                             </div>
                           </Link>
                         </td>
-                        <td className="text-right px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
+                        <td className="text-right px-4 py-3 font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
                           {formatPrice(part.currentPrice)}
                         </td>
                         <td className="text-right px-4 py-3 whitespace-nowrap">

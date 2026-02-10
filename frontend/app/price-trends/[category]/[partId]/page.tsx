@@ -79,15 +79,15 @@ export default function PartDetailPage() {
   }, [category, partId, days])
 
   return (
-    <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="flex-1 bg-gradient-to-b from-gray-50 to-gray-100 dark:bg-none dark:bg-gray-900">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <nav className="text-sm text-gray-500 mb-4">
-          <Link href="/price-trends" className="hover:text-blue-600">価格動向</Link>
+        <nav className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <Link href="/price-trends" className="hover:text-blue-600 dark:hover:text-blue-400">価格動向</Link>
           <span className="mx-2">/</span>
-          <Link href={`/price-trends/${category}`} className="hover:text-blue-600">{categoryLabel}</Link>
+          <Link href={`/price-trends/${category}`} className="hover:text-blue-600 dark:hover:text-blue-400">{categoryLabel}</Link>
           <span className="mx-2">/</span>
-          <span className="text-gray-900 font-medium">{data?.partName || 'パーツ詳細'}</span>
+          <span className="text-gray-900 dark:text-gray-100 font-medium">{data?.partName || 'パーツ詳細'}</span>
         </nav>
 
         {loading ? (
@@ -99,7 +99,7 @@ export default function PartDetailPage() {
         ) : !data ? (
           <Card padding="lg" shadow="sm" className="text-center py-12">
             <p className="text-gray-500">価格データが見つかりません</p>
-            <Link href={`/price-trends/${category}`} className="text-sm text-blue-600 hover:text-blue-800 mt-2 inline-block">
+            <Link href={`/price-trends/${category}`} className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mt-2 inline-block">
               ← {categoryLabel}一覧に戻る
             </Link>
           </Card>
@@ -108,7 +108,7 @@ export default function PartDetailPage() {
             {/* Part Header */}
             <div className="flex items-start gap-6 mb-8">
               {data.rakutenImageUrl && (
-                <div className="flex-shrink-0 w-24 h-24 bg-white rounded-lg shadow-sm p-2">
+                <div className="flex-shrink-0 w-24 h-24 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-2">
                   <img
                     src={data.rakutenImageUrl}
                     alt={data.partName}
@@ -118,7 +118,7 @@ export default function PartDetailPage() {
               )}
               <div className="flex-1">
                 <span className="text-xs font-medium text-gray-400">{categoryLabel}</span>
-                <h1 className="text-2xl font-bold text-gray-900 mt-1">{data.partName}</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{data.partName}</h1>
                 <p className="text-3xl font-bold text-custom-blue mt-2">{formatPrice(data.currentPrice)}</p>
               </div>
             </div>
@@ -132,7 +132,7 @@ export default function PartDetailPage() {
                   className={`px-4 py-1.5 text-sm rounded-full transition-colors ${
                     days === d
                       ? 'bg-custom-blue text-white font-bold'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                   }`}
                 >
                   {d}日間
@@ -143,7 +143,7 @@ export default function PartDetailPage() {
             {/* Price Chart */}
             {data.histories.length > 1 && (
               <Card padding="md" shadow="sm" className="mb-6">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">価格推移グラフ</h2>
+                <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">価格推移グラフ</h2>
                 <div className="h-72">
                   <PartPriceChart histories={data.histories} />
                 </div>
@@ -154,7 +154,7 @@ export default function PartDetailPage() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
               <Card padding="sm" shadow="sm">
                 <p className="text-xs text-gray-400">現在価格</p>
-                <p className="text-lg font-bold text-gray-900">{formatPrice(data.currentPrice)}</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatPrice(data.currentPrice)}</p>
               </Card>
               {data.trend && (
                 <>
@@ -168,7 +168,7 @@ export default function PartDetailPage() {
                   </Card>
                   <Card padding="sm" shadow="sm">
                     <p className="text-xs text-gray-400">平均価格</p>
-                    <p className="text-lg font-bold text-gray-900">{formatPrice(data.trend.avgPrice)}</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{formatPrice(data.trend.avgPrice)}</p>
                   </Card>
                 </>
               )}

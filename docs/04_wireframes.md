@@ -1260,6 +1260,8 @@ const formatPrice = (price: number) =>
 - クリックでライト/ダークを即座に切替
 - 選択状態はlocalStorageに保存、再訪問時に復元
 - システムのprefers-color-schemeにも対応
+- 管理画面（/admin/*）はライトモード固定（data-theme="light"）
+- テーマ実装方式: Tailwind `darkMode: ['variant', '[data-theme=dark] &']` + next-themes `attribute="data-theme"`
 
 ---
 
@@ -1275,3 +1277,4 @@ const formatPrice = (price: number) =>
 | 2026-02-01 | 管理者画面追加: PartsNew（A-06）、PresetsNew（A-07）、UserManagement（A-08）、ShareToken（S-10） |
 | 2026-02-01 | UIコンポーネント追加: ScrollToTopButton、OG画像説明にトークン方式を追記 |
 | 2026-02-09 | 価格動向UI追加（タブ形式カテゴリ一覧、パーツテーブル、価格チャート）、TOPページ新セクション（ランキング、価格動向、買い時）、ダークモード切替ボタン位置 |
+| 2026-02-11 | ダークモード補足追記（管理画面ライトモード固定、テーマ実装方式の詳細） |

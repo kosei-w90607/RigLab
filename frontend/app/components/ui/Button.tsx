@@ -16,13 +16,13 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-custom-blue text-white hover:bg-opacity-90 focus-visible:ring-custom-blue',
+    'bg-custom-blue text-white hover:bg-opacity-90 focus-visible:ring-custom-blue dark:bg-custom-blue/80 dark:hover:bg-custom-blue/70',
   secondary:
-    'border border-gray-300 text-gray-700 hover:bg-gray-50 focus-visible:ring-gray-300',
+    'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus-visible:ring-gray-300',
   danger:
     'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500',
   ghost:
-    'text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-300',
+    'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus-visible:ring-gray-300',
 }
 
 const sizeStyles: Record<ButtonSize, string> = {

@@ -37,7 +37,7 @@ export function ConfirmDialog({
       closeOnEsc={!isLoading}
     >
       <div className="space-y-4">
-        <div className="text-gray-600">{message}</div>
+        <div className="text-gray-600 dark:text-gray-400">{message}</div>
         <div className="flex justify-end gap-3">
           <Button
             variant="secondary"

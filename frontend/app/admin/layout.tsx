@@ -242,7 +242,7 @@ export default function AdminLayout({
 
   // 管理者の場合
   return (
-    <div className="lg:flex min-h-screen bg-gray-100">
+    <div data-theme="light" className="lg:flex min-h-screen bg-gray-100">
       <AdminSidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader onMenuToggle={toggleSidebar} />

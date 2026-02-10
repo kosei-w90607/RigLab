@@ -110,13 +110,13 @@ export default function SignUpPage() {
   return (
     <div className="flex-1 flex items-center justify-center px-4 py-12">
       <Card padding="lg" shadow="md" className="w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center text-gray-900 mb-8">
+        <h1 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-8">
           新規登録
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {generalError && (
-            <div role="alert" className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+            <div role="alert" className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm">
               {generalError}
             </div>
           )}
@@ -181,8 +181,8 @@ export default function SignUpPage() {
           </Button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-600">
+        <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             すでにアカウントをお持ちの方は
           </p>
           <Link

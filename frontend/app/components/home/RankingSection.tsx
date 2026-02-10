@@ -68,7 +68,7 @@ export function RankingSection() {
 
   return (
     <section className="w-full max-w-4xl px-4 mb-12">
-      <h2 className="text-2xl font-bold text-gray-900 mb-1">売れ筋ランキング</h2>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">売れ筋ランキング</h2>
       <p className="text-xs text-gray-400 mb-6">楽天市場の売れ筋データに基づく</p>
 
       {/* Category Tabs */}
@@ -80,7 +80,7 @@ export function RankingSection() {
             className={`px-4 py-2 text-sm rounded-full transition-colors ${
               activeCategory === cat.key
                 ? 'bg-custom-blue text-white font-bold'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             {cat.label}
@@ -97,8 +97,7 @@ export function RankingSection() {
         </div>
       ) : error ? (
         <Card padding="lg" shadow="sm" className="text-center py-8">
-          <p className="text-sm text-gray-400">ランキングデータを取得できませんでした</p>
-          <p className="text-xs text-gray-300 mt-1">楽天APIの設定を確認してください</p>
+          <p className="text-sm text-gray-400">ランキングは現在準備中です</p>
         </Card>
       ) : items.length === 0 ? (
         <Card padding="lg" shadow="sm" className="text-center py-8">
@@ -133,7 +132,7 @@ export function RankingSection() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 line-clamp-2">{item.name}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2">{item.name}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-base font-bold text-custom-blue">{formatPrice(item.price)}</span>
                     {item.reviewAverage != null && item.reviewAverage > 0 && (
@@ -150,7 +149,7 @@ export function RankingSection() {
                 {/* Link to price trends */}
                 <Link
                   href={`/price-trends/${activeCategory}`}
-                  className="flex-shrink-0 text-xs text-blue-600 hover:text-blue-800 whitespace-nowrap"
+                  className="flex-shrink-0 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 whitespace-nowrap"
                 >
                   価格推移 →
                 </Link>

@@ -69,23 +69,23 @@ export function Modal({
       <div
         className={`
           relative z-10 w-full mx-4
-          bg-white rounded-lg shadow-xl
+          bg-white dark:bg-gray-800 rounded-lg shadow-xl
           ${sizeStyles[size]}
         `.trim().replace(/\s+/g, ' ')}
       >
         {/* Header */}
         {title && (
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <h2
               id="modal-title"
-              className="text-lg font-semibold text-gray-900"
+              className="text-lg font-semibold text-gray-900 dark:text-gray-100"
             >
               {title}
             </h2>
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               aria-label="閉じる"
             >
               <svg
