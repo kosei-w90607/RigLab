@@ -3,7 +3,6 @@
 module Api
   module V1
     class RankingsController < ApplicationController
-      skip_before_action :authenticate_user!, raise: false
 
       def index
         category = params[:category]

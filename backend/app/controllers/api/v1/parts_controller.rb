@@ -3,7 +3,6 @@
 module Api
   module V1
     class PartsController < ApplicationController
-      skip_before_action :authenticate_user!, raise: false
       before_action :set_part, only: [:show]
 
       CATEGORY_MODELS = {

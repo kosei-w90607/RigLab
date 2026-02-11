@@ -3,7 +3,6 @@
 module Api
   module V1
     class PriceTrendsController < ApplicationController
-      skip_before_action :authenticate_user!, raise: false
 
       CATEGORY_MODELS = BuyTimeAdvisorService::CATEGORY_MODELS
       CATEGORY_LABELS = BuyTimeAdvisorService::CATEGORY_LABELS
