@@ -5,9 +5,6 @@ Rails.application.routes.draw do
     namespace :v1 do
       root "tops#index"
 
-      resources :users, only: %i[new create destroy]
-      resources :password_resets, only: %i[new create edit update]
-
       # 認証エンドポイント（NextAuth.js連携）
       namespace :auth do
         post 'login', to: 'sessions#create'
