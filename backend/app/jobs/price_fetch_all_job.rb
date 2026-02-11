@@ -10,10 +10,22 @@ class PriceFetchAllJob < ApplicationJob
   }.freeze
 
   def perform
+    results = { total: 0, success: 0, failed: 0, errors: [] }
+
     CATEGORY_MODELS.each do |part_type, model|
       model.find_each do |part|
-        PriceFetchJob.perform_later(part_type, part.id)
+        results[:total] += 1
+        result = PriceFetchJob.perform_now(part_type, part.id)
+        if result&.success?
+          results[:success] += 1
+        else
+          results[:failed] += 1
+          results[:errors] << "#{part_type}##{part.id}: #{result&.error || 'unknown'}"
+        end
       end
     end
+
+    results[:errors] = results[:errors].first(20)
+    results
   end
 end

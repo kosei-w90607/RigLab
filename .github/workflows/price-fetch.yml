@@ -13,6 +13,25 @@ jobs:
           RENDER_API_URL: ${{ secrets.RENDER_API_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          curl -sf -X POST \
+          RESPONSE=$(curl -sf -X POST \
             "${RENDER_API_URL}/api/v1/cron/price_fetch" \
-            -H "Authorization: Bearer ${CRON_SECRET}"
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json")
+
+          echo "### Price Fetch Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Total | $(echo "$RESPONSE" | jq -r '.data.total // "N/A"') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Success | $(echo "$RESPONSE" | jq -r '.data.success // "N/A"') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Failed | $(echo "$RESPONSE" | jq -r '.data.failed // "N/A"') |" >> $GITHUB_STEP_SUMMARY
+
+          FAILED=$(echo "$RESPONSE" | jq -r '.data.failed // 0')
+          if [ "$FAILED" -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "<details><summary>Errors ($FAILED)</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "$RESPONSE" | jq -r '.data.errors[]' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+          fi
