@@ -194,19 +194,114 @@ Render ダッシュボードの「Environment」タブで以下を手動設定�
 | `RAKUTEN_ACCESS_KEY` | (楽天APIアクセスキー) | 同上 |
 | `CRON_SECRET` | (ランダム文字列) | GitHub Actions価格取得用（GitHub Secretsと同一値） |
 
-### 3.6 初回デプロイ後のセットアップ
+### 3.6 初回デプロイ後のセットアップ（自動実行）
 
-Render Shell で以下を実行:
+`render-build.sh` に `bundle exec rails db:seed` を組み込み済みのため、**デプロイ時に自動実行**されます。
+
 ```bash
-bundle exec rails db:seed RAILS_ENV=production
+# backend/bin/render-build.sh
+bundle install
+bundle exec rails db:migrate
+bundle exec rails db:seed    # べき等（find_or_create_by）なので毎回安全
 ```
-※ seeds.rb で管理者ユーザー（admin@example.com）と60日分の価格履歴サンプルデータが作成される
 
-### 3.7 Sidekiq の制限
+**管理者パスワードの管理:**
+- seeds.rb で `ENV.fetch('ADMIN_PASSWORD', 'admin123')` を使用
+- 本番パスワードは Render 環境変数 `ADMIN_PASSWORD` で設定（Dashboard → Environment）
+- 未設定時は開発用デフォルト `admin123` が使われる
+- 毎デプロイ時に ENV の値にリセットされる（ENV が SSOT）
 
-Render Free tier では Worker Service（Sidekiq）を実行できません。価格取得バッチは以下で代替:
-- **seeds.rb**: 60日分のサンプル価格履歴を自動生成
-- **GitHub Actions**: 毎日UTC 18:00（JST 3:00）に cron エンドポイントを呼び出し、リアルタイム価格を蓄積
+> **なぜ render-build.sh に seed を組み込んでいるか:**
+> Render Free tier では Shell/SSH が使用不可（有料プランのみ）。
+> seeds.rb は全レコード `find_or_create_by!` / `find_or_initialize_by` パターンで実装しており、
+> 何度実行しても重複データは作られない（べき等）。
+
+### 3.6.1 有料プラン移行時の修正ガイド
+
+有料プラン（Starter以上）に移行すると Shell/SSH が使えるようになるため、以下の修正を推奨:
+
+| # | 修正内容 | ファイル | 詳細 |
+|---|---------|---------|------|
+| 1 | render-build.sh から db:seed を削除 | `backend/bin/render-build.sh` | Shell で任意タイミング実行可能になる |
+| 2 | seeds.rb の ENV 依存を戻す（任意） | `backend/db/seeds.rb` | Shell で直接パスワード変更可能 |
+| 3 | ADMIN_PASSWORD 環境変数を削除（任意） | Render Dashboard | Shell 操作で代替 |
+| 4 | render.yaml のプラン変更 | `render.yaml` | `plan: free` → `plan: starter` 等 |
+
+### 3.7 Sidekiq の制限と GitHub Actions 代替
+
+#### 問題
+
+Render で Sidekiq を動かすには Background Worker サービス + Redis (Key Value Store) が必要だが、**いずれも Free tier では利用不可（有料プランのみ）**。
+
+| 必要なサービス | Render での型 | Free tier |
+|--------------|-------------|-----------|
+| Background Worker | `type: worker` | **NG** |
+| Redis | `type: keyvalue` | **NG** |
+
+#### 現在の代替手段
+
+Sidekiq を通さず、GitHub Actions → HTTP POST → `perform_now`（同期実行）で代替:
+
+```
+GitHub Actions (cron: 毎日 JST 3:00)
+  → POST /api/v1/cron/price_fetch (Authorization: Bearer CRON_SECRET)
+    → PriceFetchAllJob.perform_now
+      → PriceFetchJob.perform_now × 全パーツ
+```
+
+**必要な設定:**
+- **GitHub Secrets**: `RENDER_API_URL`（Render 公開URL）+ `CRON_SECRET`（認証トークン）
+- **Render 環境変数**: `CRON_SECRET`（GitHub Secrets と同じ値）
+- seeds.rb で60日分のサンプル価格履歴も自動生成される
+
+**関連ファイル:**
+| ファイル | 役割 |
+|---------|------|
+| `.github/workflows/price-fetch.yml` | GitHub Actions cron 定義 |
+| `backend/app/controllers/api/v1/cron/price_fetch_controller.rb` | HTTP トリガーエンドポイント |
+| `backend/app/jobs/price_fetch_all_job.rb` | 全カテゴリ価格取得ジョブ |
+| `backend/app/jobs/price_fetch_job.rb` | 個別パーツ価格取得ジョブ |
+
+#### 3.7.1 有料プラン移行時（Sidekiq 復活手順）
+
+有料プランに切り替えると Background Worker + Redis が利用可能になり、Sidekiq を本来の設計通りに動かせる。
+
+**修正箇所:**
+
+| # | 修正内容 | ファイル |
+|---|---------|---------|
+| 1 | render.yaml に Redis + Worker サービスを追加 | `render.yaml` |
+| 2 | Render 環境変数に `REDIS_URL` を追加 | Render Dashboard |
+| 3 | `perform_now` → `perform_later` に戻す | `cron/price_fetch_controller.rb` |
+| 4 | GitHub Actions ワークフローを無効化（任意） | `.github/workflows/price-fetch.yml` |
+
+**render.yaml に追加するサービス例:**
+```yaml
+services:
+  - type: keyvalue
+    name: riglab-redis
+    plan: starter
+    maxmemoryPolicy: noeviction
+    ipAllowList: []
+
+  - type: worker
+    name: riglab-sidekiq
+    runtime: ruby
+    plan: starter
+    rootDir: backend
+    buildCommand: bundle install
+    startCommand: bundle exec sidekiq
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: riglab-redis
+          property: connectionString
+      - key: RAILS_MASTER_KEY
+        sync: false
+```
+
+> **Note:** 既存の `sidekiq.rb`, `sidekiq_cron.rb`, `sidekiq.yml` は実装済みで休眠中。有料プラン移行時はそのまま利用可能。
 
 ---
 

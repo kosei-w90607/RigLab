@@ -523,7 +523,7 @@ puts "Creating users..."
 # 管理者ユーザー
 admin = User.find_or_initialize_by(email: 'admin@example.com')
 admin.name = '管理者'
-admin.password = 'admin123'
+admin.password = ENV.fetch('ADMIN_PASSWORD', 'admin123')
 admin.role = 'admin'
 admin.save!
 
