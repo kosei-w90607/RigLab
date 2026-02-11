@@ -8,47 +8,31 @@
 
 ## 直近の作業サマリー（2026-02-12）
 
-### 完了: Railway→Render移行・ハイブリッドDB構成（dev MySQL / prod PostgreSQL）
+### 完了: Render Free tier 制約対応（db:seed 自動化 + admin パスワード ENV 化）
 
 | カテゴリ | 内容 |
 |----------|------|
-| デプロイ先変更 | Railway → Render（Free tier: Web Service + PostgreSQL） |
-| DB構成 | ハイブリッド: 開発MySQL / 本番PostgreSQL |
-| Gemfile | mysql2をdev/testグループに移動、pgをproductionグループに追加 |
-| SQL互換 | JSON_EXTRACT→PostgreSQL対応、DATE()→CAST対応 |
-| render.yaml | Render Blueprint新規作成（render.yaml + bin/render-build.sh） |
-| Cron代替 | Sidekiq不可のためGitHub Actions + cronエンドポイントで価格取得 |
-| ドキュメント | docs/00,01,06,07,08,09を更新（Railway→Render） |
+| **Render Free tier 制約** | Shell/SSH が使えない → render-build.sh に db:seed を組み込みで解決 |
+| **admin パスワード** | `ENV.fetch('ADMIN_PASSWORD', 'admin123')` で ENV 管理に変更 |
+| **docs/08 更新** | Step 3.6 を自動実行方式に書き換え、有料プラン移行ガイドを追記 |
+| **Plans.md 更新** | Step 3/4/8 の文言修正、Free tier 制約と解決策を記載 |
 
 ### 変更ファイル
-- `backend/Gemfile` - mysql2→dev/test、pg→production
-- `backend/Gemfile.lock` - pg gem追加（bundle lock）
-- `backend/config/database.yml` - production→PostgreSQL
-- `backend/app/models/parts_storage.rb` - MySQL/PostgreSQL両対応
-- `backend/app/models/parts_price_history.rb` - CAST(fetched_at AS DATE)
-- `backend/app/controllers/api/v1/cron/price_fetch_controller.rb` - 新規
-- `backend/config/routes.rb` - cron namespace追加
-- `backend/bin/render-build.sh` - 新規
-- `backend/.env.example` - DATABASE_URL注記追加
-- `render.yaml` - 新規（Render Blueprint）
-- `.github/workflows/price-fetch.yml` - 新規（GitHub Actions cron）
-- `Plans.md` - 本ファイル更新
-- `docs/00_project-concept.md` - DB表記更新
-- `docs/01_requirements.md` - DB表記更新
-- `docs/06_database-design.md` - DB表記更新
-- `docs/07_setup-guide.md` - 本番PostgreSQL注記追加
-- `docs/08_deploy-guide.md` - Render正式採用・全面更新
-- `docs/09_product-review.md` - デプロイ先確定
+- `backend/db/seeds.rb` — admin パスワードを `ENV.fetch('ADMIN_PASSWORD', 'admin123')` に変更
+- `backend/bin/render-build.sh` — `bundle exec rails db:seed` を追加
+- `docs/08_deploy-guide.md` — Step 3.6 を自動実行方式に更新、有料プラン移行ガイド追記
+- `Plans.md` — 作業サマリー・チェックリスト更新
 
 ### 備考
-- Sentry: docs/12 §5-3（バックエンド本番 SENTRY_DSN）は Render デプロイ時に実施
-- Render Free PostgreSQL は90日で期限切れ → 再作成で対応
-- Free Web Service はスリープ後コールドスタートに最大30秒
-- Sidekiq は Render Free では動作しない → seeds サンプルデータ + GitHub Actions で代替
+- seeds.rb は全レコード `find_or_create_by!` / `find_or_initialize_by` パターンで実装済み（べき等）
+- 毎デプロイ時に ENV の ADMIN_PASSWORD 値で admin パスワードがリセットされる（ENV が SSOT）
+- 有料プラン移行時の修正箇所は docs/08 Step 3.6.1 に記載
 
-### 次回アクション
-- 本番インフラ構築（チェックリスト手順1〜9を順次消化）
-- `backend/railway.json` を手動削除（権限制約で自動削除不可）
+### 次回アクション（残り手動作業）
+1. **コミット & プッシュ**: 今回の変更を main にマージ → Render 自動デプロイで db:seed 実行
+2. ~~**Render 環境変数追加**: `ADMIN_PASSWORD` を追加~~ ✅ 完了
+3. ~~**GitHub Secrets 設定**: `RENDER_API_URL` + `CRON_SECRET`~~ ✅ 完了
+4. **動作確認**: Step 9 のチェックリストを順次消化
 
 ### 本番リリースチェックリスト
 
@@ -77,81 +61,114 @@
   - **Render（backend）**: `NEXTAUTH_SECRET` = 同じ値 → Step 4 で設定
 
 ### Step 2: Render アカウント作成・Blueprint デプロイ
-- [ ] https://render.com でアカウント作成（GitHub SSO推奨）
-- [ ] 「New」→「Blueprint」を選択
-- [ ] リポジトリ `kosei-w90607/RigLab` を選択・連携
-- [ ] `render.yaml` が自動検出され、Web Service（riglab-api）+ PostgreSQL（riglab-db）が作成される
+- [x] https://render.com でアカウント作成（GitHub SSO推奨）
+- [x] 「New」→「Blueprint」を選択
+- [x] リポジトリ `kosei-w90607/RigLab` を選択・連携
+- [x] `render.yaml` が自動検出され、Web Service（riglab-api）+ PostgreSQL（riglab-db）が作成される
 
 ### Step 3: 本番DB（Render PostgreSQL）
-- [ ] Blueprint デプロイで自動作成（`riglab-db` Free プラン）
-- [ ] `DATABASE_URL` は render.yaml の `fromDatabase` で自動注入
-- [ ] 初回デプロイ後（Step 4完了後）、Render Shell でシード実行:
-  ```bash
-  bundle exec rails db:seed RAILS_ENV=production
-  ```
-  ※ マイグレーションは `bin/render-build.sh` で自動実行済み
-  ※ seeds.rb で admin@example.com / admin123 + 60日分価格履歴が作成される → Step 8 でパスワード変更
-- [ ] **注意**: Render Free PostgreSQL は作成後90日でアクセス不可 → 再作成で対応
+- [x] Blueprint デプロイで自動作成（`riglab-db` Free プラン）
+- [x] `DATABASE_URL` は render.yaml の `fromDatabase` で自動注入
+- [x] render-build.sh に `bundle exec rails db:seed` を追加し、デプロイ時に自動実行（Render Free tier では Shell 不可のため）
+  ※ seeds.rb はべき等（find_or_create_by）なので毎回安全
+  ※ admin パスワードは `ENV.fetch('ADMIN_PASSWORD', 'admin123')` で管理
+- [ ] **注意**: Render Free PostgreSQL は作成後に期限あり → Render Dashboard で期限日を確認し、期限前に再作成で対応
 
 ### Step 4: バックエンドデプロイ（Render）
-- [ ] Blueprint デプロイで自動設定される項目を確認:
+- [x] Blueprint デプロイで自動設定される項目を確認:
   - `render.yaml`: buildCommand → `./bin/render-build.sh`
   - `render.yaml`: startCommand → `bundle exec puma -C config/puma.rb`
   - `DATABASE_URL`: PostgreSQL から自動注入
   - `RAILS_ENV`, `RACK_ENV`: production
-- [ ] 手動設定が必要な環境変数（Render Dashboard → Environment）:
+  - `RAILS_SERVE_STATIC_FILES`, `RAILS_LOG_TO_STDOUT`, `WEB_CONCURRENCY=2`
+- [x] 手動設定が必要な環境変数（Render Dashboard → Environment）:
 
-  | 変数名 | 値 | 備考 |
-  |--------|-----|------|
-  | `RAILS_MASTER_KEY` | ※下記参照 | credentials.yml.enc 復号キー |
-  | `NEXTAUTH_SECRET` | （Step 1 の値） | JWT署名用 |
-  | `CORS_ORIGINS` | （Step 6 で設定） | 最初は空でOK |
-  | `SENTRY_DSN` | （Sentry backend用DSN） | docs/12 §4 で取得済み |
-  | `RAKUTEN_APPLICATION_ID` | （楽天APIアプリID） | 楽天デベロッパーで取得 |
-  | `RAKUTEN_ACCESS_KEY` | （楽天APIアクセスキー） | 同上 |
-  | `CRON_SECRET` | （ランダム文字列） | GitHub Actions価格取得用 |
+  | # | 変数名 | 重要度 | 値 | 未設定時の影響 |
+  |---|--------|--------|-----|-------------|
+  | 1 | `RAILS_MASTER_KEY` | **必須** | `cat backend/config/master.key` の値 | Rails起動失敗 |
+  | 2 | `SECRET_KEY_BASE` | **必須** | `openssl rand -hex 64` で生成 | Rails起動失敗 |
+  | 3 | `NEXTAUTH_SECRET` | **必須** | Step 1 の値（Vercel AUTH_SECRET と同じ） | JWT認証が動かない |
+  | 4 | `CORS_ORIGINS` | **必須** | Vercel発行URL（Step 6 で設定） | フロントからAPI呼べない |
+  | 5 | `RAKUTEN_APPLICATION_ID` | **必須** | 楽天デベロッパーで取得したアプリID | 楽天API連携が動かない |
+  | 6 | `RAKUTEN_ACCESS_KEY` | **必須** | 楽天デベロッパーで取得したアクセスキー | 同上 |
+  | 7 | `CRON_SECRET` | **必須** | ランダム文字列（GitHub Secrets にも同じ値） | 価格取得バッチが認証失敗 |
+  | 8 | `SENTRY_DSN` | 任意 | Sentry backend用DSN | エラー監視なし（動作に影響なし） |
 
-- [ ] **RAILS_MASTER_KEY の取得**:
+- [x] **RAILS_MASTER_KEY の取得**: credentials再生成済み（master.key紛失のため）。Render に設定する値を取得済み
   ```bash
-  cat backend/config/master.key
-  # または
+  # 再生成済み — 以下で値を確認可能
   docker compose exec back cat config/master.key
   ```
-- [ ] デプロイ → ログで起動成功を確認
-- [ ] Render Shell で DB セットアップ:
-  ```bash
-  bundle exec rails db:seed RAILS_ENV=production
-  ```
+- [x] デプロイ → ログで起動成功を確認（Deployed ステータス）
+- [x] DB セットアップ: render-build.sh で自動実行（Shell 不要）
 
 ### Step 5: フロントエンドデプロイ（Vercel）
-- [ ] https://vercel.com でアカウント作成（GitHub SSO）
-- [ ] 「Add New Project」→ リポジトリ選択
-- [ ] プロジェクト設定:
+- [x] https://vercel.com でアカウント作成（GitHub SSO）
+- [x] 「Add New Project」→ リポジトリ選択
+- [x] プロジェクト設定:
   - Framework Preset: **Next.js**（自動検出）
   - Root Directory: **frontend**
   - Build Command: `npm run build`
   - Install Command: `npm install`
-- [ ] 環境変数（Settings → Environment Variables）:
+- [x] 環境変数（Settings → Environment Variables）:
 
-  | 変数名 | 値 | 備考 |
-  |--------|-----|------|
-  | `NEXT_PUBLIC_API_URL` | `https://<render-url>/api/v1` | Render発行のパブリックURL |
-  | `NEXT_PUBLIC_APP_URL` | `https://<vercel-url>` | Vercel発行URL or 独自ドメイン |
-  | `NEXTAUTH_URL` | `https://<vercel-url>` | Auth.js v5では自動検出されるが、明示推奨 |
-  | `AUTH_SECRET` | （Step 1 の値） | Auth.js v5 の正式変数名 |
-  | `INTERNAL_API_URL` | `https://<render-url>/api/v1` | SSR時のAPI通信用 |
-  | `NEXT_PUBLIC_SENTRY_DSN` | （Sentry frontend用DSN） | docs/12 §4 で取得済み |
+  | # | 変数名 | 重要度 | 設定値 | 未設定時の影響 |
+  |---|--------|--------|-------|-------------|
+  | 1 | `NEXT_PUBLIC_API_URL` | **必須** | `https://<render-url>/api/v1` | クライアントからAPI呼べない（デフォルト: localhost:3001） |
+  | 2 | `INTERNAL_API_URL` | **必須** | `https://<render-url>/api/v1` | SSR・認証が動かない（auth.ts, next.config.ts が参照） |
+  | 3 | `AUTH_SECRET` | **必須** | Step 1 の値（**Render NEXTAUTH_SECRET と必ず同じ値**） | **致命的**: 値が異なるとJWT署名/検証不一致で全認証API失敗。デフォルト使用時はJWT偽造も可能 |
+  | 4 | `NEXT_PUBLIC_APP_URL` | 推奨 | `https://<vercel-url>` | OGメタデータのURL不正（デフォルト: `riglab.example.com`） |
+  | 5 | `NEXTAUTH_URL` | 推奨 | `https://<vercel-url>` | Auth.js v5は自動検出するが明示推奨 |
+  | 6 | `NEXT_PUBLIC_SENTRY_DSN` | 任意 | Sentry frontend用DSN | エラー監視なし（動作に影響なし） |
 
-- [ ] 「Deploy」→ ビルドログ確認 → デプロイ成功
-- [ ] Vercel発行URL をメモ（例: `https://rig-lab.vercel.app`）
+  > **🚨 AUTH_SECRET 重要警告**: `frontend/lib/auth.ts:7` で `AUTH_SECRET || NEXTAUTH_SECRET || 'development-secret-key-for-riglab'` とフォールバックしている。
+  > - **AUTH_SECRET は `||` チェーンの最初にあるため、NEXTAUTH_SECRET より優先される**
+  > - Vercel に `AUTH_SECRET` と `NEXTAUTH_SECRET` の両方が設定されている場合、`AUTH_SECRET` の値が使われる
+  > - **この値が Render の `NEXTAUTH_SECRET` と異なると、JWT署名（Frontend）と検証（Backend）で鍵が一致せず、全認証APIが `JWT::VerificationError` で失敗する**
+  > - 必ず **Render の `NEXTAUTH_SECRET` と同一の値** を設定すること
+
+  > **⚠️ INTERNAL_API_URL 必須**: `frontend/lib/auth.ts:6` と `frontend/next.config.ts:6` が参照。未設定時は `localhost:3001` にフォールバックし、**Vercel上でのSSR認証（サインイン）と next.config.ts の rewrites が全て失敗する**。Render公開URLの `/api/v1` パスまで含めて設定すること。
+
+- [x] 「Deploy」→ ビルドログ確認 → デプロイ成功
+- [x] Vercel発行URL をメモ（例: `https://rig-lab.vercel.app`）
 
 ### Step 6: CORS設定
-- [ ] Render Dashboard → Environment で `CORS_ORIGINS` を設定:
+- [×] Render Dashboard → Environment で `CORS_ORIGINS` を設定:
   ```
   CORS_ORIGINS=https://rig-lab.vercel.app
   ```
   ※ 独自ドメインも使う場合はカンマ区切りで追加
-- [ ] Render再デプロイ → フロントエンドからAPI接続確認
+- [×] Render再デプロイ → フロントエンドからAPI接続確認
+
+### Step 6.5: GitHub Secrets 設定（価格取得バッチ用）
+- [×] GitHub リポジトリ → Settings → Secrets and variables → Actions で以下を設定:
+
+  | # | 変数名 | 重要度 | 設定値 |
+  |---|--------|--------|-------|
+  | 1 | `RENDER_API_URL` | **必須** | Render 公開URL（例: `https://riglab-api.onrender.com`）※ `/api/v1` は不要（workflow内で付加） |
+  | 2 | `CRON_SECRET` | **必須** | Render に設定した `CRON_SECRET` と同じ値 |
+
+- [ ] 設定後、GitHub Actions で手動テスト実行（手順は下記参照）
+- [ ] ジョブログで `${RENDER_API_URL}/api/v1/cron/price_fetch` への POST 成功（HTTP 200）を確認
+
+#### GitHub Actions 手動テスト手順
+
+**前提:** `.yml` ファイルの変更は不要。`workflow_dispatch` が既に定義済みなので GitHub UI から手動実行可能。
+
+**手順:**
+1. GitHub リポジトリ（`kosei-w90607/RigLab`）→ **Actions** タブ
+2. 左サイドバーの **「Daily Price Fetch」** をクリック
+3. 右上の **「Run workflow」** → Branch は **`main`** を選択 → **「Run workflow」** 実行
+4. 実行中のジョブをクリック → `Trigger price fetch` ステップのログを確認
+5. curl が HTTP 200 を返していれば成功
+
+**失敗時の対処:**
+
+| 症状 | 原因 | 対処 |
+|------|------|------|
+| `unauthorized` (401) | CRON_SECRET 不一致 | Render と GitHub Secrets の値を再確認 |
+| `connection refused` | RENDER_API_URL が間違い | URL を確認（`/api/v1` は不要、workflow が付加） |
+| Render がスリープ中 | Free tier コールドスタート | 数分待って再実行、またはブラウザで先にアクセス |
 
 ### Step 7: ドメイン設定（任意）
 - [ ] 独自ドメインを使う場合のみ
@@ -163,22 +180,10 @@
   - Render: `CORS_ORIGINS`
 
 ### Step 8: 管理者ユーザー設定
-- [ ] seeds.rb で作成済みの admin@example.com のパスワードを本番用に変更:
-  ```bash
-  # Render Shell で実行
-  bundle exec rails runner "
-    admin = User.find_by(email: 'admin@example.com')
-    admin.update!(password: '本番用の強いパスワード')
-    puts 'Admin password updated'
-  " RAILS_ENV=production
-  ```
-- [ ] メールアドレスも変更する場合:
-  ```bash
-  bundle exec rails runner "
-    admin = User.find_by(email: 'admin@example.com')
-    admin.update!(email: '本番メールアドレス', password: '本番パスワード')
-  " RAILS_ENV=production
-  ```
+- [x] admin パスワードは `ADMIN_PASSWORD` 環境変数で管理（Render Dashboard → Environment で設定）
+  - seeds.rb: `ENV.fetch('ADMIN_PASSWORD', 'admin123')` で本番パスワードを適用
+  - 毎デプロイ時に ENV の値にリセットされる（ENV が SSOT）
+  - パスワード変更 = Render Dashboard で `ADMIN_PASSWORD` を更新 → 再デプロイ
 
 ### Step 9: 動作確認
 - [ ] TOPページ表示（`https://<vercel-url>`）
@@ -191,6 +196,130 @@
 - [ ] Sentryダッシュボードでテストエラーが捕捉されることを確認
 
 > **Sidekiq制限**: Render Free tier では Worker Service を実行できないため、価格取得バッチは GitHub Actions の定期実行で代替しています。`.github/workflows/price-fetch.yml` 参照。GitHub Secrets に `RENDER_API_URL` と `CRON_SECRET` の設定が必要です。
+
+### Render Free tier 制約と対応
+
+**問題:** Render Free tier では Shell/SSH が使用不可。計画時の「Render Shell で db:seed / rails runner を実行」が実行できない。
+
+**解決策:** render-build.sh に `bundle exec rails db:seed` を組み込み + admin パスワードの ENV 化
+- seeds.rb はべき等（`find_or_create_by!` / `find_or_initialize_by`）なので毎デプロイ安全
+- admin パスワード: `ENV.fetch('ADMIN_PASSWORD', 'admin123')` — Render 環境変数で管理
+
+**有料プラン移行時の修正箇所（4点）:**
+
+| # | 修正内容 | ファイル |
+|---|---------|---------|
+| 1 | render-build.sh から db:seed を削除 | `backend/bin/render-build.sh` |
+| 2 | seeds.rb の ENV 依存を戻す（任意） | `backend/db/seeds.rb` |
+| 3 | ADMIN_PASSWORD 環境変数を削除（任意） | Render Dashboard |
+| 4 | render.yaml のプラン変更 | `render.yaml` |
+
+> 詳細は `docs/08_deploy-guide.md` Step 3.6.1 を参照。
+
+### Sidekiq → GitHub Actions 代替の経緯
+
+**本来の設計:**
+- Sidekiq + Redis で価格取得バッチを定期実行（毎日 JST 3:00）
+- `sidekiq-cron` gem で `PriceFetchAllJob` をスケジュール実行
+- 実装済みファイル: `sidekiq.rb`, `sidekiq_cron.rb`, `sidekiq.yml`, `PriceFetchAllJob`, `PriceFetchJob`
+
+**問題: Render Free tier では Background Worker / Redis が使えない**
+
+Render で Sidekiq を動かすには以下の **3つのサービス** が必要（Context7 / Render公式ドキュメント確認済み）:
+
+| サービス | Render での型 | Free tier | 用途 |
+|---------|-------------|-----------|------|
+| Web Service | `type: web` | **OK** | Rails API（これは動いている） |
+| Background Worker | `type: worker` | **NG（有料のみ）** | `bundle exec sidekiq` を実行 |
+| Redis (Key Value) | `type: keyvalue` | **NG（有料のみ）** | Sidekiq のジョブキュー管理 |
+
+→ Free tier では Worker も Redis も作れないため、Sidekiq は一切動かない。
+
+**代替策: GitHub Actions + HTTP エンドポイント**
+
+| 項目 | 内容 |
+|------|------|
+| ワークフロー | `.github/workflows/price-fetch.yml` |
+| スケジュール | `cron: '0 18 * * *'`（UTC 18:00 = JST 3:00） |
+| 仕組み | GitHub Actions が `POST /api/v1/cron/price_fetch` を呼ぶ |
+| 認証 | `Authorization: Bearer ${CRON_SECRET}` ヘッダーで保護 |
+| 実行方法 | `PriceFetchAllJob.perform_now`（Sidekiq キューを通さず同期実行） |
+| 必要な Secrets | `RENDER_API_URL`（Render 公開URL）+ `CRON_SECRET`（認証トークン） |
+
+**現在のアーキテクチャ:**
+```
+GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perform_now
+                                                       └→ PriceFetchJob.perform_now × N件
+```
+※ `perform_later` ではなく `perform_now` で同期実行（Redis/Sidekiq 不要）
+
+**関連ファイル一覧:**
+
+| ファイル | 役割 | 現在の状態 |
+|---------|------|----------|
+| `.github/workflows/price-fetch.yml` | GitHub Actions cron 定義 | **稼働中（代替手段）** |
+| `backend/app/controllers/api/v1/cron/price_fetch_controller.rb` | HTTP トリガーエンドポイント | **稼働中** |
+| `backend/app/jobs/price_fetch_all_job.rb` | 全カテゴリ価格取得ジョブ | **稼働中（perform_now）** |
+| `backend/app/jobs/price_fetch_job.rb` | 個別パーツ価格取得ジョブ | **稼働中（perform_now）** |
+| `backend/config/sidekiq.yml` | Sidekiq キュー設定 | 休眠中（Free tier では不使用） |
+| `backend/config/initializers/sidekiq.rb` | Sidekiq Redis 接続設定 | 休眠中 |
+| `backend/config/initializers/sidekiq_cron.rb` | Sidekiq-cron スケジュール設定 | 休眠中 |
+| `backend/Gemfile` | `sidekiq`, `sidekiq-cron` gem | インストール済みだが未使用 |
+
+**有料プラン移行時の修正箇所（Sidekiq 復活）:**
+
+| # | 修正内容 | ファイル / 場所 |
+|---|---------|----------------|
+| 1 | render.yaml に Redis + Worker サービスを追加 | `render.yaml` |
+| 2 | Render 環境変数に `REDIS_URL` を追加 | Render Dashboard |
+| 3 | CronController の `perform_now` → `perform_later` に戻す | `cron/price_fetch_controller.rb` |
+| 4 | GitHub Actions ワークフローを無効化/削除（任意） | `.github/workflows/price-fetch.yml` |
+| 5 | GitHub Secrets（`RENDER_API_URL`, `CRON_SECRET`）を削除（任意） | GitHub Settings |
+
+> **render.yaml に追加するサービス例（有料プラン時）:**
+> ```yaml
+> services:
+>   - type: keyvalue
+>     name: riglab-redis
+>     plan: starter  # Free tier なし
+>     maxmemoryPolicy: noeviction
+>     ipAllowList: []
+>   - type: worker
+>     name: riglab-sidekiq
+>     runtime: ruby
+>     plan: starter  # Free tier なし
+>     rootDir: backend
+>     buildCommand: bundle install
+>     startCommand: bundle exec sidekiq
+>     envVars:
+>       - key: REDIS_URL
+>         fromService:
+>           type: keyvalue
+>           name: riglab-redis
+>           property: connectionString
+>       - key: RAILS_MASTER_KEY
+>         sync: false
+> ```
+
+### 環境変数検証結果（2026-02-12）
+
+コードが参照する全環境変数を洗い出し、render.yaml / Vercel 設定と突合した結果。
+
+**Render (Backend) — render.yaml で自動設定（確認不要）:**
+- `DATABASE_URL`, `RAILS_ENV`, `RACK_ENV`, `RAILS_SERVE_STATIC_FILES`, `RAILS_LOG_TO_STDOUT`, `WEB_CONCURRENCY=2`
+
+**Render (Backend) — 手動設定が必要な8変数:** → Step 4 の表を参照
+
+**Vercel (Frontend) — 設定が必要な6変数:** → Step 5 の表を参照
+
+**GitHub Secrets — 価格取得バッチ用2変数:** → Step 6.5 を参照
+
+**注意点:**
+1. **AUTH_SECRET 値不一致問題（致命的）**: Vercel の `AUTH_SECRET` が Render の `NEXTAUTH_SECRET` と異なる値で設定されていた。`auth.ts:7` で `AUTH_SECRET` が `||` チェーンの最初にあるため優先され、Frontend が異なる鍵で JWT を署名 → Backend で `JWT::VerificationError` → 全認証API失敗。**必ず同一の値にすること**
+2. **INTERNAL_API_URL 未設定（致命的）**: Vercel に未設定だった。`auth.ts:6` と `next.config.ts:6` が `localhost:3001` にフォールバック → SSR認証・rewrites全失敗。**Render公開URL + `/api/v1` を設定すること**
+3. **NEXT_PUBLIC_APP_URL 未設定（推奨）**: `layout.tsx:19` の OG メタデータ URL が `riglab.example.com` になる。Vercel公開URLを設定推奨
+4. **RAKUTEN_ALLOWED_WEBSITE**: デフォルト `https://rig-lab.vercel.app`。Vercel URL がこれと異なる場合、楽天APIのリファラー制限で弾かれる可能性あり
+5. **PostgreSQL 期限**: Render Dashboard で実際の期限日を確認すること
 
 ---
 
