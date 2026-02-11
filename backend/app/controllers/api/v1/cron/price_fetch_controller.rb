@@ -4,7 +4,6 @@ module Api
   module V1
     module Cron
       class PriceFetchController < ApplicationController
-        skip_before_action :authenticate_user!, only: [:create]
 
         def create
           unless request.headers['Authorization'] == "Bearer #{ENV['CRON_SECRET']}"

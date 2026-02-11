@@ -3,7 +3,6 @@
 module Api
   module V1
     class PresetsController < ApplicationController
-      skip_before_action :authenticate_user!, raise: false
       before_action :set_preset, only: [:show]
 
       def index

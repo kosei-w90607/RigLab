@@ -3,7 +3,6 @@
 module Api
   module V1
     class BuyAdviceController < ApplicationController
-      skip_before_action :authenticate_user!, raise: false
 
       CATEGORY_MODELS = {
         'cpu' => PartsCpu, 'gpu' => PartsGpu, 'memory' => PartsMemory,
