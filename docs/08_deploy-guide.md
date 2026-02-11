@@ -205,10 +205,11 @@ bundle exec rails db:migrate
 bundle exec rails db:seed    # べき等（find_or_create_by）なので毎回安全
 ```
 
-**管理者パスワードの管理:**
-- seeds.rb で `ENV.fetch('ADMIN_PASSWORD', 'admin123')` を使用
-- 本番パスワードは Render 環境変数 `ADMIN_PASSWORD` で設定（Dashboard → Environment）
-- 未設定時は開発用デフォルト `admin123` が使われる
+**管理者アカウントの管理:**
+- メール: `ENV.fetch('ADMIN_EMAIL', 'admin@example.com')` — Render 環境変数で管理
+- パスワード: `ENV.fetch('ADMIN_PASSWORD', 'admin123')` — Render 環境変数で管理
+- 本番の値は Render Dashboard → Environment で設定
+- 未設定時は開発用デフォルト（`admin@example.com` / `admin123`）が使われる
 - 毎デプロイ時に ENV の値にリセットされる（ENV が SSOT）
 
 > **なぜ render-build.sh に seed を組み込んでいるか:**
@@ -223,8 +224,8 @@ bundle exec rails db:seed    # べき等（find_or_create_by）なので毎回�
 | # | 修正内容 | ファイル | 詳細 |
 |---|---------|---------|------|
 | 1 | render-build.sh から db:seed を削除 | `backend/bin/render-build.sh` | Shell で任意タイミング実行可能になる |
-| 2 | seeds.rb の ENV 依存を戻す（任意） | `backend/db/seeds.rb` | Shell で直接パスワード変更可能 |
-| 3 | ADMIN_PASSWORD 環境変数を削除（任意） | Render Dashboard | Shell 操作で代替 |
+| 2 | seeds.rb の ENV 依存を戻す（任意） | `backend/db/seeds.rb` | Shell で直接変更可能 |
+| 3 | ADMIN_EMAIL / ADMIN_PASSWORD 環境変数を削除（任意） | Render Dashboard | Shell 操作で代替 |
 | 4 | render.yaml のプラン変更 | `render.yaml` | `plan: free` → `plan: starter` 等 |
 
 ### 3.7 Sidekiq の制限と GitHub Actions 代替

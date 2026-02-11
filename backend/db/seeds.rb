@@ -521,7 +521,7 @@ puts "  Created #{PcEntrustSet.count} Presets"
 puts "Creating users..."
 
 # 管理者ユーザー
-admin = User.find_or_initialize_by(email: 'admin@example.com')
+admin = User.find_or_initialize_by(email: ENV.fetch('ADMIN_EMAIL', 'admin@example.com'))
 admin.name = '管理者'
 admin.password = ENV.fetch('ADMIN_PASSWORD', 'admin123')
 admin.role = 'admin'

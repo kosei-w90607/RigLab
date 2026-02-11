@@ -8,29 +8,27 @@
 
 ## 直近の作業サマリー（2026-02-12）
 
-### 完了: Render Free tier 制約対応（db:seed 自動化 + admin パスワード ENV 化）
+### 完了: admin メールアドレスも ENV 化
 
 | カテゴリ | 内容 |
 |----------|------|
-| **Render Free tier 制約** | Shell/SSH が使えない → render-build.sh に db:seed を組み込みで解決 |
-| **admin パスワード** | `ENV.fetch('ADMIN_PASSWORD', 'admin123')` で ENV 管理に変更 |
-| **docs/08 更新** | Step 3.6 を自動実行方式に書き換え、有料プラン移行ガイドを追記 |
-| **Plans.md 更新** | Step 3/4/8 の文言修正、Free tier 制約と解決策を記載 |
+| **admin メール ENV 化** | `ENV.fetch('ADMIN_EMAIL', 'admin@example.com')` で ENV 管理に変更 |
+| **docs/08 更新** | 管理者セクションをメール + パスワード両方の記載に更新 |
+| **Plans.md 更新** | Step 4/8、Free tier 制約セクション、環境変数テーブルを更新 |
 
 ### 変更ファイル
-- `backend/db/seeds.rb` — admin パスワードを `ENV.fetch('ADMIN_PASSWORD', 'admin123')` に変更
-- `backend/bin/render-build.sh` — `bundle exec rails db:seed` を追加
-- `docs/08_deploy-guide.md` — Step 3.6 を自動実行方式に更新、有料プラン移行ガイド追記
-- `Plans.md` — 作業サマリー・チェックリスト更新
+- `backend/db/seeds.rb` — admin メールを `ENV.fetch('ADMIN_EMAIL', 'admin@example.com')` に変更
+- `docs/08_deploy-guide.md` — 管理者アカウント管理セクションにメール追記
+- `Plans.md` — 作業サマリー・Step 4/8・Free tier 制約セクション更新
 
 ### 備考
-- seeds.rb は全レコード `find_or_create_by!` / `find_or_initialize_by` パターンで実装済み（べき等）
-- 毎デプロイ時に ENV の ADMIN_PASSWORD 値で admin パスワードがリセットされる（ENV が SSOT）
-- 有料プラン移行時の修正箇所は docs/08 Step 3.6.1 に記載
+- admin 認証情報（メール + パスワード）は両方とも ENV で管理、SSOT は Render Dashboard
+- 有料プラン移行時の修正箇所は docs/08 Step 3.6.1 に記載（5点に増加）
 
 ### 次回アクション（残り手動作業）
 1. **コミット & プッシュ**: 今回の変更を main にマージ → Render 自動デプロイで db:seed 実行
 2. ~~**Render 環境変数追加**: `ADMIN_PASSWORD` を追加~~ ✅ 完了
+   - **追加**: Render Dashboard → Environment に `ADMIN_EMAIL` を追加（本番用メールアドレス）
 3. ~~**GitHub Secrets 設定**: `RENDER_API_URL` + `CRON_SECRET`~~ ✅ 完了
 4. **動作確認**: Step 9 のチェックリストを順次消化
 
@@ -93,6 +91,7 @@
   | 6 | `RAKUTEN_ACCESS_KEY` | **必須** | 楽天デベロッパーで取得したアクセスキー | 同上 |
   | 7 | `CRON_SECRET` | **必須** | ランダム文字列（GitHub Secrets にも同じ値） | 価格取得バッチが認証失敗 |
   | 8 | `SENTRY_DSN` | 任意 | Sentry backend用DSN | エラー監視なし（動作に影響なし） |
+  | 9 | `ADMIN_EMAIL` | 任意 | 管理者メールアドレス | デフォルト `admin@example.com` が使われる |
 
 - [x] **RAILS_MASTER_KEY の取得**: credentials再生成済み（master.key紛失のため）。Render に設定する値を取得済み
   ```bash
@@ -180,13 +179,14 @@
   - Render: `CORS_ORIGINS`
 
 ### Step 8: 管理者ユーザー設定
-- [x] admin パスワードは `ADMIN_PASSWORD` 環境変数で管理（Render Dashboard → Environment で設定）
-  - seeds.rb: `ENV.fetch('ADMIN_PASSWORD', 'admin123')` で本番パスワードを適用
+- [x] admin 認証情報は環境変数で管理（Render Dashboard → Environment で設定）
+  - `ADMIN_EMAIL`: 管理者メールアドレス（デフォルト: `admin@example.com`）
+  - `ADMIN_PASSWORD`: 管理者パスワード（デフォルト: `admin123`）
   - 毎デプロイ時に ENV の値にリセットされる（ENV が SSOT）
-  - パスワード変更 = Render Dashboard で `ADMIN_PASSWORD` を更新 → 再デプロイ
+  - 変更 = Render Dashboard で環境変数を更新 → 再デプロイ
 
 ### Step 9: 動作確認
-- [ ] TOPページ表示（`https://<vercel-url>`）
+- [x] TOPページ表示（`https://rig-lab.vercel.app`）
 - [ ] 認証: サインアップ → サインイン → ログアウト
 - [ ] おまかせ構成: builder → 予算・用途選択 → 結果表示 → 保存
 - [ ] カスタム構成: configurator → パーツ選択 → 互換性フィルタ動作 → 保存
@@ -201,17 +201,18 @@
 
 **問題:** Render Free tier では Shell/SSH が使用不可。計画時の「Render Shell で db:seed / rails runner を実行」が実行できない。
 
-**解決策:** render-build.sh に `bundle exec rails db:seed` を組み込み + admin パスワードの ENV 化
+**解決策:** render-build.sh に `bundle exec rails db:seed` を組み込み + admin 認証情報の ENV 化
 - seeds.rb はべき等（`find_or_create_by!` / `find_or_initialize_by`）なので毎デプロイ安全
+- admin メール: `ENV.fetch('ADMIN_EMAIL', 'admin@example.com')` — Render 環境変数で管理
 - admin パスワード: `ENV.fetch('ADMIN_PASSWORD', 'admin123')` — Render 環境変数で管理
 
-**有料プラン移行時の修正箇所（4点）:**
+**有料プラン移行時の修正箇所（5点）:**
 
 | # | 修正内容 | ファイル |
 |---|---------|---------|
 | 1 | render-build.sh から db:seed を削除 | `backend/bin/render-build.sh` |
 | 2 | seeds.rb の ENV 依存を戻す（任意） | `backend/db/seeds.rb` |
-| 3 | ADMIN_PASSWORD 環境変数を削除（任意） | Render Dashboard |
+| 3 | ADMIN_EMAIL / ADMIN_PASSWORD 環境変数を削除（任意） | Render Dashboard |
 | 4 | render.yaml のプラン変更 | `render.yaml` |
 
 > 詳細は `docs/08_deploy-guide.md` Step 3.6.1 を参照。
