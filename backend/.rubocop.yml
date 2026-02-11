@@ -7,7 +7,6 @@ Bundler/OrderedGems:
 
 Layout/LineLength:
   Exclude:
-    - config/initializers/devise.rb
     - db/migrate/*.rb
     - bin/bundle
 
