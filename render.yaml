@@ -27,6 +27,8 @@ services:
         value: 2
       - key: RAILS_MASTER_KEY
         sync: false
+      - key: SECRET_KEY_BASE
+        sync: false
       - key: NEXTAUTH_SECRET
         sync: false
       - key: CORS_ORIGINS
