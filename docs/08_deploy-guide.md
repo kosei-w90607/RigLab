@@ -9,8 +9,8 @@ RigLabは以下の構成でデプロイすることを想定しています。
 | コンポーネント | 推奨サービス | 代替 |
 |--------------|-------------|------|
 | フロントエンド | Vercel | Netlify, Cloudflare Pages |
-| バックエンドAPI | Render | Railway, Fly.io |
-| データベース | PlanetScale | Railway MySQL, AWS RDS |
+| バックエンドAPI | **Render** | Railway, Fly.io |
+| データベース | **Render PostgreSQL** | Railway MySQL (dev同等), AWS RDS |
 
 ### 1.2 環境一覧
 
@@ -93,142 +93,194 @@ git push origin main
 
 ---
 
-## 3. バックエンドのデプロイ（Render）
+## 3. バックエンドのデプロイ（Render）— 正式採用
+
+> **Note:** RigLabは本番環境にRenderを採用しています。ローカル開発はMySQL、本番はPostgreSQLのハイブリッド構成です。
 
 ### 3.1 事前準備
 
-- Renderアカウント作成
+- Renderアカウント作成（https://render.com — GitHub SSO推奨）
 - GitHubリポジトリとの連携
 
 ### 3.2 データベースの作成
 
 1. Renderダッシュボードで「New」→「PostgreSQL」を選択
-   （注: RenderはMySQLをサポートしていないため、PostgreSQLを使用するか、外部のMySQLサービスを使用）
 2. 以下の設定:
 
 ```
 Name: riglab-db
-Region: Singapore (または最寄りのリージョン)
-PostgreSQL Version: 15
-Plan: Free (開発用) / Starter (本番用)
+Plan: Free
 ```
 
-### 3.3 Web Serviceの作成
+> **注意:** Render Free PostgreSQL は作成後90日でアクセス不可になります。ポートフォリオ用途では再作成で対応してください。
 
-1. 「New」→「Web Service」を選択
-2. GitHubリポジトリを接続
-3. 以下の設定:
+### 3.3 Blueprint デプロイ（推奨）
 
-```
-Name: riglab-api
-Region: Singapore
-Branch: main
-Root Directory: backend
-Runtime: Ruby
-Build Command: bundle install && bundle exec rails db:migrate
-Start Command: bundle exec puma -C config/puma.rb
-Plan: Free (開発用) / Starter (本番用)
-```
+プロジェクトルートの `render.yaml` を使用して一括デプロイ:
 
-### 3.4 環境変数の設定
-
-「Environment」タブで以下を設定:
-
-| 変数名 | 値 | 説明 |
-|--------|-----|------|
-| RAILS_ENV | production | Rails実行環境 |
-| RACK_ENV | production | Rack実行環境 |
-| RAILS_MASTER_KEY | (credentials.yml.encの復号キー) | Rails暗号化キー |
-| DATABASE_URL | (Renderが自動生成) | DB接続文字列 |
-| RAILS_SERVE_STATIC_FILES | true | 静的ファイル配信 |
-| RAILS_LOG_TO_STDOUT | true | ログ出力先 |
-| NEXTAUTH_SECRET | (フロントエンドと同じ値) | JWT検証用共有シークレット |
-| CORS_ORIGINS | https://riglab.app,https://www.riglab.app | CORS許可ドメイン |
-| SENTRY_DSN | (SentryプロジェクトのDSN) | Sentryエラートラッキング用 |
-
-### 3.5 render.yaml（Blueprint）
+1. Renderダッシュボード → 「New」→「Blueprint」
+2. GitHubリポジトリを選択
+3. `render.yaml` が自動検出され、Web Service + PostgreSQL が作成される
 
 `render.yaml`:
 ```yaml
+databases:
+  - name: riglab-db
+    plan: free
+
 services:
   - type: web
     name: riglab-api
     runtime: ruby
-    region: singapore
     plan: free
     rootDir: backend
-    buildCommand: bundle install && bundle exec rails db:migrate
-    startCommand: bundle exec puma -C config/puma.rb
+    buildCommand: './bin/render-build.sh'
+    startCommand: 'bundle exec puma -C config/puma.rb'
     envVars:
-      - key: RAILS_ENV
-        value: production
-      - key: RACK_ENV
-        value: production
-      - key: RAILS_MASTER_KEY
-        sync: false
       - key: DATABASE_URL
         fromDatabase:
           name: riglab-db
           property: connectionString
-
-databases:
-  - name: riglab-db
-    plan: free
-    region: singapore
+      - key: RAILS_ENV
+        value: production
+      - key: RACK_ENV
+        value: production
+      - key: RAILS_SERVE_STATIC_FILES
+        value: true
+      - key: RAILS_LOG_TO_STDOUT
+        value: true
+      - key: WEB_CONCURRENCY
+        value: 2
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: NEXTAUTH_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: RAKUTEN_APPLICATION_ID
+        sync: false
+      - key: RAKUTEN_ACCESS_KEY
+        sync: false
+      - key: CRON_SECRET
+        sync: false
 ```
+
+### 3.4 ビルドスクリプト
+
+`backend/bin/render-build.sh`:
+```bash
+#!/usr/bin/env bash
+set -o errexit
+
+bundle install
+bundle exec rails db:migrate
+```
+
+> **Note:** Render Free tier では `preDeployCommand` が使用できないため、ビルドスクリプト内でマイグレーションを実行します。
+
+### 3.5 環境変数の設定
+
+Render ダッシュボードの「Environment」タブで以下を手動設定（`sync: false` の項目）:
+
+| 変数名 | 値 | 説明 |
+|--------|-----|------|
+| `RAILS_MASTER_KEY` | (credentials.yml.encの復号キー) | `cat backend/config/master.key` で確認 |
+| `NEXTAUTH_SECRET` | (認証シークレット) | フロントエンドの `AUTH_SECRET` と同じ値 |
+| `CORS_ORIGINS` | (Vercel本番URL) | 例: `https://rig-lab.vercel.app` |
+| `SENTRY_DSN` | (Sentry DSN) | オプション |
+| `RAKUTEN_APPLICATION_ID` | (楽天APIアプリID) | 楽天デベロッパーで取得 |
+| `RAKUTEN_ACCESS_KEY` | (楽天APIアクセスキー) | 同上 |
+| `CRON_SECRET` | (ランダム文字列) | GitHub Actions価格取得用（GitHub Secretsと同一値） |
+
+### 3.6 初回デプロイ後のセットアップ
+
+Render Shell で以下を実行:
+```bash
+bundle exec rails db:seed RAILS_ENV=production
+```
+※ seeds.rb で管理者ユーザー（admin@example.com）と60日分の価格履歴サンプルデータが作成される
+
+### 3.7 Sidekiq の制限
+
+Render Free tier では Worker Service（Sidekiq）を実行できません。価格取得バッチは以下で代替:
+- **seeds.rb**: 60日分のサンプル価格履歴を自動生成
+- **GitHub Actions**: 毎日UTC 18:00（JST 3:00）に cron エンドポイントを呼び出し、リアルタイム価格を蓄積
 
 ---
 
-## 4. 代替: Railway を使用したデプロイ
+## 4. 代替: バックエンドのデプロイ（Railway）
+
+> **Note:** RailwayはMySQLをネイティブサポートするため、DB変更なしでデプロイ可能です。ただしRigLabはRenderを正式採用しています。
 
 ### 4.1 メリット
 
-- MySQLをネイティブサポート
-- シンプルな設定
-- GitHub連携が容易
+- MySQLをネイティブサポート（PlanetScale終了後の最適選択肢）
+- シンプルな設定（railway.json で宣言的管理）
+- GitHub連携が容易（pushで自動デプロイ）
+- `preDeployCommand` でマイグレーション自動実行
 
 ### 4.2 セットアップ
 
-1. Railway.appでアカウント作成
+1. https://railway.app でアカウント作成（GitHub SSO推奨）
 2. 「New Project」→「Deploy from GitHub repo」を選択
-3. バックエンド用サービスを作成
-
-```
-Service Name: riglab-api
-Root Directory: backend
-```
-
-4. MySQLサービスを追加
-
-```
-「+ New」→「Database」→「MySQL」
-```
+3. リポジトリ `kosei-w90607/RigLab` を選択・連携
+4. バックエンド用サービスを作成:
+   - Root Directory: `backend`
+   - ※ `backend/railway.json` が自動検出され、build/deploy設定が適用される
+5. MySQLサービスを追加:
+   - 「+ New」→「Database」→「Add MySQL」
+   - Variables タブで `DATABASE_URL` を参照変数として設定:
+     ```
+     DATABASE_URL = ${{MySQL.DATABASE_URL}}
+     ```
 
 ### 4.3 環境変数
 
-Railwayは`DATABASE_URL`を自動的に注入します。追加で設定:
+Railwayは`DATABASE_URL`を変数参照で自動注入します。追加で以下を設定:
 
-| 変数名 | 値 |
-|--------|-----|
-| RAILS_ENV | production |
-| RAILS_MASTER_KEY | (credentials.yml.encの復号キー) |
+| 変数名 | 値 | 備考 |
+|--------|-----|------|
+| `RAILS_ENV` | `production` | |
+| `RACK_ENV` | `production` | |
+| `RAILS_MASTER_KEY` | (credentials.yml.encの復号キー) | `cat backend/config/master.key` で確認 |
+| `DATABASE_URL` | `${{MySQL.DATABASE_URL}}` | Railway変数参照 |
+| `NEXTAUTH_SECRET` | (認証シークレット) | フロントエンドの `AUTH_SECRET` と同じ値 |
+| `CORS_ORIGINS` | (Vercel本番URL) | 例: `https://rig-lab.vercel.app` |
+| `SENTRY_DSN` | (Sentry DSN) | オプション |
+| `RAKUTEN_APPLICATION_ID` | (楽天APIアプリID) | 楽天デベロッパーで取得 |
+| `RAKUTEN_ACCESS_KEY` | (楽天APIアクセスキー) | 同上 |
+| `RAILS_SERVE_STATIC_FILES` | `true` | |
+| `RAILS_LOG_TO_STDOUT` | `true` | |
 
 ### 4.4 railway.json
 
 `backend/railway.json`:
 ```json
 {
-  "$schema": "https://railway.app/railway.schema.json",
+  "$schema": "https://railway.com/railway.schema.json",
   "build": {
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "bundle exec rails db:migrate && bundle exec puma -C config/puma.rb",
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 10
+    "startCommand": "bin/rails server -b :: -p ${PORT:-3000}",
+    "preDeployCommand": "bundle exec rails db:prepare"
   }
 }
 ```
+
+- `preDeployCommand`: デプロイ毎にマイグレーション自動実行（`db:prepare` = DB未作成なら作成 + migrate）
+- `-b ::`: 全インターフェースにバインド（Railway必須）
+- `${PORT:-3000}`: Railwayが`PORT`環境変数を自動注入
+
+### 4.5 初回デプロイ後のセットアップ
+
+Railway Shell で以下を実行:
+```bash
+bundle exec rails db:seed RAILS_ENV=production
+```
+※ seeds.rb で管理者ユーザー（admin@example.com）が作成される
 
 ---
 
@@ -487,6 +539,16 @@ find "$BACKUP_DIR" -name "riglab_*.sql.gz" -mtime +$RETENTION_DAYS -delete
 echo "[$DATE] Backup completed successfully"
 ```
 
+#### 本番環境バックアップ（PostgreSQL — Render）
+
+```bash
+# Render PostgreSQL のバックアップ
+pg_dump "$DATABASE_URL" > backup_$(date +%Y%m%d_%H%M%S).sql
+
+# 圧縮付き
+pg_dump "$DATABASE_URL" | gzip > backup_$(date +%Y%m%d_%H%M%S).sql.gz
+```
+
 ### 9.2 バックアップからの復元
 
 ```bash
@@ -498,6 +560,16 @@ gunzip < backup_20250101_030000.sql.gz | mysql -h <DB_HOST> -u <DB_USER> -p<DB_P
 
 # Docker環境での復元
 docker compose exec -T db mysql -u root -pmysql app_development < backup_20250101_030000.sql
+```
+
+#### PostgreSQL からの復元
+
+```bash
+# SQLファイルからの復元
+psql "$DATABASE_URL" < backup_20250101_030000.sql
+
+# gzip圧縮ファイルからの復元
+gunzip < backup_20250101_030000.sql.gz | psql "$DATABASE_URL"
 ```
 
 > **注意:** 復元前に必ず現在のデータをバックアップしてください。復元は既存データを上書きします。
@@ -527,9 +599,11 @@ docker compose exec -T db mysql -u root -pmysql app_development < backup_2025010
 | `NEXT_PUBLIC_API_URL` | Yes | クライアント側APIエンドポイント | `https://api.riglab.app/api/v1` |
 | `NEXT_PUBLIC_APP_URL` | Yes | アプリケーションURL（OGP等） | `https://riglab.app` |
 | `NEXTAUTH_URL` | Yes | NextAuth認証コールバックURL | `https://riglab.app` |
-| `NEXTAUTH_SECRET` | Yes | セッション暗号化キー | `openssl rand -base64 32` で生成 |
+| `AUTH_SECRET` | Yes | Auth.js v5 セッション暗号化キー | `openssl rand -base64 33` で生成 |
 | `INTERNAL_API_URL` | No | サーバーサイドAPI通信用（Docker内部通信等） | `http://back:3000/api/v1` |
-| `SENTRY_DSN` | No | Sentryエラートラッキング | `https://xxx@sentry.io/xxx` |
+| `NEXT_PUBLIC_SENTRY_DSN` | No | Sentryエラートラッキング | `https://xxx@sentry.io/xxx` |
+
+> **Note:** `AUTH_SECRET` は Auth.js v5 の正式変数名です。後方互換のため `NEXTAUTH_SECRET` もフォールバックとして動作します。
 
 ### 10.2 バックエンド（Rails）
 
@@ -538,12 +612,15 @@ docker compose exec -T db mysql -u root -pmysql app_development < backup_2025010
 | `RAILS_ENV` | Yes | Rails実行環境 | `production` |
 | `RACK_ENV` | Yes | Rack実行環境 | `production` |
 | `RAILS_MASTER_KEY` | Yes | credentials.yml.enc復号キー | master.keyの内容 |
-| `DATABASE_URL` | Yes | DB接続文字列 | `mysql2://user:pass@host/db` |
+| `DATABASE_URL` | Yes | DB接続文字列 | `postgresql://user:pass@host/db` |
 | `RAILS_SERVE_STATIC_FILES` | No | 静的ファイル配信有効化 | `true` |
 | `RAILS_LOG_TO_STDOUT` | No | 標準出力へのログ出力 | `true` |
 | `NEXTAUTH_SECRET` | Yes | JWT検証用（フロントエンドと同一値） | フロントエンドと同じ値 |
 | `CORS_ORIGINS` | No | CORS許可ドメイン（カンマ区切り） | `https://riglab.app,https://www.riglab.app` |
 | `SENTRY_DSN` | No | Sentryエラートラッキング | `https://xxx@sentry.io/xxx` |
+| `RAKUTEN_APPLICATION_ID` | Yes | 楽天API アプリケーションID | `xxxxxxxxxx` |
+| `RAKUTEN_ACCESS_KEY` | Yes | 楽天API アクセスキー | `xxxxxxxxxx` |
+| `RAKUTEN_ALLOWED_WEBSITE` | No | 楽天API許可ドメイン | デフォルト: `https://rig-lab.vercel.app` |
 | `RAILS_MAX_THREADS` | No | Pumaスレッド数 | `5` |
 | `WEB_CONCURRENCY` | No | Pumaワーカー数 | `2` |
 
@@ -555,3 +632,5 @@ docker compose exec -T db mysql -u root -pmysql app_development < backup_2025010
 |------|------|
 | 2025-01-12 | 初版作成 |
 | 2026-02-07 | Next.js対応に修正、環境変数一覧追加、チェックリスト拡充、バックアップ戦略追加 |
+| 2026-02-12 | Railway正式採用、railway.json追加、Auth.js v5対応(AUTH_SECRET)、楽天API環境変数追記 |
+| 2026-02-12 | Railway→Render正式移行、ハイブリッドDB構成（dev MySQL / prod PostgreSQL）、render.yaml・render-build.sh追加、Sidekiq制限注記、PostgreSQLバックアップ手順追記 |

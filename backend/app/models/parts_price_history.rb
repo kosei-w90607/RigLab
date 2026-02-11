@@ -12,6 +12,6 @@ class PartsPriceHistory < ApplicationRecord
   scope :recent, ->(days = 30) { where("fetched_at >= ?", days.days.ago) }
   scope :by_source, ->(source) { where(source: source) }
   scope :latest_per_day, -> {
-    where(id: select("MAX(id)").group("DATE(fetched_at)"))
+    where(id: select("MAX(id)").group("CAST(fetched_at AS DATE)"))
   }
 end

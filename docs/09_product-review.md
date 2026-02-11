@@ -301,7 +301,7 @@
    - 質問: この構成で問題ないか？v5移行の優先度は？
 
 2. **デプロイ先**
-   - 想定: Vercel (Frontend) + Render/Railway (Backend)?
+   - 確定: Vercel (Frontend) + Render (Backend) + Render PostgreSQL (DB)
    - 質問: インフラ構成は確定しているか？
 
 3. **DB運用**

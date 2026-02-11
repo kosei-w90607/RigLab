@@ -329,6 +329,8 @@ docker compose exec back rails db:create db:migrate db:seed
 | フロント依存追加 | `docker compose exec front npm install <pkg>` |
 | 全てリセット | `docker compose down -v && docker compose up -d` |
 
+> **本番環境について**: ローカル開発環境は MySQL を使用しますが、本番環境（Render）では PostgreSQL を使用するハイブリッド構成です。raw SQL を書く場合は MySQL / PostgreSQL 両方で動作するよう注意してください。詳細は `docs/08_deploy-guide.md` を参照。
+
 ---
 
 ## 8. 改訂履歴
@@ -340,3 +342,4 @@ docker compose exec back rails db:create db:migrate db:seed
 | 2025-01-15 | ポート番号を標準化（front:3000, back:3001, db:3306） |
 | 2026-01-31 | Docker seedコマンドにbundle execを追記、コマンド一覧にseed追加 |
 | 2026-02-03 | セクション「4.4 E2Eテスト（Playwright）の実行」追加 |
+| 2026-02-12 | 本番環境PostgreSQL（ハイブリッドDB構成）の注記追加 |

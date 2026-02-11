@@ -209,7 +209,7 @@ PC初心者から自作経験者まで、誰でも簡単にPC構成を作成・�
 ### 4.1 技術制約
 - フロントエンド: Next.js 15 (App Router) + Tailwind CSS
 - バックエンド: Rails 7.1 API
-- データベース: MySQL 8.0
+- データベース: MySQL 8.0 (開発) / PostgreSQL 15 (本番)
 - 認証: NextAuth.js (Auth.js)
 - **セキュリティ**: Next.js 15.2.3以上必須（CVE-2025-29927対策）
 
