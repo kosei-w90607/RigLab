@@ -6,7 +6,7 @@
 
 | 項目 | 値 |
 |------|-----|
-| DBMS | MySQL 8.0 |
+| DBMS | MySQL 8.0 (dev) / PostgreSQL 15 (prod) |
 | 文字コード | utf8mb4 |
 | 照合順序 | utf8mb4_unicode_ci |
 

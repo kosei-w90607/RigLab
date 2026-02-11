@@ -52,7 +52,7 @@ PC初心者から自作経験者まで、誰でも簡単にPC構成を作成・�
 |----|------|
 | Frontend | Next.js 15 (App Router) + Tailwind CSS |
 | Backend | Rails 7.1 API |
-| Database | MySQL 8.0 |
+| Database | MySQL 8.0 (dev) / PostgreSQL 15 (prod) |
 | Auth | NextAuth.js (Auth.js) |
 | OG画像生成 | next/og (ImageResponse) |
 

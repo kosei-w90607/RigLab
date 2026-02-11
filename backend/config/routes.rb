@@ -50,6 +50,11 @@ Rails.application.routes.draw do
       get 'price_trends/categories', to: 'price_trends#categories'
       get 'price_trends/categories/:category', to: 'price_trends#category_detail'
 
+      # Cron API (GitHub Actions からの定期実行用)
+      namespace :cron do
+        post 'price_fetch', to: 'price_fetch#create'
+      end
+
       # Admin API
       namespace :admin do
         resources :parts, only: %i[create update destroy] do
