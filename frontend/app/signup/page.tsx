@@ -94,8 +94,15 @@ export default function SignUpPage() {
       })
 
       if (result?.error) {
-        // 登録は成功したがログインに失敗した場合（callbackUrlも引き継ぐ）
-        router.push(`/signin?registered=true&callbackUrl=${encodeURIComponent(callbackUrl)}`)
+        const code = result.code
+        if (code === 'rate_limited') {
+          setGeneralError('ログイン試行回数の上限です。しばらくしてからお試しください。')
+        } else if (code === 'server_error') {
+          setGeneralError('サーバーに接続できません。しばらくしてからお試しください。')
+        } else {
+          // 登録は成功したがログインに失敗した場合（callbackUrlも引き継ぐ）
+          router.push(`/signin?registered=true&callbackUrl=${encodeURIComponent(callbackUrl)}`)
+        }
       } else {
         router.push(callbackUrl)
         router.refresh()

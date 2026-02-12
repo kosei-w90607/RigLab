@@ -1,10 +1,18 @@
-import NextAuth from 'next-auth'
+import NextAuth, { CredentialsSignin } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import * as jose from 'jose'
 
 // サーバーサイド用（Docker内部通信）
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL || 'http://localhost:3001/api/v1'
 const AUTH_SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'development-secret-key-for-riglab'
+
+class RateLimitedError extends CredentialsSignin {
+  code = 'rate_limited'
+}
+
+class ServerError extends CredentialsSignin {
+  code = 'server_error'
+}
 
 // Generate HS256 JWT for Rails backend compatibility
 async function generateAccessToken(payload: {
@@ -35,8 +43,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
+        let response: Response
         try {
-          const response = await fetch(`${INTERNAL_API_URL}/auth/login`, {
+          response = await fetch(`${INTERNAL_API_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -46,22 +55,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               },
             }),
           })
+        } catch (error) {
+          console.error('[authorize] fetch failed:', error)
+          throw new ServerError()
+        }
 
-          if (!response.ok) {
-            return null
-          }
+        if (response.status === 429) {
+          console.error('[authorize] rate limited by backend')
+          throw new RateLimitedError()
+        }
 
-          const data = await response.json()
-
-          // Return user object that will be available in JWT callback
-          return {
-            id: data.id,
-            name: data.name,
-            email: data.email,
-            role: data.role,
-          }
-        } catch {
+        if (!response.ok) {
           return null
+        }
+
+        const data = await response.json()
+
+        return {
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          role: data.role,
         }
       },
     }),

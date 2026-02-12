@@ -31,7 +31,14 @@ export default function SignInPage() {
       })
 
       if (result?.error) {
-        setError('メールアドレスまたはパスワードが正しくありません')
+        const code = result.code
+        if (code === 'rate_limited') {
+          setError('ログイン試行回数の上限です。しばらくしてからお試しください。')
+        } else if (code === 'server_error') {
+          setError('サーバーに接続できません。しばらくしてからお試しください。')
+        } else {
+          setError('メールアドレスまたはパスワードが正しくありません')
+        }
       } else {
         router.push(callbackUrl)
         router.refresh()

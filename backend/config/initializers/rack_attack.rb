@@ -21,37 +21,12 @@ class Rack::Attack
     end
   end
 
-  ### Blocklist Login Attacks ###
-
-  # ログイン試行制限: 5回失敗で15分ロック（IP単位）
-  # メモリストアを使用（本番ではRedis推奨）
-  blocklist('fail2ban/login') do |req|
-    # ログインエンドポイントへのPOSTリクエストのみ対象
-    Rack::Attack::Fail2Ban.filter(
-      "login-#{req.ip}",
-      maxretry: 5,
-      findtime: 1.minute,
-      bantime: 15.minutes
-    ) do
-      req.path == '/api/v1/auth/login' && req.post?
-    end
-  end
-
   ### Custom Throttle Response ###
   self.throttled_responder = lambda do |_env|
     [
       429,
       { 'Content-Type' => 'application/json' },
       [{ error: 'リクエストが多すぎます。しばらくしてからお試しください。' }.to_json]
-    ]
-  end
-
-  ### Custom Blocklist Response ###
-  self.blocklisted_responder = lambda do |_env|
-    [
-      429,
-      { 'Content-Type' => 'application/json' },
-      [{ error: 'ログイン試行回数が上限に達しました。15分後にお試しください。' }.to_json]
     ]
   end
 end
