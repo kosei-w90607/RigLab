@@ -1,6 +1,8 @@
 Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
 
+  root "application#health_check"
+
   namespace :api do
     namespace :v1 do
       root "tops#index"
