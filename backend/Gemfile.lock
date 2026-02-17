@@ -86,7 +86,7 @@ GEM
       rouge (>= 1.0.0)
     bigdecimal (4.0.1)
     bindex (0.8.1)
-    binding_of_caller (1.0.1)
+    binding_of_caller (2.0.0)
       debug_inspector (>= 1.2.0)
     bootsnap (1.17.1)
       msgpack (~> 1.2)
@@ -385,7 +385,7 @@ PLATFORMS
 DEPENDENCIES
   bcrypt (~> 3.1.7)
   better_errors (~> 2.10.1)
-  binding_of_caller (~> 1.0.0)
+  binding_of_caller (~> 2.0.0)
   bootsnap (~> 1.17.0)
   brakeman (~> 6.1.0)
   bullet (~> 7.1.4)
