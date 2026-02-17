@@ -52,6 +52,35 @@ class User < ApplicationRecord
     update!(confirmed_at: Time.current)
   end
 
+  # Generate a password reset token
+  # Returns the raw token (to be sent via email)
+  # Stores SHA256 hash in DB (secure: DB leak doesn't expose token)
+  def generate_reset_password_token!
+    raw_token = SecureRandom.urlsafe_base64(32)
+    update!(
+      reset_password_token: Digest::SHA256.hexdigest(raw_token),
+      reset_password_sent_at: Time.current
+    )
+    raw_token
+  end
+
+  # Find user by raw reset token (within 2-hour expiry)
+  def self.find_by_reset_token(raw_token)
+    return nil if raw_token.blank?
+
+    hashed = Digest::SHA256.hexdigest(raw_token)
+    user = find_by(reset_password_token: hashed)
+    return nil unless user
+    return nil if user.reset_password_sent_at < 2.hours.ago
+
+    user
+  end
+
+  # Clear reset password token after successful reset
+  def clear_reset_password_token!
+    update!(reset_password_token: nil, reset_password_sent_at: nil)
+  end
+
   private
 
   def encrypt_password

@@ -21,6 +21,15 @@ class Rack::Attack
     end
   end
 
+  ### Password Reset Throttle ###
+
+  # パスワードリセット: 同一メール 3回/時間
+  throttle('password_reset/email', limit: 3, period: 1.hour) do |req|
+    if req.path == '/api/v1/auth/password/forgot' && req.post?
+      req.params['email'].to_s.downcase.gsub(/\s+/, "").presence
+    end
+  end
+
   ### Custom Throttle Response ###
   self.throttled_responder = lambda do |_env|
     [

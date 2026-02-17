@@ -89,6 +89,15 @@ export default function SignInPage() {
             disabled={isLoading}
           />
 
+          <div className="text-right">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-custom-blue hover:underline"
+            >
+              パスワードを忘れた方
+            </Link>
+          </div>
+
           <Button
             type="submit"
             variant="primary"
