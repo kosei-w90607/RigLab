@@ -8,7 +8,7 @@ class User < ApplicationRecord
                     format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, presence: true, inclusion: { in: ROLES }
   validates :password, length: { minimum: 8 },
-                       format: { with: /\A(?=.*[a-zA-Z])(?=.*[0-9])/,
+                       format: { with: /\A(?=.*[a-zA-Z])(?=.*[0-9]).*\z/,
                                  message: 'は英字と数字を両方含めてください' },
                        if: -> { password.present? }
 
