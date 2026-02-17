@@ -8,25 +8,20 @@
 
 ## 直近の作業サマリー（2026-02-18）
 
-### 完了: Phase 10-A-03/A-04 PasswordResetsController + User トークンメソッド
+### 完了: Phase 10-A-05/A-06/A-07 パスワードリセット フロントエンドページ
 
-- `PasswordResetsController` 新規作成（forgot / reset アクション）
-- ルート追加: `POST auth/password/forgot`, `POST auth/password/reset`
-- User モデルにトークン生成/検証/クリアメソッド追加
-- ApplicationMailer の `default from` を ENV 変数対応に改善
-- Request spec 13件追加（全 Green、既存テスト 270件も全パス）
+- `/forgot-password` ページ作成（メール入力 → 送信成功画面）
+- `/reset-password` ページ作成（トークン検証 → 新パスワード設定）
+- `/signin` に「パスワードを忘れた方」リンク追加
 
 ### 変更ファイル
-- `backend/app/controllers/api/v1/auth/password_resets_controller.rb` — 新規
-- `backend/config/routes.rb` — パスワードリセットルート追加
-- `backend/app/models/user.rb` — トークン生成/検証メソッド追加
-- `backend/app/mailers/application_mailer.rb` — from ENV 変数化
-- `backend/spec/requests/api/v1/auth/password_resets_spec.rb` — 新規
+- `frontend/app/forgot-password/page.tsx` — 新規
+- `frontend/app/reset-password/page.tsx` — 新規
+- `frontend/app/signin/page.tsx` — リンク追加
 
 ### 次回アクション
-1. **A-05: `/forgot-password` ページ作成** — フロントエンド
-2. **A-06: `/reset-password` ページ作成** — フロントエンド
-3. **GCP Console で OAuth クライアント作成**: Google ログイン用の `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` を取得
+1. **A-08: Rate limit 追加** — パスワードリセット用 Rack::Attack 設定
+2. **GCP Console で OAuth クライアント作成**: Google ログイン用
 
 ### 本番リリースチェックリスト
 
@@ -960,9 +955,9 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 - [x] A-02: `AuthMailer` 作成（パスワードリセットメール）
 - [x] A-03: `PasswordResetsController` 実装（forgot + reset）
 - [x] A-04: User モデルにトークン生成/検証メソッド追加
-- [ ] A-05: `/forgot-password` ページ作成
-- [ ] A-06: `/reset-password` ページ作成
-- [ ] A-07: `/signin` に「パスワードを忘れた方」リンク追加
+- [x] A-05: `/forgot-password` ページ作成
+- [x] A-06: `/reset-password` ページ作成
+- [x] A-07: `/signin` に「パスワードを忘れた方」リンク追加
 - [ ] A-08: Rate limit 追加（パスワードリセット用）
 
 ### 10-B: メール認証
@@ -1032,8 +1027,8 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
 | Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
 | Phase 9: 最終リリース準備 | 19 | 19 | 100% ✅ |
-| Phase 10: 認証機能拡張 | 25 | 4 | 16% |
-| **合計** | **239** | **218** | **91.2%** |
+| Phase 10: 認証機能拡張 | 25 | 7 | 28% |
+| **合計** | **239** | **221** | **92.5%** |
 
 > Phase 1〜9 全完了。Phase 10（認証機能拡張）の実装を開始。
 
