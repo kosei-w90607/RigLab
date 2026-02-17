@@ -4,7 +4,13 @@ import * as jose from 'jose'
 
 // サーバーサイド用（Docker内部通信）
 const INTERNAL_API_URL = process.env.INTERNAL_API_URL || 'http://localhost:3001/api/v1'
-const AUTH_SECRET = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'development-secret-key-for-riglab'
+const AUTH_SECRET = (() => {
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('AUTH_SECRET or NEXTAUTH_SECRET must be set in production')
+  }
+  return secret || 'development-secret-key-for-riglab'
+})()
 
 class RateLimitedError extends CredentialsSignin {
   code = 'rate_limited'
@@ -56,12 +62,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }),
           })
         } catch (error) {
-          console.error('[authorize] fetch failed:', error)
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('[authorize] fetch failed:', error)
+          }
           throw new ServerError()
         }
 
         if (response.status === 429) {
-          console.error('[authorize] rate limited by backend')
+          if (process.env.NODE_ENV !== 'production') {
+            console.error('[authorize] rate limited by backend')
+          }
           throw new RateLimitedError()
         }
 
@@ -116,7 +126,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 14 * 24 * 60 * 60, // 14 days
   },
   secret: AUTH_SECRET,
 })

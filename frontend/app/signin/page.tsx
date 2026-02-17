@@ -7,11 +7,12 @@ import Link from 'next/link'
 import { Card } from '@/app/components/ui/Card'
 import { Input } from '@/app/components/ui/Input'
 import { Button } from '@/app/components/ui/Button'
+import { sanitizeCallbackUrl } from '@/lib/url'
 
 export default function SignInPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+  const callbackUrl = sanitizeCallbackUrl(searchParams.get('callbackUrl'))
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

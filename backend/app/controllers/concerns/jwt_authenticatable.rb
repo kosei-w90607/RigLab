@@ -50,7 +50,7 @@ module JwtAuthenticatable
     return if performed?
     return if current_user&.admin?
 
-    render json: { error: 'Forbidden' }, status: :forbidden
+    render json: { error: { code: 'FORBIDDEN', message: '管理者権限が必要です' } }, status: :forbidden
   end
 
   # AuthorizationヘッダーからBearerトークンを抽出
@@ -82,6 +82,10 @@ module JwtAuthenticatable
 
   # JWT署名用シークレット（フロントエンドのNEXTAUTH_SECRETと同じ値）
   def jwt_secret
-    ENV.fetch('NEXTAUTH_SECRET', 'development-secret-key-for-riglab')
+    if Rails.env.production?
+      ENV.fetch('NEXTAUTH_SECRET') { raise 'NEXTAUTH_SECRET must be set in production' }
+    else
+      ENV.fetch('NEXTAUTH_SECRET', 'development-secret-key-for-riglab')
+    end
   end
 end

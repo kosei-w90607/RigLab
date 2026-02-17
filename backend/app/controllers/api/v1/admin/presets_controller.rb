@@ -4,7 +4,6 @@ module Api
   module V1
     module Admin
       class PresetsController < ApplicationController
-        before_action :authenticate_user!
         before_action :require_admin!
         before_action :set_preset, only: %i[show update destroy]
 
@@ -38,12 +37,6 @@ module Api
         end
 
         private
-
-        def require_admin!
-          return if current_user.admin?
-
-          render json: { error: { code: 'FORBIDDEN', message: '管理者権限が必要です' } }, status: :forbidden
-        end
 
         def set_preset
           @preset = PcEntrustSet.find(params[:id])

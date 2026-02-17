@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
   // Strict Mode for development
   reactStrictMode: true,
 
-  // Security headers
+  // Security headers (CSP is handled by middleware for nonce support)
   async headers() {
     return [
       {
@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'geolocation=(), microphone=(), camera=()' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
         ],
       },
     ]
@@ -39,10 +43,8 @@ const nextConfig: NextConfig = {
   // Image optimization settings
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
+      { protocol: 'https', hostname: 'thumbnail.image.rakuten.co.jp' },
+      { protocol: 'https', hostname: 'image.rakuten.co.jp' },
     ],
   },
 

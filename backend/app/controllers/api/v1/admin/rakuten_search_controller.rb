@@ -4,7 +4,6 @@ module Api
   module V1
     module Admin
       class RakutenSearchController < ApplicationController
-        before_action :authenticate_user!
         before_action :require_admin!
 
         def index
@@ -34,11 +33,7 @@ module Api
 
         private
 
-        def require_admin!
-          return if current_user.admin?
 
-          render json: { error: { code: 'FORBIDDEN', message: '管理者権限が必要です' } }, status: :forbidden
-        end
       end
     end
   end
