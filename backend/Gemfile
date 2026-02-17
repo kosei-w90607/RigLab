@@ -81,7 +81,7 @@ group :development, :test do
   gem 'rspec-rails', '~> 6.1.0'
   gem 'rubocop', '~> 1.58.0'
   gem 'rubocop-rails', '~> 2.22.2'
-  gem 'rubocop-rspec', '~> 2.25.0', require: false
+  gem 'rubocop-rspec', '~> 3.0.0', require: false
   gem 'shoulda-matchers', '~> 5.3.0', require: false
   gem 'simplecov', '~> 0.22.0', require: false
   gem 'timecop', '~> 0.9.8', require: false
