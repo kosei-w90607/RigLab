@@ -49,14 +49,14 @@ gem 'sentry-rails'
 
 # I18n
 gem 'rails-i18n', '~> 7.0.8'
-gem 'carrierwave-i18n', '~> 3.0.0'
+gem 'carrierwave-i18n', '~> 3.1.0'
 
 # JWT for NextAuth.js integration
 gem 'jwt', '~> 2.8'
 gem 'bcrypt', '~> 3.1.7'
 
 # configration
-gem 'config', '~> 5.1.0'
+gem 'config', '~> 5.6.1'
 
 # enum plugin
 gem 'enumerize', '~> 2.7.0'
