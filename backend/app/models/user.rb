@@ -1,5 +1,6 @@
 class User < ApplicationRecord
   has_many :pc_custom_sets, dependent: :destroy
+  has_many :social_accounts, dependent: :destroy
 
   ROLES = %w[user admin].freeze
 
@@ -79,6 +80,35 @@ class User < ApplicationRecord
   # Clear reset password token after successful reset
   def clear_reset_password_token!
     update!(reset_password_token: nil, reset_password_sent_at: nil)
+  end
+
+  # Generate an email confirmation token
+  # Returns the raw token (to be sent via email)
+  # Stores SHA256 hash in DB (same pattern as password reset)
+  def generate_confirmation_token!
+    raw_token = SecureRandom.urlsafe_base64(32)
+    update!(
+      confirmation_token: Digest::SHA256.hexdigest(raw_token),
+      confirmation_sent_at: Time.current
+    )
+    raw_token
+  end
+
+  # Find user by raw confirmation token (within 24-hour expiry)
+  def self.find_by_confirmation_token(raw_token)
+    return nil if raw_token.blank?
+
+    hashed = Digest::SHA256.hexdigest(raw_token)
+    user = find_by(confirmation_token: hashed)
+    return nil unless user
+    return nil if user.confirmation_sent_at < 24.hours.ago
+
+    user
+  end
+
+  # Clear confirmation token after successful verification
+  def clear_confirmation_token!
+    update!(confirmation_token: nil, confirmation_sent_at: nil)
   end
 
   private

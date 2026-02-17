@@ -157,5 +157,21 @@ RSpec.describe 'Api::V1::Auth::PasswordResets' do
         expect(response.parsed_body['errors']).to be_present
       end
     end
+
+    context 'when user is unconfirmed' do
+      before { user.update!(confirmed_at: nil) }
+
+      it 'パスワードリセット完了時に confirmed_at も設定される' do
+        post '/api/v1/auth/password/reset', params: {
+          token: raw_token,
+          password: 'newpass456',
+          password_confirmation: 'newpass456'
+        }
+
+        expect(response).to have_http_status(:ok)
+        user.reload
+        expect(user.confirmed_at).to be_present
+      end
+    end
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_07_171038) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_17_215220) do
   create_table "parts_cases", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name", null: false
     t.string "maker", null: false
@@ -231,6 +231,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_07_171038) do
     t.index ["token"], name: "index_share_tokens_on_token", unique: true
   end
 
+  create_table "social_accounts", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "provider", null: false
+    t.string "uid", null: false
+    t.string "email"
+    t.string "name"
+    t.string "avatar_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "uid"], name: "index_social_accounts_on_provider_and_uid", unique: true
+    t.index ["user_id", "provider"], name: "index_social_accounts_on_user_id_and_provider", unique: true
+    t.index ["user_id"], name: "index_social_accounts_on_user_id"
+  end
+
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "provider", default: "email", null: false, comment: "認証プロバイダー"
     t.string "uid", default: "", null: false, comment: "ユーザーの一意な識別子"
@@ -277,4 +291,5 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_07_171038) do
   add_foreign_key "pc_entrust_sets", "parts_storages", column: "storage1_id", on_delete: :nullify
   add_foreign_key "pc_entrust_sets", "parts_storages", column: "storage2_id", on_delete: :nullify
   add_foreign_key "pc_entrust_sets", "parts_storages", column: "storage3_id", on_delete: :nullify
+  add_foreign_key "social_accounts", "users"
 end
