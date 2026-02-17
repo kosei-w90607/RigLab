@@ -9,18 +9,30 @@ module Api
         # POST /api/v1/auth/login
         # ユーザー認証してNextAuth.js用のユーザー情報を返す
         def create
-          user = User.authenticate(login_params[:email], login_params[:password])
+          user = User.find_by(email: login_params[:email]&.downcase)
 
-          if user
-            render json: {
-              id: user.id.to_s,
-              email: user.email,
-              name: user.name,
-              role: user.role
-            }, status: :ok
-          else
-            render json: { error: 'Invalid email or password' }, status: :unauthorized
+          unless user
+            return render json: { error: 'Invalid email or password' }, status: :unauthorized
           end
+
+          unless user.confirmed?
+            return render json: { error: 'email_not_confirmed' }, status: :forbidden
+          end
+
+          if user.encrypted_password.blank?
+            return render json: { error: 'password_not_set' }, status: :forbidden
+          end
+
+          unless user.authenticate_password(login_params[:password])
+            return render json: { error: 'Invalid email or password' }, status: :unauthorized
+          end
+
+          render json: {
+            id: user.id.to_s,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          }, status: :ok
         end
 
         # GET /api/v1/auth/me

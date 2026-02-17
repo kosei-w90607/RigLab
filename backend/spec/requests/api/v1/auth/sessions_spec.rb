@@ -24,6 +24,36 @@ RSpec.describe 'Api::V1::Auth::Sessions' do
         expect(response).to have_http_status(:unauthorized)
       end
     end
+
+    context 'when user is unconfirmed' do
+      let!(:unconfirmed_user) { create(:user, email: 'unconfirmed@example.com', password: 'password123', confirmed_at: nil) }
+
+      it 'returns 403 with email_not_confirmed error' do
+        post '/api/v1/auth/login', params: { user: { email: 'unconfirmed@example.com', password: 'password123' } }
+
+        expect(response).to have_http_status(:forbidden)
+        expect(response.parsed_body['error']).to eq('email_not_confirmed')
+      end
+    end
+
+    context 'when user has no password (Google-only user)' do
+      let!(:google_user) { create(:user, email: 'google@example.com', password: nil, encrypted_password: '', provider: 'google') }
+
+      it 'returns 403 with password_not_set error' do
+        post '/api/v1/auth/login', params: { user: { email: 'google@example.com', password: 'anything' } }
+
+        expect(response).to have_http_status(:forbidden)
+        expect(response.parsed_body['error']).to eq('password_not_set')
+      end
+    end
+
+    context 'when email does not exist' do
+      it 'returns unauthorized' do
+        post '/api/v1/auth/login', params: { user: { email: 'nonexistent@example.com', password: 'password123' } }
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
   end
 
   describe 'GET /api/v1/auth/me' do

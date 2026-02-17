@@ -10,15 +10,17 @@ module Api
         # 新規ユーザーアカウント作成
         def create
           user = User.new(registration_params)
-          user.role = 'user' # デフォルトロールを強制
-          user.confirmed_at = Time.current # 自動確認（TODO: メール認証）
+          user.role = 'user'
 
           if user.save
+            raw_token = user.generate_confirmation_token!
+            AuthMailer.email_confirmation(user, raw_token).deliver_later
             render json: {
               id: user.id.to_s,
               email: user.email,
               name: user.name,
-              role: user.role
+              role: user.role,
+              message: '確認メールを送信しました'
             }, status: :created
           else
             render json: { errors: user.errors.full_messages }, status: :unprocessable_entity

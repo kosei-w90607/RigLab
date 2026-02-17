@@ -15,6 +15,13 @@ Rails.application.routes.draw do
         # パスワードリセット
         post 'password/forgot', to: 'password_resets#forgot'
         post 'password/reset', to: 'password_resets#reset'
+
+        # メール認証
+        post 'email/verify', to: 'email_confirmations#verify'
+        post 'email/resend', to: 'email_confirmations#resend'
+
+        # OAuth コールバック
+        post 'oauth', to: 'oauth_callbacks#create'
       end
 
       get 'dashboard', to: 'dashboard#index'

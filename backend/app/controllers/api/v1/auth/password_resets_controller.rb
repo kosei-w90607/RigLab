@@ -31,6 +31,7 @@ module Api
           user.password = params[:password]
           if user.save
             user.clear_reset_password_token!
+            user.confirm! unless user.confirmed?
             render json: { message: 'パスワードを再設定しました' }
           else
             render json: { errors: user.errors.full_messages }, status: :unprocessable_entity

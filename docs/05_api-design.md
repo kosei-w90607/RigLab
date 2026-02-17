@@ -1146,10 +1146,41 @@ GET /api/v1/buy_timing
 | GET | /api/v1/price_trends/:category | - | カテゴリ別価格動向 |
 | GET | /api/v1/price_trends/:category/:part_id | - | パーツ別価格動向 |
 | GET | /api/v1/buy_timing | - | 買い時判定 |
+| POST | /api/v1/auth/password/forgot | - | パスワードリセットメール送信 |
+| POST | /api/v1/auth/password/reset | - | パスワード再設定 |
+| POST | /api/v1/auth/email/verify | - | メール認証完了 |
+| POST | /api/v1/auth/email/resend | - | 認証メール再送 |
+| POST | /api/v1/auth/oauth | Internal | OAuth ユーザー作成/取得 |
 
 ---
 
-## 11. 改訂履歴
+## 11. 認証機能拡張 API（Phase 10）
+
+> 詳細仕様: `docs/13_auth-enhancement-spec.md`
+
+### 11.1 パスワードリセット
+
+| Method | Path | 認証 | 説明 |
+|--------|------|------|------|
+| POST | `/api/v1/auth/password/forgot` | - | リセットメール送信（常に200を返す） |
+| POST | `/api/v1/auth/password/reset` | - | パスワード再設定（トークン検証） |
+
+### 11.2 メール認証
+
+| Method | Path | 認証 | 説明 |
+|--------|------|------|------|
+| POST | `/api/v1/auth/email/verify` | - | メール認証完了（トークン検証） |
+| POST | `/api/v1/auth/email/resend` | - | 認証メール再送（常に200を返す） |
+
+### 11.3 OAuth コールバック
+
+| Method | Path | 認証 | 説明 |
+|--------|------|------|------|
+| POST | `/api/v1/auth/oauth` | X-Internal-Secret | OAuth ユーザー作成/取得（サーバー間通信） |
+
+---
+
+## 12. 改訂履歴
 
 | 日付 | 内容 |
 |------|------|
@@ -1159,3 +1190,4 @@ GET /api/v1/buy_timing
 | 2026-02-01 | 共有トークンAPI追加（セクション8）- 未保存構成の共有機能を統一 |
 | 2026-02-01 | Phase 6 完了に伴うAPI設計書の実装との同期: (1) パーツ一覧に互換性フィルタパラメータ追加（cpu_socket, memory_type, form_factor, min_gpu_length）、(2) パーツ推奨API追加（GET /api/v1/parts/recommendations）、(3) 管理者ユーザーAPI追加（GET/PATCH /api/v1/admin/users）、(4) プリセット一覧のレスポンス形式をフラット形式に修正、(5) 認証APIエンドポイント名を実装に合わせて修正（/auth/register, /auth/login, /auth/me）、(6) エンドポイント一覧を統合・更新 |
 | 2026-02-09 | Phase 7〜8.5のAPI追加: 楽天商品検索API、ランキングAPI、価格動向API（一覧/カテゴリ別/パーツ別）、買い時判定API |
+| 2026-02-18 | Phase 10 認証機能拡張API追加: パスワードリセット（forgot/reset）、メール認証（verify/resend）、OAuthコールバック。詳細仕様は `docs/13_auth-enhancement-spec.md` を参照 |
