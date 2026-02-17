@@ -8,22 +8,24 @@
 
 ## 直近の作業サマリー（2026-02-18）
 
-### 完了: Phase 10-A-02 AuthMailer 作成（パスワードリセットメール）
+### 完了: Phase 10-A-03/A-04 PasswordResetsController + User トークンメソッド
 
-- `AuthMailer` クラス作成（`password_reset` メソッド）
-- HTML / TEXT テンプレート作成（リセットリンク、有効期限2時間、注意書き）
-- RSpec テスト 6件追加（送信先、件名、from、リセットリンク、有効期限、注意書き）
+- `PasswordResetsController` 新規作成（forgot / reset アクション）
+- ルート追加: `POST auth/password/forgot`, `POST auth/password/reset`
+- User モデルにトークン生成/検証/クリアメソッド追加
+- ApplicationMailer の `default from` を ENV 変数対応に改善
+- Request spec 13件追加（全 Green、既存テスト 270件も全パス）
 
 ### 変更ファイル
-- `backend/app/mailers/auth_mailer.rb` — AuthMailer 新規作成
-- `backend/app/views/auth_mailer/password_reset.html.erb` — HTML テンプレート（新規）
-- `backend/app/views/auth_mailer/password_reset.text.erb` — TEXT テンプレート（新規）
-- `backend/spec/mailers/auth_mailer_spec.rb` — AuthMailer テスト（新規）
-- `Plans.md` — A-02 完了、進捗サマリー更新
+- `backend/app/controllers/api/v1/auth/password_resets_controller.rb` — 新規
+- `backend/config/routes.rb` — パスワードリセットルート追加
+- `backend/app/models/user.rb` — トークン生成/検証メソッド追加
+- `backend/app/mailers/application_mailer.rb` — from ENV 変数化
+- `backend/spec/requests/api/v1/auth/password_resets_spec.rb` — 新規
 
 ### 次回アクション
-1. **A-03: PasswordResetsController 実装** — forgot + reset エンドポイント
-2. **A-04: User モデルにトークン生成/検証メソッド追加**
+1. **A-05: `/forgot-password` ページ作成** — フロントエンド
+2. **A-06: `/reset-password` ページ作成** — フロントエンド
 3. **GCP Console で OAuth クライアント作成**: Google ログイン用の `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` を取得
 
 ### 本番リリースチェックリスト
@@ -956,8 +958,8 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 
 - [x] A-01: Resend gem 追加 + ActionMailer 設定
 - [x] A-02: `AuthMailer` 作成（パスワードリセットメール）
-- [ ] A-03: `PasswordResetsController` 実装（forgot + reset）
-- [ ] A-04: User モデルにトークン生成/検証メソッド追加
+- [x] A-03: `PasswordResetsController` 実装（forgot + reset）
+- [x] A-04: User モデルにトークン生成/検証メソッド追加
 - [ ] A-05: `/forgot-password` ページ作成
 - [ ] A-06: `/reset-password` ページ作成
 - [ ] A-07: `/signin` に「パスワードを忘れた方」リンク追加
@@ -1030,8 +1032,8 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
 | Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
 | Phase 9: 最終リリース準備 | 19 | 19 | 100% ✅ |
-| Phase 10: 認証機能拡張 | 25 | 2 | 8% |
-| **合計** | **239** | **216** | **90.4%** |
+| Phase 10: 認証機能拡張 | 25 | 4 | 16% |
+| **合計** | **239** | **218** | **91.2%** |
 
 > Phase 1〜9 全完了。Phase 10（認証機能拡張）の実装を開始。
 
