@@ -169,7 +169,7 @@ RSpec.describe JwtAuthenticatable, type: :controller do
 
         expect(response).to have_http_status(:forbidden)
         json = JSON.parse(response.body)
-        expect(json['error']).to eq('Forbidden')
+        expect(json['error']['code']).to eq('FORBIDDEN')
       end
     end
 
