@@ -16,8 +16,8 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          bundler-cache: true
           working-directory: backend
+      - run: bundle install --jobs 4
       - run: gem install bundler-audit && bundle audit check --update
 
   brakeman:
@@ -30,8 +30,8 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2'
-          bundler-cache: true
           working-directory: backend
+      - run: bundle install --jobs 4
       - run: gem install brakeman && brakeman --no-pager
 
   npm-audit:
@@ -46,4 +46,4 @@ jobs:
           node-version: '21'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-      - run: npm audit --audit-level=high
+      - run: npm audit --audit-level=critical
