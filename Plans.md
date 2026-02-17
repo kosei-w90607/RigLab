@@ -8,20 +8,18 @@
 
 ## 直近の作業サマリー（2026-02-18）
 
-### 完了: Phase 10-A-05/A-06/A-07 パスワードリセット フロントエンドページ
+### 完了: Phase 10-A 全完了（パスワードリセット機能）
 
-- `/forgot-password` ページ作成（メール入力 → 送信成功画面）
-- `/reset-password` ページ作成（トークン検証 → 新パスワード設定）
-- `/signin` に「パスワードを忘れた方」リンク追加
+- A-08: Rack::Attack にパスワードリセット用レート制限追加（同一メール3回/時間）
+- **Phase 10-A 全 8タスク完了** — PR 作成可能
 
 ### 変更ファイル
-- `frontend/app/forgot-password/page.tsx` — 新規
-- `frontend/app/reset-password/page.tsx` — 新規
-- `frontend/app/signin/page.tsx` — リンク追加
+- `backend/config/initializers/rack_attack.rb` — throttle ルール追加
+- `backend/spec/initializers/rack_attack_spec.rb` — 新規
 
 ### 次回アクション
-1. **A-08: Rate limit 追加** — パスワードリセット用 Rack::Attack 設定
-2. **GCP Console で OAuth クライアント作成**: Google ログイン用
+1. **Phase 10-A の PR 作成** → main にマージ
+2. **Phase 10-B: メール認証** の実装開始
 
 ### 本番リリースチェックリスト
 
@@ -958,7 +956,7 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 - [x] A-05: `/forgot-password` ページ作成
 - [x] A-06: `/reset-password` ページ作成
 - [x] A-07: `/signin` に「パスワードを忘れた方」リンク追加
-- [ ] A-08: Rate limit 追加（パスワードリセット用）
+- [x] A-08: Rate limit 追加（パスワードリセット用）
 
 ### 10-B: メール認証
 
@@ -1027,8 +1025,8 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
 | Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
 | Phase 9: 最終リリース準備 | 19 | 19 | 100% ✅ |
-| Phase 10: 認証機能拡張 | 25 | 7 | 28% |
-| **合計** | **239** | **221** | **92.5%** |
+| Phase 10: 認証機能拡張 | 25 | 8 | 32% |
+| **合計** | **239** | **222** | **92.9%** |
 
 > Phase 1〜9 全完了。Phase 10（認証機能拡張）の実装を開始。
 
