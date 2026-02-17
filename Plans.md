@@ -8,26 +8,23 @@
 
 ## 直近の作業サマリー（2026-02-18）
 
-### 完了: Phase 10-A-01 Resend gem 追加 + ActionMailer 設定
+### 完了: Phase 10-A-02 AuthMailer 作成（パスワードリセットメール）
 
-- Resend gem を Gemfile に追加し `bundle install`
-- `config/initializers/resend.rb` で Resend API キー設定
-- `config/environments/production.rb` に Resend SMTP 配信設定追加
-- `application_mailer.rb` のデフォルト from を環境変数対応に変更
-- RSpec テスト追加（initializer + mailer）
+- `AuthMailer` クラス作成（`password_reset` メソッド）
+- HTML / TEXT テンプレート作成（リセットリンク、有効期限2時間、注意書き）
+- RSpec テスト 6件追加（送信先、件名、from、リセットリンク、有効期限、注意書き）
 
 ### 変更ファイル
-- `backend/Gemfile` / `backend/Gemfile.lock` — resend gem 追加
-- `backend/config/initializers/resend.rb` — Resend 初期化（新規）
-- `backend/config/environments/production.rb` — SMTP 配信設定追加
-- `backend/app/mailers/application_mailer.rb` — デフォルト from 環境変数化
-- `backend/spec/initializers/resend_spec.rb` — initializer テスト（新規）
-- `backend/spec/mailers/application_mailer_spec.rb` — mailer テスト（新規）
-- `Plans.md` — A-01 完了、進捗サマリー更新
+- `backend/app/mailers/auth_mailer.rb` — AuthMailer 新規作成
+- `backend/app/views/auth_mailer/password_reset.html.erb` — HTML テンプレート（新規）
+- `backend/app/views/auth_mailer/password_reset.text.erb` — TEXT テンプレート（新規）
+- `backend/spec/mailers/auth_mailer_spec.rb` — AuthMailer テスト（新規）
+- `Plans.md` — A-02 完了、進捗サマリー更新
 
 ### 次回アクション
-1. **A-02: AuthMailer 作成** — パスワードリセットメールのテンプレート実装
-2. **GCP Console で OAuth クライアント作成**: Google ログイン用の `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` を取得
+1. **A-03: PasswordResetsController 実装** — forgot + reset エンドポイント
+2. **A-04: User モデルにトークン生成/検証メソッド追加**
+3. **GCP Console で OAuth クライアント作成**: Google ログイン用の `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` を取得
 
 ### 本番リリースチェックリスト
 
@@ -958,7 +955,7 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 ### 10-A: メール基盤 + パスワードリセット
 
 - [x] A-01: Resend gem 追加 + ActionMailer 設定
-- [ ] A-02: `AuthMailer` 作成（パスワードリセットメール）
+- [x] A-02: `AuthMailer` 作成（パスワードリセットメール）
 - [ ] A-03: `PasswordResetsController` 実装（forgot + reset）
 - [ ] A-04: User モデルにトークン生成/検証メソッド追加
 - [ ] A-05: `/forgot-password` ページ作成
@@ -1033,8 +1030,8 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
 | Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
 | Phase 9: 最終リリース準備 | 19 | 19 | 100% ✅ |
-| Phase 10: 認証機能拡張 | 25 | 1 | 4% |
-| **合計** | **239** | **215** | **90.0%** |
+| Phase 10: 認証機能拡張 | 25 | 2 | 8% |
+| **合計** | **239** | **216** | **90.4%** |
 
 > Phase 1〜9 全完了。Phase 10（認証機能拡張）の実装を開始。
 
