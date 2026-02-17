@@ -11,7 +11,10 @@ import { Button } from '@/app/components/ui/Button'
 export default function SignUpPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+  const rawCallback = searchParams.get('callbackUrl') || '/dashboard'
+  const callbackUrl = rawCallback.startsWith('/') && !rawCallback.startsWith('//')
+    ? rawCallback
+    : '/dashboard'
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')

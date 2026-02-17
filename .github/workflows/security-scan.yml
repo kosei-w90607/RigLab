@@ -1,0 +1,49 @@
+name: Security Scan
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 0 * * 1' # 毎週月曜 UTC 0:00
+
+jobs:
+  ruby-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: backend
+      - run: gem install bundler-audit && bundle audit check --update
+
+  brakeman:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: backend
+      - run: gem install brakeman && brakeman --no-pager
+
+  npm-audit:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm audit --audit-level=high
