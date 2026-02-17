@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          ruby-version: '3.2.2'
           working-directory: backend
       - run: bundle install --jobs 4
       - run: gem install bundler-audit && bundle audit check --update
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          ruby-version: '3.2.2'
           working-directory: backend
       - run: bundle install --jobs 4
       - run: gem install brakeman && brakeman --no-pager
