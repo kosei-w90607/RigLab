@@ -116,6 +116,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
+    csv (3.3.5)
     database_cleaner-active_record (2.1.0)
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
@@ -179,6 +180,10 @@ GEM
     globalid (1.2.1)
       activesupport (>= 6.1)
     hashdiff (1.2.1)
+    httparty (0.24.2)
+      csv
+      mini_mime (>= 1.0.0)
+      multi_xml (>= 0.5.2)
     i18n (1.14.5)
       concurrent-ruby (~> 1.0)
     image_processing (1.13.0)
@@ -230,6 +235,8 @@ GEM
     mini_mime (1.1.5)
     minitest (5.25.1)
     msgpack (1.7.2)
+    multi_xml (0.8.1)
+      bigdecimal (>= 3.1, < 5)
     mutex_m (0.2.0)
     mysql2 (0.5.6)
     net-imap (0.4.16)
@@ -313,6 +320,8 @@ GEM
     regexp_parser (2.9.2)
     reline (0.5.9)
       io-console (~> 0.5)
+    resend (1.0.0)
+      httparty (>= 0.21.0)
     rexml (3.3.7)
     rouge (4.3.0)
     rspec-core (3.13.1)
@@ -438,6 +447,7 @@ DEPENDENCIES
   rails (~> 7.1.4)
   rails-controller-testing (~> 1.0.5)
   rails-i18n (~> 7.0.8)
+  resend
   rspec-rails (~> 6.1.0)
   rubocop (~> 1.58.0)
   rubocop-rails (~> 2.22.2)

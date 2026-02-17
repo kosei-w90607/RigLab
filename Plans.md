@@ -2,35 +2,32 @@
 
 ## 現在のフェーズ
 
-**Phase 9: 最終リリース準備 — プリセット充実・サイト説明・ダークモード・ドキュメント整備 ✅ 完了**
+**Phase 10: 認証機能拡張 — パスワードリセット・Google ログイン・メール認証**
 
 ---
 
-## 直近の作業サマリー（2026-02-12）
+## 直近の作業サマリー（2026-02-18）
 
-### 完了: admin メールアドレスも ENV 化
+### 完了: Phase 10-A-01 Resend gem 追加 + ActionMailer 設定
 
-| カテゴリ | 内容 |
-|----------|------|
-| **admin メール ENV 化** | `ENV.fetch('ADMIN_EMAIL', 'admin@example.com')` で ENV 管理に変更 |
-| **docs/08 更新** | 管理者セクションをメール + パスワード両方の記載に更新 |
-| **Plans.md 更新** | Step 4/8、Free tier 制約セクション、環境変数テーブルを更新 |
+- Resend gem を Gemfile に追加し `bundle install`
+- `config/initializers/resend.rb` で Resend API キー設定
+- `config/environments/production.rb` に Resend SMTP 配信設定追加
+- `application_mailer.rb` のデフォルト from を環境変数対応に変更
+- RSpec テスト追加（initializer + mailer）
 
 ### 変更ファイル
-- `backend/db/seeds.rb` — admin メールを `ENV.fetch('ADMIN_EMAIL', 'admin@example.com')` に変更
-- `docs/08_deploy-guide.md` — 管理者アカウント管理セクションにメール追記
-- `Plans.md` — 作業サマリー・Step 4/8・Free tier 制約セクション更新
+- `backend/Gemfile` / `backend/Gemfile.lock` — resend gem 追加
+- `backend/config/initializers/resend.rb` — Resend 初期化（新規）
+- `backend/config/environments/production.rb` — SMTP 配信設定追加
+- `backend/app/mailers/application_mailer.rb` — デフォルト from 環境変数化
+- `backend/spec/initializers/resend_spec.rb` — initializer テスト（新規）
+- `backend/spec/mailers/application_mailer_spec.rb` — mailer テスト（新規）
+- `Plans.md` — A-01 完了、進捗サマリー更新
 
-### 備考
-- admin 認証情報（メール + パスワード）は両方とも ENV で管理、SSOT は Render Dashboard
-- 有料プラン移行時の修正箇所は docs/08 Step 3.6.1 に記載（5点に増加）
-
-### 次回アクション（残り手動作業）
-1. **コミット & プッシュ**: 今回の変更を main にマージ → Render 自動デプロイで db:seed 実行
-2. ~~**Render 環境変数追加**: `ADMIN_PASSWORD` を追加~~ ✅ 完了
-   - **追加**: Render Dashboard → Environment に `ADMIN_EMAIL` を追加（本番用メールアドレス）
-3. ~~**GitHub Secrets 設定**: `RENDER_API_URL` + `CRON_SECRET`~~ ✅ 完了
-4. **動作確認**: Step 9 のチェックリストを順次消化
+### 次回アクション
+1. **A-02: AuthMailer 作成** — パスワードリセットメールのテンプレート実装
+2. **GCP Console で OAuth クライアント作成**: Google ログイン用の `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` を取得
 
 ### 本番リリースチェックリスト
 
@@ -44,7 +41,7 @@
 - [x] **Sentry（ローカル）**: DSN取得→ローカル環境変数設定 完了（docs/12 §5-1〜5-2完了、§5-3はデプロイ時）
 - [x] **.env整理**: frontend/.env→.env.local移行、.env.example追加
 
-**インフラ構築（順序あり）:**
+## **インフラ構築（順序あり）:**
 
 ### Step 1: 認証シークレット生成
 - [x] 以下のいずれかで生成（Auth.js v5推奨: 32文字以上のランダム文字列）:
@@ -187,12 +184,12 @@
 
 ### Step 9: 動作確認
 - [x] TOPページ表示（`https://rig-lab.vercel.app`）
-- [ ] 認証: サインアップ → サインイン → ログアウト
-- [ ] おまかせ構成: builder → 予算・用途選択 → 結果表示 → 保存
-- [ ] カスタム構成: configurator → パーツ選択 → 互換性フィルタ動作 → 保存
-- [ ] 構成共有: 共有URL生成 → 別ブラウザでアクセス
-- [ ] 管理画面: /admin → パーツCRUD → プリセットCRUD
-- [ ] 価格分析: /price-trends → カテゴリ別表示 → 楽天API連携確認
+- [x] 認証: サインアップ → サインイン → ログアウト
+- [x] おまかせ構成: builder → 予算・用途選択 → 結果表示 → 保存
+- [x] カスタム構成: configurator → パーツ選択 → 互換性フィルタ動作 → 保存
+- [x] 構成共有: 共有URL生成 → 別ブラウザでアクセス
+- [x] 管理画面: /admin → パーツCRUD → プリセットCRUD
+- [x] 価格分析: /price-trends → カテゴリ別表示 → 楽天API連携確認
 - [ ] Sentryダッシュボードでテストエラーが捕捉されることを確認
 
 > **Sidekiq制限**: Render Free tier では Worker Service を実行できないため、価格取得バッチは GitHub Actions の定期実行で代替しています。`.github/workflows/price-fetch.yml` 参照。GitHub Secrets に `RENDER_API_URL` と `CRON_SECRET` の設定が必要です。
@@ -707,6 +704,17 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 - [x] J-09: カスタム構成フローE2Eテスト
 - [x] J-10: 構成保存・共有フローE2Eテスト
 
+#### 6-J-5: セキュリティ E2Eテスト
+
+- [x] SEC-TEST-01: CSP ヘッダーがレスポンスに含まれることを確認（Playwright e2e）
+  - `response.headers()['content-security-policy']` の存在と主要ディレクティブを検証
+  - 実装: `frontend/e2e/security.spec.ts`
+
+- [x] SEC-TEST-02: signin/signup で外部 URL の callbackUrl が無視されることを確認（Playwright e2e）
+  - `?callbackUrl=https://evil.com` → `/dashboard` にフォールバック
+  - `?callbackUrl=//evil.com` → `/dashboard` にフォールバック
+  - 実装: `frontend/e2e/security.spec.ts`
+
 #### 6-J-4: ドキュメント整備
 - [x] J-11: README.md 最終更新
 - [x] J-12: セットアップガイド最終確認
@@ -943,6 +951,49 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 
 ---
 
+## Phase 10: 認証機能拡張 — パスワードリセット・Google ログイン・メール認証
+
+> 仕様書: `docs/13_auth-enhancement-spec.md`
+
+### 10-A: メール基盤 + パスワードリセット
+
+- [x] A-01: Resend gem 追加 + ActionMailer 設定
+- [ ] A-02: `AuthMailer` 作成（パスワードリセットメール）
+- [ ] A-03: `PasswordResetsController` 実装（forgot + reset）
+- [ ] A-04: User モデルにトークン生成/検証メソッド追加
+- [ ] A-05: `/forgot-password` ページ作成
+- [ ] A-06: `/reset-password` ページ作成
+- [ ] A-07: `/signin` に「パスワードを忘れた方」リンク追加
+- [ ] A-08: Rate limit 追加（パスワードリセット用）
+
+### 10-B: メール認証
+
+- [ ] B-01: 登録フロー変更（auto-confirm 廃止 → 確認メール送信）
+- [ ] B-02: `AuthMailer` に確認メールテンプレート追加
+- [ ] B-03: `EmailConfirmationsController` 実装（verify + resend）
+- [ ] B-04: `/verify-email` ページ作成
+- [ ] B-05: `/signup` 成功画面を「確認メール送信済み」に変更
+- [ ] B-06: ログイン時の未認証チェック + 再送リンク
+
+### 10-C: Google ログイン + アカウントリンク
+
+- [ ] C-01: `social_accounts` テーブル作成（migration）
+- [ ] C-02: `SocialAccount` モデル作成
+- [ ] C-03: `OauthCallbacksController` 実装
+- [ ] C-04: NextAuth に Google Provider 追加
+- [ ] C-05: `signIn` / `jwt` callback 修正
+- [ ] C-06: `/signin`, `/signup` に Google ボタン追加
+- [ ] C-07: アカウントリンクロジック実装
+
+### 10-D: 統合テスト + 仕上げ
+
+- [ ] D-01: RSpec: 各 controller のテスト
+- [ ] D-02: E2E: 主要フローの動作確認
+- [ ] D-03: letter_opener_web でメール表示確認（dev）
+- [ ] D-04: 本番環境変数ドキュメント更新
+
+---
+
 ## TDD ワークフロー
 
 「go」と言うと、次の未完了タスクのテストを書き、実装します。
@@ -982,9 +1033,10 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
 | Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
 | Phase 9: 最終リリース準備 | 19 | 19 | 100% ✅ |
-| **合計** | **214** | **214** | **100%** 🎉 |
+| Phase 10: 認証機能拡張 | 25 | 1 | 4% |
+| **合計** | **239** | **215** | **90.0%** |
 
-> 全開発タスク100%完了。本番リリースチェックリスト（手動デプロイ作業）のみ残存。
+> Phase 1〜9 全完了。Phase 10（認証機能拡張）の実装を開始。
 
 ---
 
