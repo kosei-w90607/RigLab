@@ -11,6 +11,10 @@ Rails.application.routes.draw do
         post 'register', to: 'registrations#create'
         get 'me', to: 'sessions#me'
         delete 'sign_out', to: 'sessions#destroy'
+
+        # パスワードリセット
+        post 'password/forgot', to: 'password_resets#forgot'
+        post 'password/reset', to: 'password_resets#reset'
       end
 
       get 'dashboard', to: 'dashboard#index'
