@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 export default auth((req) => {
   const { pathname } = req.nextUrl
 
+  // Admin route protection
   if (pathname.startsWith('/admin')) {
     if (!req.auth) {
       return NextResponse.redirect(
@@ -14,8 +15,40 @@ export default auth((req) => {
       return NextResponse.redirect(new URL('/', req.url))
     }
   }
+
+  // Generate nonce for CSP
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+  const isDev = process.env.NODE_ENV === 'development'
+
+  const csp = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''}`,
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' https: data:",
+    "font-src 'self'",
+    "connect-src 'self' https://*.sentry.io",
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    ...(isDev ? [] : ['upgrade-insecure-requests']),
+  ].join('; ')
+
+  const requestHeaders = new Headers(req.headers)
+  requestHeaders.set('x-nonce', nonce)
+  requestHeaders.set('Content-Security-Policy', csp)
+
+  const response = NextResponse.next({
+    request: { headers: requestHeaders },
+  })
+  response.headers.set('x-nonce', nonce)
+  response.headers.set('Content-Security-Policy', csp)
+
+  return response
 })
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }
