@@ -16,13 +16,11 @@ export default auth((req) => {
     }
   }
 
-  // Generate nonce for CSP
-  const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
   const isDev = process.env.NODE_ENV === 'development'
 
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' https: data:",
     "font-src 'self'",
@@ -35,13 +33,11 @@ export default auth((req) => {
   ].join('; ')
 
   const requestHeaders = new Headers(req.headers)
-  requestHeaders.set('x-nonce', nonce)
   requestHeaders.set('Content-Security-Policy', csp)
 
   const response = NextResponse.next({
     request: { headers: requestHeaders },
   })
-  response.headers.set('x-nonce', nonce)
   response.headers.set('Content-Security-Policy', csp)
 
   return response
