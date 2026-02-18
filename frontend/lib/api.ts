@@ -97,11 +97,23 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     return undefined as T
   }
 
-  const json = await response.json()
-
   if (!response.ok) {
-    throw new ApiClientError(response.status, json.error)
+    let errorBody: { error?: ApiError } | null = null
+    try {
+      errorBody = await response.json()
+    } catch {
+      // JSON パース失敗（空ボディ等）
+    }
+    if (errorBody?.error) {
+      throw new ApiClientError(response.status, errorBody.error)
+    }
+    throw new ApiClientError(response.status, {
+      code: `HTTP_${response.status}`,
+      message: `サーバーエラー (${response.status})`,
+    })
   }
+
+  const json = await response.json()
 
   // APIレスポンスのキーを camelCase に変換
   return transformKeysToCamelCase<T>(json)
