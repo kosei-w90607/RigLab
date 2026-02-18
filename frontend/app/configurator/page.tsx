@@ -184,7 +184,9 @@ export default function ConfiguratorPage() {
         })
       } catch (err) {
         if (err instanceof ApiClientError) {
-          setError(err.message)
+          setError(`パーツの取得に失敗しました（${err.status}: ${err.message}）`)
+        } else if (err instanceof TypeError) {
+          setError('サーバーに接続できません。しばらくしてから再試行してください。')
         } else {
           setError('パーツの取得に失敗しました')
         }
@@ -367,7 +369,9 @@ export default function ConfiguratorPage() {
         })
       } catch (err) {
         if (err instanceof ApiClientError) {
-          setError(err.message)
+          setError(`構成の取得に失敗しました（${err.status}: ${err.message}）`)
+        } else if (err instanceof TypeError) {
+          setError('サーバーに接続できません。しばらくしてから再試行してください。')
         } else {
           setError('構成の取得に失敗しました')
         }
