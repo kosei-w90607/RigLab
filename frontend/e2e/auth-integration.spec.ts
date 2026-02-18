@@ -165,24 +165,28 @@ test.describe('メール認証フロー (統合テスト)', () => {
   })
 })
 
-test.describe('Google ボタン表示', () => {
-  // NOTE: 現状 Google ボタンは ENV に関係なく常に表示される。
-  // 将来的に NEXT_PUBLIC_GOOGLE_ENABLED 等で条件描画する場合は
-  // このテストを更新する。
+test.describe('Google ボタン表示制御', () => {
+  // Google Provider 未登録時（AUTH_GOOGLE_ID 未設定）はボタン非表示
+  // getProviders() が google を返さないため useGoogleEnabled() は false
 
-  test('サインインページに Google ログインボタンが表示される', async ({ page }) => {
+  test('Google Provider 未設定時はサインインページに Google ボタンが表示されない', async ({ page }) => {
     await page.goto('/signin')
+
+    // ページの読み込みと providers API の応答を待つ
+    await page.waitForLoadState('networkidle')
 
     await expect(
       page.getByRole('button', { name: 'Googleでログイン' })
-    ).toBeVisible()
+    ).not.toBeVisible()
   })
 
-  test('サインアップページに Google 登録ボタンが表示される', async ({ page }) => {
+  test('Google Provider 未設定時はサインアップページに Google ボタンが表示されない', async ({ page }) => {
     await page.goto('/signup')
+
+    await page.waitForLoadState('networkidle')
 
     await expect(
       page.getByRole('button', { name: 'Googleで登録' })
-    ).toBeVisible()
+    ).not.toBeVisible()
   })
 })

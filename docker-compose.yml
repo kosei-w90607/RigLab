@@ -2,7 +2,7 @@ services:
   db:
     image: mysql:8.0.35
     environment:
-      MYSQL_ROOT_PASSWORD: &mysql_password mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql}
       TZ: Asia/Tokyo
       LANG: C.UTF-8
     ports:

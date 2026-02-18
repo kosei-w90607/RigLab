@@ -8,18 +8,34 @@
 
 ## 直近の作業サマリー（2026-02-18）
 
-### 完了: Phase 10-A 全完了（パスワードリセット機能）
+### 完了: Phase 10-B/C 実装、10-D テスト・ドキュメント（PR #73）
 
-- A-08: Rack::Attack にパスワードリセット用レート制限追加（同一メール3回/時間）
-- **Phase 10-A 全 8タスク完了** — PR 作成可能
+- Phase 10-B（メール認証）: 全6タスク完了 — auto-confirm廃止、確認メール送信、verify-emailページ等
+- Phase 10-C（Google OAuth）: 全7タスク完了 — social_accounts テーブル、OAuthコールバック、Googleボタン等
+- Phase 10-D（統合テスト）: 全4タスク完了 — RSpec認証テスト、E2Eテスト、API設計書更新
+- Google OAuth ボタン表示制御: `useGoogleEnabled` hook で Provider 有無に応じた条件描画
 
-### 変更ファイル
-- `backend/config/initializers/rack_attack.rb` — throttle ルール追加
-- `backend/spec/initializers/rack_attack_spec.rb` — 新規
+### 変更ファイル（PR #73）
+- `backend/app/controllers/api/v1/auth/registrations_controller.rb` — auto-confirm廃止
+- `backend/app/controllers/api/v1/auth/email_confirmations_controller.rb` — 新規
+- `backend/app/controllers/api/v1/auth/oauth_callbacks_controller.rb` — 新規
+- `backend/app/controllers/api/v1/auth/sessions_controller.rb` — 未認証チェック追加
+- `backend/app/mailers/auth_mailer.rb` — 確認メールテンプレート追加
+- `backend/app/views/auth_mailer/email_confirmation.html.erb` — 新規
+- `backend/app/views/auth_mailer/email_confirmation.text.erb` — 新規
+- `backend/app/models/social_account.rb` — 新規
+- `backend/db/migrate/*_create_social_accounts.rb` — 新規
+- `backend/spec/requests/api/v1/auth/` — 各controllerテスト追加
+- `frontend/app/verify-email/page.tsx` — 新規
+- `frontend/app/signin/page.tsx` — Googleボタン・未認証チェック追加
+- `frontend/app/signup/page.tsx` — 確認メール送信画面・Googleボタン追加
+- `frontend/lib/auth.ts` — Google Provider追加、callback修正
+- `frontend/hooks/useGoogleEnabled.ts` — 新規作成
+- `frontend/e2e/auth-integration.spec.ts` — E2Eテスト追加
+- `docs/05_api-design.md` — 認証API仕様更新
 
 ### 次回アクション
-1. **Phase 10-A の PR 作成** → main にマージ
-2. **Phase 10-B: メール認証** の実装開始
+- なし（全タスク完了、PR #73 マージ・デプロイ済み）
 
 ### 本番リリースチェックリスト
 
@@ -960,29 +976,29 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 
 ### 10-B: メール認証
 
-- [ ] B-01: 登録フロー変更（auto-confirm 廃止 → 確認メール送信）
-- [ ] B-02: `AuthMailer` に確認メールテンプレート追加
-- [ ] B-03: `EmailConfirmationsController` 実装（verify + resend）
-- [ ] B-04: `/verify-email` ページ作成
-- [ ] B-05: `/signup` 成功画面を「確認メール送信済み」に変更
-- [ ] B-06: ログイン時の未認証チェック + 再送リンク
+- [x] B-01: 登録フロー変更（auto-confirm 廃止 → 確認メール送信）(PR #73)
+- [x] B-02: `AuthMailer` に確認メールテンプレート追加 (PR #73)
+- [x] B-03: `EmailConfirmationsController` 実装（verify + resend）(PR #73)
+- [x] B-04: `/verify-email` ページ作成 (PR #73)
+- [x] B-05: `/signup` 成功画面を「確認メール送信済み」に変更 (PR #73)
+- [x] B-06: ログイン時の未認証チェック + 再送リンク (PR #73)
 
 ### 10-C: Google ログイン + アカウントリンク
 
-- [ ] C-01: `social_accounts` テーブル作成（migration）
-- [ ] C-02: `SocialAccount` モデル作成
-- [ ] C-03: `OauthCallbacksController` 実装
-- [ ] C-04: NextAuth に Google Provider 追加
-- [ ] C-05: `signIn` / `jwt` callback 修正
-- [ ] C-06: `/signin`, `/signup` に Google ボタン追加
-- [ ] C-07: アカウントリンクロジック実装
+- [x] C-01: `social_accounts` テーブル作成（migration）(PR #73)
+- [x] C-02: `SocialAccount` モデル作成 (PR #73)
+- [x] C-03: `OauthCallbacksController` 実装 (PR #73)
+- [x] C-04: NextAuth に Google Provider 追加 (PR #73)
+- [x] C-05: `signIn` / `jwt` callback 修正 (PR #73)
+- [x] C-06: `/signin`, `/signup` に Google ボタン追加 (PR #73)
+- [x] C-07: アカウントリンクロジック実装 (PR #73)
 
 ### 10-D: 統合テスト + 仕上げ
 
-- [ ] D-01: RSpec: 各 controller のテスト
-- [ ] D-02: E2E: 主要フローの動作確認
-- [ ] D-03: letter_opener_web でメール表示確認（dev）
-- [ ] D-04: 本番環境変数ドキュメント更新
+- [x] D-01: RSpec: 各 controller のテスト (PR #73)
+- [x] D-02: E2E: 主要フローの動作確認 (PR #73)
+- [x] D-03: letter_opener_web でメール表示確認（dev）
+- [x] D-04: 本番環境変数ドキュメント更新 (PR #73)
 
 ---
 
@@ -1025,10 +1041,10 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 | Phase 8: TOPページ改善 & 価格分析 | 13 | 13 | 100% ✅ |
 | Phase 8.5: UX改善 | 9 | 9 | 100% ✅ |
 | Phase 9: 最終リリース準備 | 19 | 19 | 100% ✅ |
-| Phase 10: 認証機能拡張 | 25 | 8 | 32% |
-| **合計** | **239** | **222** | **92.9%** |
+| Phase 10: 認証機能拡張 | 25 | 25 | 100% ✅ |
+| **合計** | **239** | **239** | **100% ✅** |
 
-> Phase 1〜9 全完了。Phase 10（認証機能拡張）の実装を開始。
+> 全フェーズ完了。
 
 ---
 

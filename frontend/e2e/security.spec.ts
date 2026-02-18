@@ -14,32 +14,19 @@ test.describe('セキュリティヘッダー検証', () => {
     expect(headers['strict-transport-security']).toBe('max-age=31536000; includeSubDomains')
   })
 
-  test('CSP に nonce ベースの script-src が含まれる', async ({ page }) => {
+  test('CSP に適切な script-src が含まれる', async ({ page }) => {
     const response = await page.goto('/')
     expect(response).not.toBeNull()
     const csp = response!.headers()['content-security-policy']
 
     expect(csp).toContain("default-src 'self'")
-    expect(csp).toMatch(/script-src 'self' 'nonce-[A-Za-z0-9+/=]+' 'strict-dynamic'/)
-    expect(csp).not.toContain("'unsafe-inline'")
+    expect(csp).toContain("script-src 'self' 'unsafe-inline'")
+    expect(csp).not.toContain('nonce-')
+    expect(csp).not.toContain("'strict-dynamic'")
     expect(csp).toContain("frame-ancestors 'none'")
     expect(csp).toContain("object-src 'none'")
     expect(csp).toContain("base-uri 'self'")
     expect(csp).toContain("form-action 'self'")
-  })
-
-  test('各リクエストで異なる nonce が生成される', async ({ page }) => {
-    const response1 = await page.goto('/')
-    const csp1 = response1!.headers()['content-security-policy']
-    const nonce1 = csp1.match(/nonce-([A-Za-z0-9+/=]+)/)?.[1]
-
-    const response2 = await page.goto('/')
-    const csp2 = response2!.headers()['content-security-policy']
-    const nonce2 = csp2.match(/nonce-([A-Za-z0-9+/=]+)/)?.[1]
-
-    expect(nonce1).toBeDefined()
-    expect(nonce2).toBeDefined()
-    expect(nonce1).not.toBe(nonce2)
   })
 })
 

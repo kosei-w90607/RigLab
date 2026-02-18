@@ -6,7 +6,10 @@ module Api
       class PriceFetchController < ApplicationController
 
         def create
-          unless request.headers['Authorization'] == "Bearer #{ENV['CRON_SECRET']}"
+          cron_secret = ENV['CRON_SECRET']
+          unless cron_secret.present? && ActiveSupport::SecurityUtils.secure_compare(
+            request.headers['Authorization'].to_s, "Bearer #{cron_secret}"
+          )
             return head :unauthorized
           end
 
