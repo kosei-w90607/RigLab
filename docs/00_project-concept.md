@@ -38,7 +38,9 @@ PC初心者から自作経験者まで、誰でも簡単にPC構成を作成・�
 **機能**:
 - パーツ一覧から選択（CPU、GPU、メモリ、ストレージ等）
 - 合計価格の自動計算
-- 構成の共有（URLエンコード + OG画像生成）
+- 構成の共有（URLエンコード + OG画像生成、トークンベース共有）
+  - クエリパラメータ方式: URLエンコードによる一時的な共有
+  - トークン方式: share_tokensテーブルによるDB保存、`/share/:token`での永続的な閲覧
 - 構成の保存（ログイン時のみ）
 
 ## 認証
@@ -53,7 +55,7 @@ PC初心者から自作経験者まで、誰でも簡単にPC構成を作成・�
 | Frontend | Next.js 15 (App Router) + Tailwind CSS |
 | Backend | Rails 7.1 API |
 | Database | MySQL 8.0 (dev) / PostgreSQL 15 (prod) |
-| Auth | NextAuth.js (Auth.js) |
+| Auth | NextAuth.js (Auth.js) — Credentials + Google OAuth |
 | OG画像生成 | next/og (ImageResponse) |
 
 > **セキュリティ注意**: Next.js 15.2.3以上を使用すること（CVE-2025-29927対策）
@@ -65,15 +67,25 @@ PC初心者から自作経験者まで、誰でも簡単にPC構成を作成・�
 - 主要パーツを事前登録しておく
 
 ### Phase 2（機能追加）
-- **価格.com API連携**: パーツ情報・価格を自動取得
-  - 参考: https://gist.github.com/fuji44/2826ef43e0ce1ebf65ccf5db483dc411
-- **Keepa API連携**: Amazon価格推移の取得（要課金）
+- **Rakuten商品検索API連携**: パーツ情報・価格を自動取得
+  - 価格動向（カテゴリ別・パーツ別の価格推移チャート）
+  - ランキング（カテゴリ別人気パーツTOP表示）
+  - 購入アドバイス（買い時判定機能）
 - 最新価格の自動更新
 
 ## 成功指標
 
 - ユーザーが3ステップ以内で構成を作成できる
 - 初心者でも迷わず使える UI
+
+---
+
+## 改訂履歴
+
+| 日付 | 内容 |
+|------|------|
+| 2025-01-12 | 初版作成 |
+| 2026-02-18 | Phase 2外部API連携をRakuten商品検索APIに変更、構成共有にトークンベース共有を追記、認証方式にGoogle OAuthを追記 |
 
 ---
 

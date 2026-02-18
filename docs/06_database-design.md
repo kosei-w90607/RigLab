@@ -26,6 +26,8 @@
 | 10 | pc_entrust_sets | おまかせ構成（プリセット） |
 | 11 | pc_custom_sets | カスタム構成 |
 | 12 | share_tokens | 共有トークン（トークンベース共有用） |
+| 13 | social_accounts | ソーシャルアカウント連携（OAuth） |
+| 14 | parts_price_histories | パーツ価格履歴（ポリモーフィック） |
 
 ---
 
@@ -34,6 +36,16 @@
 ```mermaid
 erDiagram
     users ||--o{ pc_custom_sets : "has many"
+    users ||--o{ social_accounts : "has many"
+
+    parts_cpus ||--o{ parts_price_histories : "has many"
+    parts_gpus ||--o{ parts_price_histories : "has many"
+    parts_memories ||--o{ parts_price_histories : "has many"
+    parts_storages ||--o{ parts_price_histories : "has many"
+    parts_motherboards ||--o{ parts_price_histories : "has many"
+    parts_psus ||--o{ parts_price_histories : "has many"
+    parts_cases ||--o{ parts_price_histories : "has many"
+    parts_os ||--o{ parts_price_histories : "has many"
 
     pc_entrust_sets ||--o| parts_cpus : "belongs to"
     pc_entrust_sets ||--o| parts_gpus : "belongs to"
@@ -59,6 +71,42 @@ erDiagram
         string email UK
         string encrypted_password
         string role
+        string provider
+        string uid
+        string reset_password_token
+        datetime reset_password_sent_at
+        boolean allow_password_change
+        datetime remember_created_at
+        string confirmation_token
+        datetime confirmed_at
+        datetime confirmation_sent_at
+        string unconfirmed_email
+        json tokens
+        datetime created_at
+        datetime updated_at
+    }
+
+    social_accounts {
+        bigint id PK
+        bigint user_id FK
+        string provider
+        string uid
+        string email
+        string name
+        string avatar_url
+        datetime created_at
+        datetime updated_at
+    }
+
+    parts_price_histories {
+        bigint id PK
+        bigint part_id
+        string part_type "ポリモーフィック"
+        integer price
+        string source
+        string external_url
+        string product_name
+        datetime fetched_at
         datetime created_at
         datetime updated_at
     }
@@ -72,6 +120,10 @@ erDiagram
         integer tdp "消費電力W"
         string memory_type "DDR4, DDR5"
         json specs
+        string rakuten_url
+        string rakuten_image_url
+        string amazon_url
+        datetime last_price_checked_at
         datetime created_at
         datetime updated_at
     }
@@ -84,6 +136,10 @@ erDiagram
         integer tdp "消費電力W"
         integer length_mm "カード長mm"
         json specs
+        string rakuten_url
+        string rakuten_image_url
+        string amazon_url
+        datetime last_price_checked_at
         datetime created_at
         datetime updated_at
     }
@@ -95,6 +151,10 @@ erDiagram
         integer price
         string memory_type "DDR4, DDR5"
         json specs
+        string rakuten_url
+        string rakuten_image_url
+        string amazon_url
+        datetime last_price_checked_at
         datetime created_at
         datetime updated_at
     }
@@ -105,6 +165,10 @@ erDiagram
         string maker
         integer price
         json specs
+        string rakuten_url
+        string rakuten_image_url
+        string amazon_url
+        datetime last_price_checked_at
         datetime created_at
         datetime updated_at
     }
@@ -115,6 +179,10 @@ erDiagram
         string maker
         integer price
         json specs
+        string rakuten_url
+        string rakuten_image_url
+        string amazon_url
+        datetime last_price_checked_at
         datetime created_at
         datetime updated_at
     }
@@ -128,6 +196,10 @@ erDiagram
         string memory_type "DDR4, DDR5"
         string form_factor "ATX, mATX, ITX"
         json specs
+        string rakuten_url
+        string rakuten_image_url
+        string amazon_url
+        datetime last_price_checked_at
         datetime created_at
         datetime updated_at
     }
@@ -140,6 +212,10 @@ erDiagram
         integer wattage "電源容量W"
         string form_factor "ATX, SFX"
         json specs
+        string rakuten_url
+        string rakuten_image_url
+        string amazon_url
+        datetime last_price_checked_at
         datetime created_at
         datetime updated_at
     }
@@ -152,6 +228,10 @@ erDiagram
         string form_factor "ATX, mATX, ITX対応"
         integer max_gpu_length_mm "最大GPU長mm"
         json specs
+        string rakuten_url
+        string rakuten_image_url
+        string amazon_url
+        datetime last_price_checked_at
         datetime created_at
         datetime updated_at
     }
@@ -221,6 +301,15 @@ erDiagram
 | role | VARCHAR(20) | NO | 'user' | 権限 (user/admin) |
 | provider | VARCHAR(255) | NO | 'email' | 認証プロバイダ（レガシー） |
 | uid | VARCHAR(255) | NO | '' | 認証UID（レガシー） |
+| reset_password_token | VARCHAR(255) | YES | NULL | パスワードリセットトークン |
+| reset_password_sent_at | DATETIME | YES | NULL | リセットトークン送信日時 |
+| allow_password_change | BOOLEAN | NO | false | パスワード変更許可フラグ |
+| remember_created_at | DATETIME | YES | NULL | Remember me作成日時 |
+| confirmation_token | VARCHAR(255) | YES | NULL | メール確認トークン |
+| confirmed_at | DATETIME | YES | NULL | メール確認完了日時 |
+| confirmation_sent_at | DATETIME | YES | NULL | 確認メール送信日時 |
+| unconfirmed_email | VARCHAR(255) | YES | NULL | 未確認メールアドレス |
+| tokens | JSON | YES | NULL | トークン情報（レガシー） |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
@@ -228,12 +317,15 @@ erDiagram
 - `PRIMARY KEY (id)`
 - `UNIQUE INDEX (email)`
 - `UNIQUE INDEX (uid, provider)` （レガシー、将来削除予定）
+- `UNIQUE INDEX (reset_password_token)`
+- `UNIQUE INDEX (confirmation_token)`
 - `INDEX (role)`
 
 **注記:**
 - 認証はフロントエンド（NextAuth.js）で実装。バックエンドはJWTトークンを検証
 - `provider`, `uid` はDevise Token Auth時代のレガシーカラム（現在は未使用）
 - 将来のマイグレーションでレガシーカラムを削除予定
+- メール確認・パスワードリセット機能はRails側で実装
 
 ---
 
@@ -251,6 +343,10 @@ erDiagram
 | tdp | INTEGER | NO | 0 | 消費電力W（電源推奨用） |
 | memory_type | VARCHAR(10) | NO | - | 対応メモリタイプ（DDR4/DDR5） |
 | specs | JSON | YES | NULL | その他スペック情報 |
+| rakuten_url | VARCHAR(2048) | YES | NULL | 楽天商品URL |
+| rakuten_image_url | VARCHAR(2048) | YES | NULL | 楽天商品画像URL |
+| amazon_url | VARCHAR(2048) | YES | NULL | Amazon商品URL |
+| last_price_checked_at | DATETIME | YES | NULL | 最終価格チェック日時 |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
@@ -288,6 +384,10 @@ erDiagram
 | tdp | INTEGER | NO | 0 | 消費電力W（電源推奨用） |
 | length_mm | INTEGER | YES | NULL | カード長mm（ケース互換性用） |
 | specs | JSON | YES | NULL | その他スペック情報 |
+| rakuten_url | VARCHAR(2048) | YES | NULL | 楽天商品URL |
+| rakuten_image_url | VARCHAR(2048) | YES | NULL | 楽天商品画像URL |
+| amazon_url | VARCHAR(2048) | YES | NULL | Amazon商品URL |
+| last_price_checked_at | DATETIME | YES | NULL | 最終価格チェック日時 |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
@@ -320,6 +420,10 @@ erDiagram
 | price | INTEGER | NO | 0 | 価格（円） |
 | memory_type | VARCHAR(10) | NO | - | メモリタイプ（DDR4/DDR5） |
 | specs | JSON | YES | NULL | その他スペック情報 |
+| rakuten_url | VARCHAR(2048) | YES | NULL | 楽天商品URL |
+| rakuten_image_url | VARCHAR(2048) | YES | NULL | 楽天商品画像URL |
+| amazon_url | VARCHAR(2048) | YES | NULL | Amazon商品URL |
+| last_price_checked_at | DATETIME | YES | NULL | 最終価格チェック日時 |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
@@ -353,6 +457,10 @@ erDiagram
 | maker | VARCHAR(100) | NO | - | メーカー |
 | price | INTEGER | NO | 0 | 価格（円） |
 | specs | JSON | YES | NULL | スペック情報 |
+| rakuten_url | VARCHAR(2048) | YES | NULL | 楽天商品URL |
+| rakuten_image_url | VARCHAR(2048) | YES | NULL | 楽天商品画像URL |
+| amazon_url | VARCHAR(2048) | YES | NULL | Amazon商品URL |
+| last_price_checked_at | DATETIME | YES | NULL | 最終価格チェック日時 |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
@@ -385,6 +493,10 @@ erDiagram
 | maker | VARCHAR(100) | NO | - | メーカー |
 | price | INTEGER | NO | 0 | 価格（円） |
 | specs | JSON | YES | NULL | スペック情報 |
+| rakuten_url | VARCHAR(2048) | YES | NULL | 楽天商品URL |
+| rakuten_image_url | VARCHAR(2048) | YES | NULL | 楽天商品画像URL |
+| amazon_url | VARCHAR(2048) | YES | NULL | Amazon商品URL |
+| last_price_checked_at | DATETIME | YES | NULL | 最終価格チェック日時 |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
@@ -418,6 +530,10 @@ erDiagram
 | memory_type | VARCHAR(10) | NO | - | 対応メモリタイプ（DDR4/DDR5） |
 | form_factor | VARCHAR(10) | NO | - | フォームファクタ（ATX/mATX/ITX） |
 | specs | JSON | YES | NULL | その他スペック情報 |
+| rakuten_url | VARCHAR(2048) | YES | NULL | 楽天商品URL |
+| rakuten_image_url | VARCHAR(2048) | YES | NULL | 楽天商品画像URL |
+| amazon_url | VARCHAR(2048) | YES | NULL | Amazon商品URL |
+| last_price_checked_at | DATETIME | YES | NULL | 最終価格チェック日時 |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
@@ -444,6 +560,10 @@ erDiagram
 | wattage | INTEGER | NO | 0 | 電源容量（W） |
 | form_factor | VARCHAR(10) | NO | 'ATX' | フォームファクタ（ATX/SFX） |
 | specs | JSON | YES | NULL | その他スペック情報 |
+| rakuten_url | VARCHAR(2048) | YES | NULL | 楽天商品URL |
+| rakuten_image_url | VARCHAR(2048) | YES | NULL | 楽天商品画像URL |
+| amazon_url | VARCHAR(2048) | YES | NULL | Amazon商品URL |
+| last_price_checked_at | DATETIME | YES | NULL | 最終価格チェック日時 |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
@@ -469,6 +589,10 @@ erDiagram
 | form_factor | VARCHAR(10) | NO | - | 対応フォームファクタ（ATX/mATX/ITX） |
 | max_gpu_length_mm | INTEGER | YES | NULL | 最大GPU長（mm） |
 | specs | JSON | YES | NULL | その他スペック情報 |
+| rakuten_url | VARCHAR(2048) | YES | NULL | 楽天商品URL |
+| rakuten_image_url | VARCHAR(2048) | YES | NULL | 楽天商品画像URL |
+| amazon_url | VARCHAR(2048) | YES | NULL | Amazon商品URL |
+| last_price_checked_at | DATETIME | YES | NULL | 最終価格チェック日時 |
 | created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
 | updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
 
@@ -620,6 +744,60 @@ erDiagram
 
 ---
 
+### 3.13 social_accounts（ソーシャルアカウント連携）
+
+**説明:** OAuth認証で連携されたソーシャルアカウント情報を管理。
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|----------|-----|------|-----------|------|
+| id | BIGINT | NO | AUTO_INCREMENT | 主キー |
+| user_id | BIGINT | NO | - | ユーザー（FK） |
+| provider | VARCHAR(255) | NO | - | 認証プロバイダ（google等） |
+| uid | VARCHAR(255) | NO | - | プロバイダ側UID |
+| email | VARCHAR(255) | YES | NULL | プロバイダから取得したメールアドレス |
+| name | VARCHAR(255) | YES | NULL | プロバイダから取得した名前 |
+| avatar_url | VARCHAR(2048) | YES | NULL | プロバイダから取得したアバターURL |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
+
+**インデックス:**
+- `PRIMARY KEY (id)`
+- `UNIQUE INDEX (provider, uid)`
+- `UNIQUE INDEX (user_id, provider)`
+
+**外部キー:**
+- `user_id → users(id) ON DELETE CASCADE`
+
+---
+
+### 3.14 parts_price_histories（パーツ価格履歴）
+
+**説明:** パーツの価格履歴を時系列で蓄積する。ポリモーフィックリレーションにより全パーツテーブルと関連。
+
+| カラム名 | 型 | NULL | デフォルト | 説明 |
+|----------|-----|------|-----------|------|
+| id | BIGINT | NO | AUTO_INCREMENT | 主キー |
+| part_id | BIGINT | NO | - | パーツID（ポリモーフィック） |
+| part_type | VARCHAR(255) | NO | - | パーツテーブル名（例: Parts::Cpu） |
+| price | INTEGER | NO | - | 取得時価格（円） |
+| source | VARCHAR(255) | YES | NULL | 価格取得元（rakuten等） |
+| external_url | VARCHAR(2048) | YES | NULL | 外部商品ページURL |
+| product_name | VARCHAR(255) | YES | NULL | 外部サイトでの商品名 |
+| fetched_at | DATETIME | NO | - | 価格取得日時 |
+| created_at | DATETIME | NO | CURRENT_TIMESTAMP | 作成日時 |
+| updated_at | DATETIME | NO | CURRENT_TIMESTAMP | 更新日時 |
+
+**インデックス:**
+- `PRIMARY KEY (id)`
+- `INDEX (part_type, part_id)`
+- `INDEX (fetched_at)`
+
+**用途:**
+- 楽天商品検索APIから定期的に価格を取得し蓄積
+- 価格動向グラフ・購入タイミングアドバイスのデータソース
+
+---
+
 ## 4. マイグレーション例（Rails）
 
 ### 4.1 parts_cpus
@@ -746,3 +924,4 @@ User.create!(
 | 2025-01-15 | ストレージ3スロット対応: storage_idをstorage1_id, storage2_id, storage3_idに変更（プライマリ必須、他は任意） |
 | 2025-01-15 | ER図: ストレージのリレーション記法を修正（`}|--o|` → `||--o{`） |
 | 2026-02-01 | share_tokensテーブル追加（トークンベース共有用）、usersテーブル説明をNextAuth.js + JWT認証に更新、レガシーカラムに関する注記追加 |
+| 2026-02-18 | 実装との乖離修正: social_accountsテーブル追加（OAuth連携用）、parts_price_historiesテーブル追加（価格履歴用ポリモーフィック）、usersテーブルに認証拡張カラム追加（reset_password_token, confirmation_token等）、全パーツテーブルにrakuten_url/rakuten_image_url/amazon_url/last_price_checked_at追加 |

@@ -54,6 +54,8 @@ Vercelの「Settings」→「Environment Variables」で以下を設定:
 | NEXT_PUBLIC_APP_URL | https://riglab.app | Production | アプリケーションURL（OGP等で使用） |
 | NEXTAUTH_URL | https://riglab.app | Production | NextAuth認証コールバックURL |
 | NEXTAUTH_SECRET | (ランダム生成した文字列) | Production | NextAuthセッション暗号化キー |
+| AUTH_GOOGLE_ID | (Google OAuthクライアントID) | Production | Google OAuth認証用 |
+| AUTH_GOOGLE_SECRET | (Google OAuthクライアントシークレット) | Production | Google OAuth認証用 |
 | INTERNAL_API_URL | https://api.riglab.app/api/v1 | Production | サーバーサイドAPI通信用URL |
 | SENTRY_DSN | (SentryプロジェクトのDSN) | Production | Sentryエラートラッキング用 |
 
@@ -165,6 +167,10 @@ services:
         sync: false
       - key: CRON_SECRET
         sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
 ```
 
 ### 3.4 ビルドスクリプト
@@ -193,6 +199,8 @@ Render ダッシュボードの「Environment」タブで以下を手動設定�
 | `RAKUTEN_APPLICATION_ID` | (楽天APIアプリID) | 楽天デベロッパーで取得 |
 | `RAKUTEN_ACCESS_KEY` | (楽天APIアクセスキー) | 同上 |
 | `CRON_SECRET` | (ランダム文字列) | GitHub Actions価格取得用（GitHub Secretsと同一値） |
+| `RESEND_API_KEY` | (ResendのAPIキー) | メール送信（パスワードリセット、メール認証） |
+| `FRONTEND_URL` | (Vercel本番URL) | メール内リンク生成用（例: `https://rig-lab.vercel.app`） |
 
 ### 3.6 初回デプロイ後のセットアップ（自動実行）
 
@@ -392,12 +400,13 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
 
     resource '*',
       headers: :any,
-      expose: ['access-token', 'expiry', 'token-type', 'uid', 'client'],
       methods: [:get, :post, :put, :patch, :delete, :options, :head],
       credentials: true
   end
 end
 ```
+
+> **Note:** JWT認証方式を採用しているため、Devise Token Auth用のexposeヘッダー（`access-token`, `expiry`, `token-type`, `uid`, `client`）は不要です。
 
 > **本番環境でのCORS設定確認:**
 > - `origins` に本番ドメインが正しく設定されていること
@@ -502,6 +511,17 @@ jobs:
           curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
 ```
 
+### 6.2 価格取得ワークフロー
+
+`.github/workflows/price-fetch.yml`:
+
+楽天APIからパーツ価格を定期的に取得するGitHub Actionsワークフローです。
+
+- **スケジュール:** cron で毎日 JST 3:00 に実行
+- **認証:** `CRON_SECRET` でエンドポイントを認証（Bearer トークン）
+- **エンドポイント:** `POST /api/v1/cron/price_fetch`
+- **必要なGitHub Secrets:** `RENDER_API_URL`（Render本番URL）、`CRON_SECRET`（認証トークン、Render環境変数と同じ値）
+
 ---
 
 ## 7. デプロイチェックリスト
@@ -519,6 +539,8 @@ jobs:
 - [ ] `NEXT_PUBLIC_APP_URL` - 本番アプリケーションURL
 - [ ] `NEXTAUTH_URL` - 本番URL（認証コールバック）
 - [ ] `NEXTAUTH_SECRET` - ランダム生成された強固なシークレット
+- [ ] `AUTH_GOOGLE_ID` - Google OAuthクライアントID（Google認証を利用する場合）
+- [ ] `AUTH_GOOGLE_SECRET` - Google OAuthクライアントシークレット（Google認証を利用する場合）
 - [ ] `INTERNAL_API_URL` - サーバーサイドAPI通信用URL
 - [ ] `SENTRY_DSN` - Sentryエラートラッキング用（オプション）
 
@@ -532,6 +554,9 @@ jobs:
 - [ ] `NEXTAUTH_SECRET` - フロントエンドと同一の値
 - [ ] `CORS_ORIGINS` - 本番ドメイン
 - [ ] `SENTRY_DSN` - Sentryエラートラッキング用（オプション）
+- [ ] `RESEND_API_KEY` - Resendメール送信用
+- [ ] `FRONTEND_URL` - メール内リンク生成用
+- [ ] `CRON_SECRET` - GitHub Actions価格取得認証用
 
 **HTTPS・セキュリティ確認:**
 - [ ] HTTPS が有効になっている（Vercel/Render は自動対応）
@@ -696,6 +721,8 @@ gunzip < backup_20250101_030000.sql.gz | psql "$DATABASE_URL"
 | `NEXT_PUBLIC_APP_URL` | Yes | アプリケーションURL（OGP等） | `https://riglab.app` |
 | `NEXTAUTH_URL` | Yes | NextAuth認証コールバックURL | `https://riglab.app` |
 | `AUTH_SECRET` | Yes | Auth.js v5 セッション暗号化キー | `openssl rand -base64 33` で生成 |
+| `AUTH_GOOGLE_ID` | No | Google OAuth クライアントID | Google Cloud Consoleで取得 |
+| `AUTH_GOOGLE_SECRET` | No | Google OAuth クライアントシークレット | Google Cloud Consoleで取得 |
 | `INTERNAL_API_URL` | No | サーバーサイドAPI通信用（Docker内部通信等） | `http://back:3000/api/v1` |
 | `NEXT_PUBLIC_SENTRY_DSN` | No | Sentryエラートラッキング | `https://xxx@sentry.io/xxx` |
 
@@ -717,6 +744,9 @@ gunzip < backup_20250101_030000.sql.gz | psql "$DATABASE_URL"
 | `RAKUTEN_APPLICATION_ID` | Yes | 楽天API アプリケーションID | `xxxxxxxxxx` |
 | `RAKUTEN_ACCESS_KEY` | Yes | 楽天API アクセスキー | `xxxxxxxxxx` |
 | `RAKUTEN_ALLOWED_WEBSITE` | No | 楽天API許可ドメイン | デフォルト: `https://rig-lab.vercel.app` |
+| `RESEND_API_KEY` | Yes | Resendメール送信API キー | `re_xxxxxxxxxx` |
+| `FRONTEND_URL` | Yes | フロントエンドURL（メール内リンク生成用） | `https://rig-lab.vercel.app` |
+| `CRON_SECRET` | Yes | GitHub Actions定期実行認証トークン | `openssl rand -base64 32` で生成 |
 | `RAILS_MAX_THREADS` | No | Pumaスレッド数 | `5` |
 | `WEB_CONCURRENCY` | No | Pumaワーカー数 | `2` |
 
@@ -730,3 +760,4 @@ gunzip < backup_20250101_030000.sql.gz | psql "$DATABASE_URL"
 | 2026-02-07 | Next.js対応に修正、環境変数一覧追加、チェックリスト拡充、バックアップ戦略追加 |
 | 2026-02-12 | Railway正式採用、railway.json追加、Auth.js v5対応(AUTH_SECRET)、楽天API環境変数追記 |
 | 2026-02-12 | Railway→Render正式移行、ハイブリッドDB構成（dev MySQL / prod PostgreSQL）、render.yaml・render-build.sh追加、Sidekiq制限注記、PostgreSQLバックアップ手順追記 |
+| 2026-02-18 | CORS exposeヘッダー削除（JWT方式で不要）、RESEND_API_KEY/FRONTEND_URL/AUTH_GOOGLE_ID/AUTH_GOOGLE_SECRET/CRON_SECRET追加、price-fetch.ymlワークフロー説明追加 |

@@ -96,10 +96,11 @@ POST /api/v1/auth/register
     "name": "山田太郎",
     "email": "yamada@example.com",
     "role": "user"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
 }
 ```
+
+> **注:** RailsはJWTトークンを返却しません。NextAuth.jsがフロントエンド側でJWTを生成・管理します。
 
 ### 2.2 ログイン
 
@@ -123,8 +124,7 @@ POST /api/v1/auth/login
     "name": "山田太郎",
     "email": "yamada@example.com",
     "role": "user"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
 }
 ```
 
@@ -162,6 +162,24 @@ Authorization: Bearer <JWT_TOKEN>
 ```json
 {
   "error": "認証が必要です"
+}
+```
+
+### 2.4 ログアウト
+
+```
+DELETE /api/v1/auth/sign_out
+```
+
+**ヘッダー:**
+```
+Authorization: Bearer <JWT_TOKEN>
+```
+
+**レスポンス (200):**
+```json
+{
+  "message": "ログアウトしました"
 }
 ```
 
@@ -785,15 +803,110 @@ PATCH /api/v1/admin/users/:id
 }
 ```
 
+### 6.9 パーツ楽天連携（要管理者権限）
+
+```
+POST /api/v1/admin/parts/:id/link_rakuten
+```
+
+**リクエスト:**
+```json
+{
+  "category": "cpu",
+  "rakuten_url": "https://item.rakuten.co.jp/...",
+  "rakuten_image_url": "https://thumbnail.image.rakuten.co.jp/..."
+}
+```
+
+**レスポンス (200):**
+```json
+{
+  "data": {
+    "id": 1,
+    "rakuten_url": "https://item.rakuten.co.jp/...",
+    "rakuten_image_url": "https://thumbnail.image.rakuten.co.jp/..."
+  }
+}
+```
+
+### 6.10 管理者価格取得実行（要管理者権限）
+
+```
+POST /api/v1/admin/price_fetch
+```
+
+**レスポンス (200):**
+```json
+{
+  "message": "価格取得を開始しました",
+  "updated_count": 15
+}
+```
+
+### 6.11 Cron価格取得
+
+```
+POST /api/v1/cron/price_fetch
+```
+
+**ヘッダー:**
+```
+X-Cron-Secret: <CRON_SECRET>
+```
+
+**レスポンス (200):**
+```json
+{
+  "message": "価格取得を開始しました",
+  "updated_count": 15
+}
+```
+
+### 6.12 ダッシュボード
+
+```
+GET /api/v1/dashboard
+```
+
+**認証:** 必要
+
+**レスポンス (200):**
+```json
+{
+  "data": {
+    "builds_count": 5,
+    "recent_builds": [ ... ]
+  }
+}
+```
+
+### 6.13 ヘルスチェック
+
+```
+GET /
+```
+
+**認証:** 不要
+
+**レスポンス (200):**
+```json
+{
+  "status": "ok"
+}
+```
+
 ---
 
-## 7. エンドポイント一覧
+## 7. 基本エンドポイント一覧
+
+> **注:** 全エンドポイントの統合一覧はセクション10を参照してください。
 
 | メソッド | エンドポイント | 認証 | 説明 |
 |---------|---------------|------|------|
 | POST | /api/v1/auth/register | - | ユーザー登録 |
 | POST | /api/v1/auth/login | - | ログイン |
 | GET | /api/v1/auth/me | ✓ | 現在のユーザー取得 |
+| DELETE | /api/v1/auth/sign_out | ✓ | ログアウト |
 | GET | /api/v1/parts | - | パーツ一覧（フィルタリング対応） |
 | GET | /api/v1/parts/:id | - | パーツ詳細（category必須） |
 | GET | /api/v1/parts/recommendations | - | パーツ推奨取得（互換性ベース） |
@@ -956,7 +1069,7 @@ GET /api/v1/share_tokens/:token
 ### 9.1 楽天商品検索（要管理者権限）
 
 ```
-GET /api/v1/rakuten/search
+GET /api/v1/admin/rakuten_search
 ```
 
 **クエリパラメータ:**
@@ -1012,10 +1125,10 @@ GET /api/v1/rankings
 }
 ```
 
-### 9.3 価格動向一覧
+### 9.3 価格動向カテゴリ一覧
 
 ```
-GET /api/v1/price_trends
+GET /api/v1/price_trends/categories
 ```
 
 **レスポンス (200):**
@@ -1039,7 +1152,7 @@ GET /api/v1/price_trends
 ### 9.4 カテゴリ別価格動向
 
 ```
-GET /api/v1/price_trends/:category
+GET /api/v1/price_trends/categories/:category
 ```
 
 **レスポンス (200):**
@@ -1063,11 +1176,17 @@ GET /api/v1/price_trends/:category
 }
 ```
 
-### 9.5 パーツ別価格動向
+### 9.5 パーツ価格履歴
 
 ```
-GET /api/v1/price_trends/:category/:part_id
+GET /api/v1/parts/:part_type/:part_id/price_histories
 ```
+
+**パスパラメータ:**
+| パラメータ | 型 | 説明 |
+|-----------|-----|------|
+| part_type | string | パーツカテゴリ (cpu, gpu, memory, storage, os, motherboard, psu, case) |
+| part_id | integer | パーツID |
 
 **レスポンス (200):**
 ```json
@@ -1080,19 +1199,15 @@ GET /api/v1/price_trends/:category/:part_id
     "price_history": [
       { "date": "2026-02-01", "price": 53000 },
       { "date": "2026-02-02", "price": 52500 }
-    ],
-    "buy_timing": {
-      "recommendation": "buy",
-      "message": "直近7日で5%下落中。今が買い時です！"
-    }
+    ]
   }
 }
 ```
 
-### 9.6 買い時判定
+### 9.6 購入タイミングアドバイス（サマリー）
 
 ```
-GET /api/v1/buy_timing
+GET /api/v1/buy_advice/summary
 ```
 
 **レスポンス (200):**
@@ -1109,48 +1224,92 @@ GET /api/v1/buy_timing
 }
 ```
 
+### 9.7 パーツ別購入タイミングアドバイス
+
+```
+GET /api/v1/parts/:part_type/:part_id/buy_advice
+```
+
+**パスパラメータ:**
+| パラメータ | 型 | 説明 |
+|-----------|-----|------|
+| part_type | string | パーツカテゴリ |
+| part_id | integer | パーツID |
+
+**レスポンス (200):**
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Intel Core i7-14700K",
+    "category": "cpu",
+    "current_price": 52000,
+    "buy_timing": {
+      "recommendation": "buy",
+      "message": "直近7日で5%下落中。今が買い時です！"
+    }
+  }
+}
+```
+
 ---
 
 ## 10. 全エンドポイント一覧（統合版）
 
 | メソッド | エンドポイント | 認証 | 説明 |
 |---------|---------------|------|------|
+| GET | / | - | ヘルスチェック |
+| **認証** | | | |
 | POST | /api/v1/auth/register | - | ユーザー登録 |
 | POST | /api/v1/auth/login | - | ログイン |
 | GET | /api/v1/auth/me | ✓ | 現在のユーザー取得 |
+| DELETE | /api/v1/auth/sign_out | ✓ | ログアウト |
+| POST | /api/v1/auth/password/forgot | - | パスワードリセットメール送信 |
+| POST | /api/v1/auth/password/reset | - | パスワード再設定 |
+| POST | /api/v1/auth/email/verify | - | メール認証完了 |
+| POST | /api/v1/auth/email/resend | - | 認証メール再送 |
+| POST | /api/v1/auth/oauth | Internal | OAuth ユーザー作成/取得 |
+| **ダッシュボード** | | | |
+| GET | /api/v1/dashboard | ✓ | ダッシュボード |
+| **パーツ** | | | |
 | GET | /api/v1/parts | - | パーツ一覧（フィルタリング対応） |
 | GET | /api/v1/parts/:id | - | パーツ詳細（category必須） |
 | GET | /api/v1/parts/recommendations | - | パーツ推奨取得（互換性ベース） |
+| GET | /api/v1/parts/:part_type/:part_id/price_histories | - | パーツ価格履歴 |
+| GET | /api/v1/parts/:part_type/:part_id/buy_advice | - | パーツ別購入アドバイス |
+| **プリセット** | | | |
 | GET | /api/v1/presets | - | プリセット検索 |
 | GET | /api/v1/presets/:id | - | プリセット詳細 |
+| **カスタム構成** | | | |
 | GET | /api/v1/builds | ✓ | 構成一覧 |
 | GET | /api/v1/builds/:id | △ | 構成詳細（共有時は認証不要） |
 | POST | /api/v1/builds | ✓ | 構成作成 |
 | PATCH | /api/v1/builds/:id | ✓ | 構成更新 |
 | DELETE | /api/v1/builds/:id | ✓ | 構成削除 |
 | GET | /api/v1/builds/shared/:token | - | 共有構成取得 |
+| **共有トークン** | | | |
 | POST | /api/v1/share_tokens | - | 共有トークン作成 |
 | GET | /api/v1/share_tokens/:token | - | 共有トークン取得 |
+| **ランキング・価格動向** | | | |
+| GET | /api/v1/rankings | - | パーツランキング |
+| GET | /api/v1/price_trends/categories | - | 価格動向カテゴリ一覧 |
+| GET | /api/v1/price_trends/categories/:category | - | カテゴリ別価格動向 |
+| GET | /api/v1/buy_advice/summary | - | 購入タイミングアドバイス（サマリー） |
+| **管理者** | | | |
 | POST | /api/v1/admin/parts | Admin | パーツ登録 |
 | PATCH | /api/v1/admin/parts/:id | Admin | パーツ更新 |
 | DELETE | /api/v1/admin/parts/:id | Admin | パーツ削除 |
+| POST | /api/v1/admin/parts/:id/link_rakuten | Admin | パーツ楽天連携 |
 | GET | /api/v1/admin/presets/:id | Admin | プリセット詳細取得 |
 | POST | /api/v1/admin/presets | Admin | プリセット登録 |
 | PATCH | /api/v1/admin/presets/:id | Admin | プリセット更新 |
 | DELETE | /api/v1/admin/presets/:id | Admin | プリセット削除 |
 | GET | /api/v1/admin/users | Admin | ユーザー一覧 |
 | PATCH | /api/v1/admin/users/:id | Admin | ユーザー権限更新 |
-| GET | /api/v1/rakuten/search | Admin | 楽天商品検索 |
-| GET | /api/v1/rankings | - | パーツランキング |
-| GET | /api/v1/price_trends | - | 価格動向一覧 |
-| GET | /api/v1/price_trends/:category | - | カテゴリ別価格動向 |
-| GET | /api/v1/price_trends/:category/:part_id | - | パーツ別価格動向 |
-| GET | /api/v1/buy_timing | - | 買い時判定 |
-| POST | /api/v1/auth/password/forgot | - | パスワードリセットメール送信 |
-| POST | /api/v1/auth/password/reset | - | パスワード再設定 |
-| POST | /api/v1/auth/email/verify | - | メール認証完了 |
-| POST | /api/v1/auth/email/resend | - | 認証メール再送 |
-| POST | /api/v1/auth/oauth | Internal | OAuth ユーザー作成/取得 |
+| GET | /api/v1/admin/rakuten_search | Admin | 楽天商品検索 |
+| POST | /api/v1/admin/price_fetch | Admin | 価格取得実行 |
+| **Cron** | | | |
+| POST | /api/v1/cron/price_fetch | Cron | 定期価格取得 |
 
 ---
 
@@ -1191,3 +1350,4 @@ GET /api/v1/buy_timing
 | 2026-02-01 | Phase 6 完了に伴うAPI設計書の実装との同期: (1) パーツ一覧に互換性フィルタパラメータ追加（cpu_socket, memory_type, form_factor, min_gpu_length）、(2) パーツ推奨API追加（GET /api/v1/parts/recommendations）、(3) 管理者ユーザーAPI追加（GET/PATCH /api/v1/admin/users）、(4) プリセット一覧のレスポンス形式をフラット形式に修正、(5) 認証APIエンドポイント名を実装に合わせて修正（/auth/register, /auth/login, /auth/me）、(6) エンドポイント一覧を統合・更新 |
 | 2026-02-09 | Phase 7〜8.5のAPI追加: 楽天商品検索API、ランキングAPI、価格動向API（一覧/カテゴリ別/パーツ別）、買い時判定API |
 | 2026-02-18 | Phase 10 認証機能拡張API追加: パスワードリセット（forgot/reset）、メール認証（verify/resend）、OAuthコールバック。詳細仕様は `docs/13_auth-enhancement-spec.md` を参照 |
+| 2026-02-18 | 実装との乖離修正: (1) ログイン/登録レスポンスからtokenフィールドを削除（NextAuthがJWT管理）、(2) DELETE /api/v1/auth/sign_out追加、(3) 価格動向APIを実装ルーティングに合わせて修正（/price_trends/categories, /price_trends/categories/:category）、(4) 価格履歴をGET /api/v1/parts/:part_type/:part_id/price_historiesに変更、(5) 購入アドバイスをGET /api/v1/buy_advice/summary + /parts/:part_type/:part_id/buy_adviceに変更、(6) 楽天検索をGET /api/v1/admin/rakuten_searchに変更、(7) 管理者price_fetch/link_rakuten/cron/dashboard/health_check追加、(8) 全エンドポイント一覧をルーティング実装と同期 |
