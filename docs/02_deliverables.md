@@ -20,6 +20,10 @@
 | D-10 | README | `README.md` | ✅ 完了 |
 | D-11 | プロダクトレビュー書類 | `docs/09_product-review.md` | ✅ 完了 |
 | D-12 | テストガイド | `docs/10_testing-guide.md` | ✅ 完了 |
+| D-13 | 管理者マニュアル | `docs/11_admin-manual.md` | 未着手 |
+| D-14 | Sentry導入ガイド | `docs/12_sentry-setup-guide.md` | 未着手 |
+| D-15 | 認証強化仕様書 | `docs/13_auth-enhancement-spec.md` | 未着手 |
+| D-16 | 手動テスト手順書 | `docs/10_manual-test-procedure.md` | 未着手 |
 
 ---
 
@@ -51,6 +55,10 @@
 | F-17 | 新規登録 | `/signup` | `frontend/app/signup/page.tsx` | ✅ 完了 |
 | F-18 | 共有構成 | `/share` | `frontend/app/share/page.tsx` | ✅ 完了 |
 | F-19 | OG画像生成 | `/share` | `frontend/app/share/opengraph-image.tsx` | ✅ 完了 |
+| F-51 | パスワードリセットリクエスト | `/forgot-password` | `frontend/app/forgot-password/page.tsx` | ✅ 完了 |
+| F-52 | 新パスワード設定 | `/reset-password` | `frontend/app/reset-password/page.tsx` | ✅ 完了 |
+| F-53 | メール確認 | `/verify-email` | `frontend/app/verify-email/page.tsx` | ✅ 完了 |
+| F-54 | 共有構成（トークン方式） | `/share/[token]` | `frontend/app/share/[token]/page.tsx` | ✅ 完了 |
 
 ### 2.3 管理者向けページ
 
@@ -146,6 +154,9 @@
 | B-09 | PartsCase モデル | `backend/app/models/parts_case.rb` | ✅ 完了 |
 | B-10 | PcEntrustSet モデル | `backend/app/models/pc_entrust_set.rb` | ✅ 完了 |
 | B-11 | PcCustomSet モデル | `backend/app/models/pc_custom_set.rb` | ✅ 完了 |
+| B-12 | SocialAccount モデル | `backend/app/models/social_account.rb` | ✅ 完了 |
+| B-13 | PartsPriceHistory モデル | `backend/app/models/parts_price_history.rb` | ✅ 完了 |
+| B-14 | ShareToken モデル | `backend/app/models/share_token.rb` | ✅ 完了 |
 
 ### 3.2 コントローラー（API）
 
@@ -155,6 +166,9 @@
 | B-21 | パーツコントローラー | `backend/app/controllers/api/v1/parts_controller.rb` | ✅ 完了 |
 | B-22 | おまかせ構成コントローラー | `backend/app/controllers/api/v1/presets_controller.rb` | ✅ 完了 |
 | B-23 | カスタム構成コントローラー | `backend/app/controllers/api/v1/builds_controller.rb` | ✅ 完了 |
+| B-24 | パスワードリセットコントローラー | `backend/app/controllers/api/v1/auth/password_resets_controller.rb` | ✅ 完了 |
+| B-25 | メール確認コントローラー | `backend/app/controllers/api/v1/auth/email_confirmations_controller.rb` | ✅ 完了 |
+| B-26 | OAuthコールバックコントローラー | `backend/app/controllers/api/v1/auth/oauth_callbacks_controller.rb` | ✅ 完了 |
 
 ### 3.3 管理者用コントローラー
 
@@ -184,7 +198,7 @@
 | B-81 | 価格動向コントローラー | `backend/app/controllers/api/v1/price_trends_controller.rb` | ✅ 完了 |
 | B-82 | ランキングコントローラー | `backend/app/controllers/api/v1/rankings_controller.rb` | ✅ 完了 |
 | B-83 | 楽天検索コントローラー（管理者） | `backend/app/controllers/api/v1/admin/rakuten_search_controller.rb` | ✅ 完了 |
-| B-84 | 買い時判定コントローラー | `backend/app/controllers/api/v1/buy_timing_controller.rb` | ✅ 完了 |
+| B-84 | 買い時判定コントローラー | `backend/app/controllers/api/v1/buy_advice_controller.rb` | ✅ 完了 |
 
 ### 3.6 マイグレーション
 
@@ -201,6 +215,9 @@
 | B-58 | parts_cases テーブル | PCケース | ✅ 完了 |
 | B-59 | pc_entrust_sets テーブル | おまかせ構成 | ✅ 完了 |
 | B-60 | pc_custom_sets テーブル | カスタム構成 | ✅ 完了 |
+| B-61 | share_tokens テーブル | 共有トークン | ✅ 完了 |
+| B-62 | social_accounts テーブル | ソーシャルアカウント | ✅ 完了 |
+| B-63 | parts_price_histories テーブル | 価格履歴 | ✅ 完了 |
 
 ### 3.7 テスト
 
@@ -212,6 +229,9 @@
 | B-73 | コントローラーテスト（ビルド） | `backend/spec/requests/api/v1/builds_spec.rb` | ✅ 完了 |
 | B-74 | 管理者APIテスト | `backend/spec/requests/api/v1/admin/` | ✅ 完了 |
 | B-75 | サービステスト | `backend/spec/services/` | ✅ 完了 |
+| B-76 | パスワードリセットテスト | `backend/spec/requests/api/v1/auth/password_resets_spec.rb` | ✅ 完了 |
+| B-77 | メール確認テスト | `backend/spec/requests/api/v1/auth/email_confirmations_spec.rb` | ✅ 完了 |
+| B-78 | OAuthコールバックテスト | `backend/spec/requests/api/v1/auth/oauth_callbacks_spec.rb` | ✅ 完了 |
 
 ---
 
@@ -234,13 +254,13 @@
 
 | カテゴリ | 完了 | 未着手 | 合計 |
 |----------|------|--------|------|
-| ドキュメント | 12 | 0 | 12 |
-| フロントエンド | 52 | 0 | 52 |
-| バックエンド | 36 | 0 | 36 |
+| ドキュメント | 12 | 4 | 16 |
+| フロントエンド | 56 | 0 | 56 |
+| バックエンド | 46 | 0 | 46 |
 | インフラ | 8 | 0 | 8 |
-| **合計** | **108** | **0** | **108** |
+| **合計** | **122** | **4** | **126** |
 
-**Phase 0〜9 全機能実装: 100% 完了** ✅
+**Phase 0〜9 全機能実装完了、ドキュメント4件未着手**
 
 ---
 
@@ -256,3 +276,4 @@
 | 2026-01-31 | Phase 6-2バグ修正・UX改善完了（予算帯修正、保存ボタン、用途タグ等） |
 | 2026-02-03 | テストガイド（D-12）を追加 |
 | 2026-02-09 | Phase 7〜9成果物追加: 価格分析3画面、TOPページセクション3種、ランキング、楽天API連携、管理画面検索インポート、ダークモード対応 |
+| 2026-02-18 | ドキュメントD-13〜D-16追加（管理者マニュアル、Sentry導入ガイド、認証強化仕様書、手動テスト手順書）、フロントエンド認証拡張ページ追加（F-51〜F-54）、バックエンドモデル追加（B-12〜B-14: SocialAccount、PartsPriceHistory、ShareToken）、認証コントローラー追加（B-24〜B-26）、認証テスト追加（B-76〜B-78）、B-84ファイルパスをbuy_advice_controller.rbに修正 |

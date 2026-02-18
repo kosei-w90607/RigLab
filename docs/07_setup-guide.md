@@ -66,8 +66,18 @@ DATABASE_HOST=db
 DATABASE_USERNAME=root
 DATABASE_PASSWORD=mysql
 
-# Devise Token Auth
-DEVISE_JWT_SECRET_KEY=your_jwt_secret_key_here
+# JWT認証（NextAuth.js JWT署名検証用の共通秘密鍵、フロントエンドと同じ値）
+NEXTAUTH_SECRET=your_nextauth_secret_here
+
+# 楽天API
+RAKUTEN_APPLICATION_ID=your_rakuten_app_id_here
+
+# Resend（メール送信）
+RESEND_API_KEY=your_resend_api_key_here
+FRONTEND_URL=http://localhost:3000
+
+# GitHub Actions定期実行認証
+CRON_SECRET=your_cron_secret_here
 ```
 
 > **Note**: `.env.example`が存在しない場合は、上記の内容で`backend/.env.local`を直接作成してください。
@@ -80,6 +90,17 @@ cp frontend/.env.example frontend/.env.local
 `.env.local`の内容例:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
+
+# NextAuth認証（バックエンドのNEXTAUTH_SECRETと同じ値）
+AUTH_SECRET=your_nextauth_secret_here
+# または NEXTAUTH_SECRET=your_nextauth_secret_here（後方互換）
+
+# Google OAuth（オプション、Google認証を利用する場合）
+AUTH_GOOGLE_ID=your_google_client_id_here
+AUTH_GOOGLE_SECRET=your_google_client_secret_here
+
+# Sentry（オプション）
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn_here
 ```
 
 > **Note**: `.env.example`が存在しない場合は、上記の内容で`frontend/.env.local`を直接作成してください。
@@ -343,3 +364,4 @@ docker compose exec back rails db:create db:migrate db:seed
 | 2026-01-31 | Docker seedコマンドにbundle execを追記、コマンド一覧にseed追加 |
 | 2026-02-03 | セクション「4.4 E2Eテスト（Playwright）の実行」追加 |
 | 2026-02-12 | 本番環境PostgreSQL（ハイブリッドDB構成）の注記追加 |
+| 2026-02-18 | Backend env例をJWT方式(NEXTAUTH_SECRET)に修正、Frontend env例にAUTH_SECRET/Google OAuth/Sentry追記、楽天API/Resend/CRON_SECRET環境変数追記 |

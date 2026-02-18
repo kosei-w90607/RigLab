@@ -19,6 +19,11 @@
 | S-11 | 価格動向一覧 | `/price-trends` | `page.tsx` |
 | S-12 | カテゴリ別価格動向 | `/price-trends/[category]` | `page.tsx` |
 | S-13 | パーツ別価格動向詳細 | `/price-trends/[category]/[partId]` | `page.tsx` |
+| S-14 | パスワードリセットリクエスト | `/forgot-password` | `page.tsx` |
+| S-15 | 新パスワード設定 | `/reset-password` | `page.tsx` |
+| S-16 | メール確認 | `/verify-email` | `page.tsx` |
+| S-17 | 利用規約 | `/terms` | `page.tsx` |
+| S-18 | プライバシーポリシー | `/privacy` | `page.tsx` |
 
 ### 1.2 管理者向け画面
 
@@ -32,6 +37,7 @@
 | A-06 | パーツ新規登録 | `/admin/parts/new` | `page.tsx` |
 | A-07 | プリセット新規登録 | `/admin/presets/new` | `page.tsx` |
 | A-08 | ユーザー管理 | `/admin/users` | `page.tsx` |
+| A-09 | 楽天検索パーツインポート | `/admin/parts/import` | `page.tsx` |
 
 ---
 
@@ -53,6 +59,14 @@ flowchart TD
     subgraph Auth[認証]
         SIGNIN[S-07: SignIn]
         SIGNUP[S-08: SignUp]
+        FORGOT[S-14: ForgotPassword]
+        RESET[S-15: ResetPassword]
+        VERIFY[S-16: VerifyEmail]
+    end
+
+    subgraph Legal[法務]
+        TERMS[S-17: Terms]
+        PRIVACY[S-18: Privacy]
     end
 
     subgraph Private[要ログイン]
@@ -82,8 +96,13 @@ flowchart TD
 
     %% 認証フロー
     SIGNIN -->|ログイン成功| DASH
+    SIGNIN -->|Googleでログイン| DASH
     SIGNIN -->|新規登録へ| SIGNUP
-    SIGNUP -->|登録成功| SIGNIN
+    SIGNIN -->|パスワードを忘れた| FORGOT
+    SIGNUP -->|登録成功| VERIFY
+    VERIFY -->|確認完了| SIGNIN
+    FORGOT -->|メール送信| RESET
+    RESET -->|リセット完了| SIGNIN
 
     %% ダッシュボードフロー
     DASH -->|構成を見る| DETAIL
@@ -118,9 +137,11 @@ flowchart TD
     ADMIN_DASH -->|ユーザー管理| USERS
 
     PARTS -->|新規登録| PARTS_NEW
+    PARTS -->|楽天検索インポート| PARTS_IMPORT
     PARTS -->|編集| PARTS_EDIT
     PARTS_NEW -->|保存/キャンセル| PARTS
     PARTS_EDIT -->|保存/キャンセル| PARTS
+    PARTS_IMPORT[A-09: PartsImport] -->|インポート完了| PARTS
 
     PRESETS -->|新規登録| PRESETS_NEW
     PRESETS -->|編集| PRESETS_EDIT
@@ -243,7 +264,48 @@ flowchart TD
    → 保存した構成を確認
 ```
 
-### 4.3 構成共有フロー（ログイン不要）
+### 4.3 認証拡張フロー
+
+**フロー1: Google OAuthログイン**
+```
+1. SignIn（ログイン画面）（http://localhost:3000/signin）
+   ↓ 「Googleでログイン」クリック
+2. Google認証画面（外部）
+   ↓ Googleアカウントで認証
+3. OAuthコールバック処理
+   ↓ 認証成功
+4. Dashboard（http://localhost:3000/dashboard）
+   → ダッシュボードにリダイレクト
+```
+
+**フロー2: メール確認フロー**
+```
+1. SignUp（新規登録）（http://localhost:3000/signup）
+   ↓ 必要情報入力後「登録する」
+2. 確認メールが送信される
+   ↓ メール内のリンクをクリック
+3. VerifyEmail（メール確認）（http://localhost:3000/verify-email?token=xxx）
+   → 確認完了メッセージ表示
+   ↓ 「ログインへ」クリック
+4. SignIn（ログイン画面）（http://localhost:3000/signin）
+   → 通常のログインフローへ
+```
+
+**フロー3: パスワードリセットフロー**
+```
+1. SignIn（ログイン画面）（http://localhost:3000/signin）
+   ↓ 「パスワードを忘れた方はこちら」クリック
+2. ForgotPassword（パスワードリセットリクエスト）（http://localhost:3000/forgot-password）
+   ↓ メールアドレスを入力し「送信」
+3. リセットメールが送信される
+   ↓ メール内のリンクをクリック
+4. ResetPassword（新パスワード設定）（http://localhost:3000/reset-password?token=xxx）
+   ↓ 新しいパスワードを入力し「パスワードを変更」
+5. SignIn（ログイン画面）（http://localhost:3000/signin）
+   → 新しいパスワードでログイン
+```
+
+### 4.4 構成共有フロー（ログイン不要）
 
 **方式1: クエリパラメータ方式（一時的な共有）**
 ```
@@ -272,7 +334,7 @@ flowchart TD
    → OG画像がプレビュー表示される
 ```
 
-### 4.4 ダッシュボードフロー
+### 4.5 ダッシュボードフロー
 
 **フロー1: 保存済み構成の詳細閲覧**
 ```
@@ -318,7 +380,7 @@ flowchart TD
    → 新しく保存した構成を確認
 ```
 
-### 4.5 共有構成閲覧フロー
+### 4.6 共有構成閲覧フロー
 
 **フロー1: クエリパラメータ方式での閲覧**
 ```
@@ -531,3 +593,4 @@ stateDiagram-v2
 | 2026-02-01 | 管理者画面追加（A-06〜A-08: パーツ新規登録、プリセット新規登録、ユーザー管理）、トークンベース共有（S-10）追加、共有機能フローを2方式に整理 |
 | 2026-02-01 | ユーザーフロー網羅的追加（4.1/4.2にログイン済みフロー、4.4ダッシュボードフロー、4.5共有構成閲覧フロー）、管理者フロー新規追加（セクション5）、4.2フロー2の誤記修正 |
 | 2026-02-09 | 価格動向画面追加（S-11〜S-13）、価格動向フロー追加、ダークモード切替フロー追加 |
+| 2026-02-18 | 認証関連画面追加（S-14〜S-16: パスワードリセット、メール確認）、法務ページ追加（S-17〜S-18: 利用規約、プライバシーポリシー）、管理者画面追加（A-09: 楽天検索パーツインポート）、認証拡張フロー追加（Google OAuth、メール確認、パスワードリセット） |
