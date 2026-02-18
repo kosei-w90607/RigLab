@@ -194,13 +194,13 @@ Render ダッシュボードの「Environment」タブで以下を手動設定�
 |--------|-----|------|
 | `RAILS_MASTER_KEY` | (credentials.yml.encの復号キー) | `cat backend/config/master.key` で確認 |
 | `NEXTAUTH_SECRET` | (認証シークレット) | フロントエンドの `AUTH_SECRET` と同じ値 |
-| `CORS_ORIGINS` | (Vercel本番URL) | 例: `https://rig-lab.vercel.app` |
+| `CORS_ORIGINS` | (本番フロントエンドURL) | 例: `https://rigl4b.com` |
 | `SENTRY_DSN` | (Sentry DSN) | オプション |
 | `RAKUTEN_APPLICATION_ID` | (楽天APIアプリID) | 楽天デベロッパーで取得 |
 | `RAKUTEN_ACCESS_KEY` | (楽天APIアクセスキー) | 同上 |
 | `CRON_SECRET` | (ランダム文字列) | GitHub Actions価格取得用（GitHub Secretsと同一値） |
 | `RESEND_API_KEY` | (ResendのAPIキー) | メール送信（パスワードリセット、メール認証） |
-| `FRONTEND_URL` | (Vercel本番URL) | メール内リンク生成用（例: `https://rig-lab.vercel.app`） |
+| `FRONTEND_URL` | (本番フロントエンドURL) | メール内リンク生成用（例: `https://rigl4b.com`） |
 
 ### 3.6 初回デプロイ後のセットアップ（自動実行）
 
@@ -351,7 +351,7 @@ Railwayは`DATABASE_URL`を変数参照で自動注入します。追加で以�
 | `RAILS_MASTER_KEY` | (credentials.yml.encの復号キー) | `cat backend/config/master.key` で確認 |
 | `DATABASE_URL` | `${{MySQL.DATABASE_URL}}` | Railway変数参照 |
 | `NEXTAUTH_SECRET` | (認証シークレット) | フロントエンドの `AUTH_SECRET` と同じ値 |
-| `CORS_ORIGINS` | (Vercel本番URL) | 例: `https://rig-lab.vercel.app` |
+| `CORS_ORIGINS` | (本番フロントエンドURL) | 例: `https://rigl4b.com` |
 | `SENTRY_DSN` | (Sentry DSN) | オプション |
 | `RAKUTEN_APPLICATION_ID` | (楽天APIアプリID) | 楽天デベロッパーで取得 |
 | `RAKUTEN_ACCESS_KEY` | (楽天APIアクセスキー) | 同上 |
@@ -743,9 +743,9 @@ gunzip < backup_20250101_030000.sql.gz | psql "$DATABASE_URL"
 | `SENTRY_DSN` | No | Sentryエラートラッキング | `https://xxx@sentry.io/xxx` |
 | `RAKUTEN_APPLICATION_ID` | Yes | 楽天API アプリケーションID | `xxxxxxxxxx` |
 | `RAKUTEN_ACCESS_KEY` | Yes | 楽天API アクセスキー | `xxxxxxxxxx` |
-| `RAKUTEN_ALLOWED_WEBSITE` | No | 楽天API許可ドメイン | デフォルト: `https://rig-lab.vercel.app` |
+| `RAKUTEN_ALLOWED_WEBSITE` | No | 楽天API許可ドメイン | デフォルト: `https://rigl4b.com` |
 | `RESEND_API_KEY` | Yes | Resendメール送信API キー | `re_xxxxxxxxxx` |
-| `FRONTEND_URL` | Yes | フロントエンドURL（メール内リンク生成用） | `https://rig-lab.vercel.app` |
+| `FRONTEND_URL` | Yes | フロントエンドURL（メール内リンク生成用） | `https://rigl4b.com` |
 | `CRON_SECRET` | Yes | GitHub Actions定期実行認証トークン | `openssl rand -base64 32` で生成 |
 | `RAILS_MAX_THREADS` | No | Pumaスレッド数 | `5` |
 | `WEB_CONCURRENCY` | No | Pumaワーカー数 | `2` |

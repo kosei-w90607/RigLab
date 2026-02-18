@@ -209,7 +209,7 @@ class RakutenApiClient
     end
 
     def allowed_website
-      ENV.fetch('RAKUTEN_ALLOWED_WEBSITE', 'https://rig-lab.vercel.app')
+      ENV.fetch('RAKUTEN_ALLOWED_WEBSITE', 'https://rigl4b.com')
     end
 
     def get_with_headers(url)
