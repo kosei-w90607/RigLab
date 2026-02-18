@@ -44,7 +44,7 @@ RSpec.describe RakutenApiClient do
     allow(ENV).to receive(:[]).with('RAKUTEN_APPLICATION_ID').and_return(application_id)
     allow(ENV).to receive(:[]).with('RAKUTEN_ACCESS_KEY').and_return(access_key)
     allow(ENV).to receive(:fetch).and_call_original
-    allow(ENV).to receive(:fetch).with('RAKUTEN_ALLOWED_WEBSITE', 'https://rigl4b.com').and_return('https://rigl4b.com')
+    allow(ENV).to receive(:fetch).with('RAKUTEN_ALLOWED_WEBSITE', anything).and_return('https://rigl4b.com')
   end
 
   describe '.detect_category' do
@@ -247,7 +247,7 @@ RSpec.describe RakutenApiClient do
 
     context 'RAKUTEN_ALLOWED_WEBSITE環境変数' do
       it 'カスタムWebサイトURLをヘッダーに使用する' do
-        allow(ENV).to receive(:fetch).with('RAKUTEN_ALLOWED_WEBSITE', 'https://rigl4b.com').and_return('https://custom-site.example.com')
+        allow(ENV).to receive(:fetch).with('RAKUTEN_ALLOWED_WEBSITE', anything).and_return('https://custom-site.example.com')
 
         stub = stub_request(:get, /#{Regexp.escape(base_url)}/)
           .with(headers: { 'Referer' => 'https://custom-site.example.com/', 'Origin' => 'https://custom-site.example.com' })
