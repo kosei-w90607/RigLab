@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 export default auth((req) => {
   const { pathname } = req.nextUrl
 
-  // Admin route protection
+  // 管理者ルートの保護
   if (pathname.startsWith('/admin')) {
     if (!req.auth) {
       return NextResponse.redirect(

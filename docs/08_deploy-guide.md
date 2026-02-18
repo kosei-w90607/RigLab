@@ -541,7 +541,7 @@ jobs:
 - [ ] `NEXTAUTH_SECRET` - ランダム生成された強固なシークレット
 - [ ] `AUTH_GOOGLE_ID` - Google OAuthクライアントID（Google認証を利用する場合）
 - [ ] `AUTH_GOOGLE_SECRET` - Google OAuthクライアントシークレット（Google認証を利用する場合）
-- [ ] `INTERNAL_API_URL` - サーバーサイドAPI通信用URL
+- [ ] `INTERNAL_API_URL` - サーバーサイドAPI通信用URL（必須）
 - [ ] `SENTRY_DSN` - Sentryエラートラッキング用（オプション）
 
 **環境変数確認（バックエンド）:**
@@ -723,7 +723,7 @@ gunzip < backup_20250101_030000.sql.gz | psql "$DATABASE_URL"
 | `AUTH_SECRET` | Yes | Auth.js v5 セッション暗号化キー | `openssl rand -base64 33` で生成 |
 | `AUTH_GOOGLE_ID` | No | Google OAuth クライアントID | Google Cloud Consoleで取得 |
 | `AUTH_GOOGLE_SECRET` | No | Google OAuth クライアントシークレット | Google Cloud Consoleで取得 |
-| `INTERNAL_API_URL` | No | サーバーサイドAPI通信用（Docker内部通信等） | `http://back:3000/api/v1` |
+| `INTERNAL_API_URL` | Yes | サーバーサイドAPI通信用（Docker内部通信等） | `http://back:3000/api/v1` |
 | `NEXT_PUBLIC_SENTRY_DSN` | No | Sentryエラートラッキング | `https://xxx@sentry.io/xxx` |
 
 > **Note:** `AUTH_SECRET` は Auth.js v5 の正式変数名です。後方互換のため `NEXTAUTH_SECRET` もフォールバックとして動作します。

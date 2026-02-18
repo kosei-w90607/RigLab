@@ -84,7 +84,7 @@ RSpec.describe BuyTimeAdvisorService do
 
   describe '.category_trends' do
     before do
-      # Create enough data so first 5 and last 5 are distinct groups
+      # 最初の5件と最後の5件が異なるグループになるよう十分なデータを作成
       create(:parts_price_history, part_type: 'cpu', part_id: cpu.id, price: 58000, fetched_at: 28.days.ago)
       create(:parts_price_history, part_type: 'cpu', part_id: cpu.id, price: 57000, fetched_at: 25.days.ago)
       create(:parts_price_history, part_type: 'cpu', part_id: cpu.id, price: 56000, fetched_at: 22.days.ago)
@@ -137,7 +137,7 @@ RSpec.describe BuyTimeAdvisorService do
 
     it 'returns parts with biggest price rises' do
       rises = described_class.biggest_changes(direction: :up, limit: 5)
-      # With only drops in data, rises should be empty or at the end
+      # 下落データのみなので、上昇リストは空またはリストの末尾に位置する
       expect(rises).to be_an(Array)
     end
   end

@@ -26,6 +26,7 @@ services:
       TZ: Asia/Tokyo
       RAILS_ENV: development
       NEXTAUTH_SECRET: development-secret-key-for-riglab
+      FRONTEND_URL: http://localhost:3000
       REDIS_URL: redis://redis:6379/0
     depends_on:
       - db

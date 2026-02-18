@@ -62,9 +62,9 @@ Rails.application.configure do
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
 
-  # Disable host authorization for tests
+  # テスト環境ではホスト認証を無効化
   config.host_authorization = { exclude: ->(request) { true } }
 
-  # Disable Rack::Attack for tests
+  # テスト環境ではRack::Attackを無効化
   config.middleware.delete Rack::Attack
 end

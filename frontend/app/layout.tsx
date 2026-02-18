@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'ja_JP',
-    url: process.env.NEXT_PUBLIC_APP_URL || 'https://riglab.example.com',
+    ...(process.env.NEXT_PUBLIC_APP_URL && { url: process.env.NEXT_PUBLIC_APP_URL }),
     siteName: 'RigLab',
     title: 'RigLab - あなただけのPC構成を見つけよう',
     description:

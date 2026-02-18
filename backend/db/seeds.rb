@@ -4,7 +4,7 @@
 
 puts "Seeding database..."
 
-# CPUs
+# CPU
 cpus = [
   # Intel 13th/14th Gen (LGA1700) - DDR4/DDR5両対応
   { name: "Intel Core i5-13400F", price: 28980, maker: "Intel", socket: "LGA1700", tdp: 65, memory_type: "DDR4,DDR5", specs: { cores: 10, threads: 16, base_clock: 2.5, boost_clock: 4.6 } },
@@ -41,7 +41,7 @@ cpus.each do |cpu|
 end
 puts "  Created #{PartsCpu.count} CPUs"
 
-# GPUs
+# GPU
 gpus = [
   { name: "NVIDIA GeForce RTX 4060", price: 44980, maker: "NVIDIA", tdp: 115, length_mm: 240, specs: { vram: 8, memory_type: "GDDR6" } },
   { name: "NVIDIA GeForce RTX 4060 Ti", price: 59980, maker: "NVIDIA", tdp: 160, length_mm: 240, specs: { vram: 8, memory_type: "GDDR6" } },
@@ -71,7 +71,7 @@ gpus.each do |gpu|
 end
 puts "  Created #{PartsGpu.count} GPUs"
 
-# Memories
+# メモリ
 memories = [
   { name: "Crucial DDR5-4800 16GB (8GBx2)", price: 8980, maker: "Crucial", memory_type: "DDR5", specs: { capacity: 16, speed: 4800, modules: 2 } },
   { name: "Crucial DDR5-5600 32GB (16GBx2)", price: 15980, maker: "Crucial", memory_type: "DDR5", specs: { capacity: 32, speed: 5600, modules: 2 } },
@@ -96,7 +96,7 @@ memories.each do |memory|
 end
 puts "  Created #{PartsMemory.count} Memories"
 
-# Storages
+# ストレージ
 storages = [
   { name: "Samsung 990 Pro 1TB", price: 15980, maker: "Samsung", specs: { capacity: 1000, storage_type: "NVMe SSD", interface: "PCIe 4.0 x4", read_speed: 7450, write_speed: 6900 } },
   { name: "Samsung 990 Pro 2TB", price: 24980, maker: "Samsung", specs: { capacity: 2000, storage_type: "NVMe SSD", interface: "PCIe 4.0 x4", read_speed: 7450, write_speed: 6900 } },
@@ -124,7 +124,7 @@ storages.each do |storage|
 end
 puts "  Created #{PartsStorage.count} Storages"
 
-# Operating Systems
+# OS
 os_list = [
   { name: "Windows 11 Home", price: 19800, maker: "Microsoft", specs: { version: "11 Home" } },
   { name: "Windows 11 Pro", price: 28800, maker: "Microsoft", specs: { version: "11 Pro" } },
@@ -138,7 +138,7 @@ os_list.each do |os|
 end
 puts "  Created #{PartsOs.count} Operating Systems"
 
-# Motherboards
+# マザーボード
 motherboards = [
   # Intel LGA1700 (13th/14th Gen)
   { name: "ASUS ROG STRIX B760-F GAMING WIFI", price: 32980, maker: "ASUS", socket: "LGA1700", memory_type: "DDR5", form_factor: "ATX", specs: { chipset: "B760", memory_slots: 4, max_memory: 128, m2_slots: 2 } },
@@ -170,7 +170,7 @@ motherboards.each do |mb|
 end
 puts "  Created #{PartsMotherboard.count} Motherboards"
 
-# PSUs
+# 電源ユニット
 psus = [
   { name: "Corsair RM650", price: 12980, maker: "Corsair", wattage: 650, form_factor: "ATX", specs: { efficiency: "80+ Gold", modular: "Full" } },
   { name: "Corsair RM750", price: 14980, maker: "Corsair", wattage: 750, form_factor: "ATX", specs: { efficiency: "80+ Gold", modular: "Full" } },
@@ -194,7 +194,7 @@ psus.each do |psu|
 end
 puts "  Created #{PartsPsu.count} PSUs"
 
-# Cases
+# PCケース
 cases = [
   { name: "NZXT H5 Flow", price: 12980, maker: "NZXT", form_factor: "ATX", max_gpu_length_mm: 365, specs: { max_cpu_cooler_height: 165 } },
   { name: "NZXT H7 Flow", price: 17980, maker: "NZXT", form_factor: "ATX", max_gpu_length_mm: 400, specs: { max_cpu_cooler_height: 185 } },
@@ -218,10 +218,10 @@ cases.each do |pc_case|
 end
 puts "  Created #{PartsCase.count} Cases"
 
-# Presets (PcEntrustSets)
+# プリセット（PcEntrustSets）
 puts "Creating presets..."
 
-# Helper to find parts by name
+# パーツ名でパーツを検索するヘルパー
 def find_cpu(name)
   PartsCpu.find_by!(name: name)
 end
@@ -517,7 +517,7 @@ end
 
 puts "  Created #{PcEntrustSet.count} Presets"
 
-# Users (テスト・開発用)
+# ユーザー（テスト・開発用）
 puts "Creating users..."
 
 # 管理者ユーザー
@@ -538,7 +538,7 @@ user.save!
 
 puts "  Created #{User.count} Users"
 
-# Price Histories (過去60日分のダミーデータ)
+# 価格履歴（過去60日分のダミーデータ）
 puts "Creating price histories..."
 
 CATEGORY_MODELS_FOR_SEED = {

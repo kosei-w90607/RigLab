@@ -21,11 +21,12 @@ import type {
   PartsCase,
 } from '@/types'
 import { api, ApiClientError } from '@/lib/api'
+import { calculateRecommendedPsuWattage } from '@/lib/psu-calculator'
 import { shareConfiguration } from '@/lib/share'
 import { useToast } from '@/app/components/ui/Toast'
 import { SpecComparisonSection } from '@/app/components/configurator/SpecComparison'
 
-// API response types for edit mode
+// 編集モード用のAPIレスポンス型
 interface ApiPart {
   id: number
   name: string
@@ -150,7 +151,7 @@ export default function ConfiguratorPage() {
   const [buildName, setBuildName] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch all parts on mount
+  // マウント時に全パーツを取得
   useEffect(() => {
     const fetchParts = async () => {
       try {
@@ -322,7 +323,7 @@ export default function ConfiguratorPage() {
     }
   }, [parts])
 
-  // Fetch existing build when editing
+  // 編集時に既存の構成を取得
   useEffect(() => {
     const fetchBuildForEdit = async () => {
       if (!editId || !parts || !session?.accessToken) return
@@ -335,10 +336,10 @@ export default function ConfiguratorPage() {
         )
         const buildData = response.data
 
-        // Set build name
+        // 構成名を設定
         setBuildName(buildData.name)
 
-        // Build a map of parts by category from API response
+        // APIレスポンスからカテゴリ別のパーツマップを構築
         const partsByCategory: Record<string, ApiPart[]> = {}
         for (const entry of buildData.parts) {
           if (!partsByCategory[entry.category]) {
@@ -347,7 +348,7 @@ export default function ConfiguratorPage() {
           partsByCategory[entry.category].push(entry.part)
         }
 
-        // Find and set selected parts from the loaded parts lists
+        // 読み込んだパーツリストから選択パーツを検索・設定
         const findPart = <T extends { id: number }>(list: T[], apiPart: ApiPart | undefined): T | null => {
           if (!apiPart) return null
           return list.find(p => p.id === apiPart.id) || null
@@ -542,7 +543,7 @@ export default function ConfiguratorPage() {
     if (!cpu || !gpu) return
 
     // 推奨ワット数を計算
-    const recommendedWattage = Math.ceil((cpu.tdp + gpu.tdp) * 1.5 + 100)
+    const recommendedWattage = calculateRecommendedPsuWattage(cpu.tdp, gpu.tdp)
 
     // 選択中のPSUが推奨を満たさなければリセット
     if (selected.psu.wattage < recommendedWattage) {
@@ -640,14 +641,14 @@ export default function ConfiguratorPage() {
       }
 
       if (editId) {
-        // Update existing build
+        // 既存の構成を更新
         await api.put<{ data: { id: number } }>(
           `/builds/${editId}`,
           payload,
           session?.accessToken
         )
       } else {
-        // Create new build
+        // 新規構成を作成
         await api.post<{ data: { id: number } }>(
           '/builds',
           payload,
@@ -704,7 +705,7 @@ export default function ConfiguratorPage() {
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Parts Selection */}
+          {/* パーツ選択 */}
           <div className="lg:col-span-2">
             <Card padding="lg" shadow="sm">
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-6">パーツ選択</h2>
@@ -844,7 +845,7 @@ export default function ConfiguratorPage() {
                   {(() => {
                     const canSelectPsu = selected.cpu && selected.gpu
                     const recommendedWattage = canSelectPsu
-                      ? Math.ceil((selected.cpu!.tdp + selected.gpu!.tdp) * 1.5 + 100)
+                      ? calculateRecommendedPsuWattage(selected.cpu!.tdp, selected.gpu!.tdp)
                       : null
                     const psuHint = !selected.cpu
                       ? 'CPUを先に選択してください'
@@ -907,12 +908,12 @@ export default function ConfiguratorPage() {
             </Card>
           </div>
 
-          {/* Summary */}
+          {/* サマリー */}
           <div className="lg:col-span-1">
             <Card padding="lg" shadow="sm" className="sticky top-4">
               <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">構成サマリー</h2>
 
-              {/* Selected Parts */}
+              {/* 選択パーツ */}
               <div className="mb-4">
                 <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">選択パーツ</h3>
                 <dl className="space-y-1 text-sm">
@@ -965,7 +966,7 @@ export default function ConfiguratorPage() {
                 </dl>
               </div>
 
-              {/* System Parts */}
+              {/* システムパーツ */}
               <div className="mb-4 pt-4 border-t border-gray-200">
                 <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">互換性パーツ</h3>
                 <dl className="space-y-1 text-sm">
@@ -990,7 +991,7 @@ export default function ConfiguratorPage() {
                 </dl>
               </div>
 
-              {/* Total Price */}
+              {/* 合計金額 */}
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700 mb-6">
                 <div className="flex justify-between items-center">
                   <span className="font-medium text-gray-900 dark:text-gray-100">合計:</span>
@@ -1000,7 +1001,7 @@ export default function ConfiguratorPage() {
                 </div>
               </div>
 
-              {/* Actions */}
+              {/* アクション */}
               <div className="space-y-2">
                 <Button
                   variant="secondary"
@@ -1056,7 +1057,7 @@ export default function ConfiguratorPage() {
         {parts && <SpecComparisonSection cpus={parts.cpus} gpus={parts.gpus} />}
       </div>
 
-      {/* Save Modal */}
+      {/* 保存モーダル */}
       <Modal
         isOpen={showSaveModal}
         onClose={() => setShowSaveModal(false)}

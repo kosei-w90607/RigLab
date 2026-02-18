@@ -6,36 +6,24 @@
 
 ---
 
-## 直近の作業サマリー（2026-02-18）
+## 直近の作業サマリー（2026-02-19）
 
-### 完了: Phase 10-B/C 実装、10-D テスト・ドキュメント（PR #73）
+### 完了: 暗黙のフォールバック修正 — 本番環境での静かな障害を防止
 
-- Phase 10-B（メール認証）: 全6タスク完了 — auto-confirm廃止、確認メール送信、verify-emailページ等
-- Phase 10-C（Google OAuth）: 全7タスク完了 — social_accounts テーブル、OAuthコールバック、Googleボタン等
-- Phase 10-D（統合テスト）: 全4タスク完了 — RSpec認証テスト、E2Eテスト、API設計書更新
-- Google OAuth ボタン表示制御: `useGoogleEnabled` hook で Provider 有無に応じた条件描画
+- `next.config.ts`: `BACKEND_URL` を IIFE パターンに変換、`NEXT_PUBLIC_API_URL` ビルド時バリデーション追加
+- `lib/auth.ts`: `INTERNAL_API_URL` をランタイムガード付き IIFE に変換（`AUTH_SECRET` と同一パターン）
+- `env.d.ts`: `INTERNAL_API_URL?` と `AUTH_SECRET?` の型宣言追加
+- `docs/08_deploy-guide.md`: `INTERNAL_API_URL` を必須に変更
 
-### 変更ファイル（PR #73）
-- `backend/app/controllers/api/v1/auth/registrations_controller.rb` — auto-confirm廃止
-- `backend/app/controllers/api/v1/auth/email_confirmations_controller.rb` — 新規
-- `backend/app/controllers/api/v1/auth/oauth_callbacks_controller.rb` — 新規
-- `backend/app/controllers/api/v1/auth/sessions_controller.rb` — 未認証チェック追加
-- `backend/app/mailers/auth_mailer.rb` — 確認メールテンプレート追加
-- `backend/app/views/auth_mailer/email_confirmation.html.erb` — 新規
-- `backend/app/views/auth_mailer/email_confirmation.text.erb` — 新規
-- `backend/app/models/social_account.rb` — 新規
-- `backend/db/migrate/*_create_social_accounts.rb` — 新規
-- `backend/spec/requests/api/v1/auth/` — 各controllerテスト追加
-- `frontend/app/verify-email/page.tsx` — 新規
-- `frontend/app/signin/page.tsx` — Googleボタン・未認証チェック追加
-- `frontend/app/signup/page.tsx` — 確認メール送信画面・Googleボタン追加
-- `frontend/lib/auth.ts` — Google Provider追加、callback修正
-- `frontend/hooks/useGoogleEnabled.ts` — 新規作成
-- `frontend/e2e/auth-integration.spec.ts` — E2Eテスト追加
-- `docs/05_api-design.md` — 認証API仕様更新
+### 変更ファイル
+- `frontend/next.config.ts` — IIFE 化 + NEXT_PUBLIC_API_URL バリデーション追加
+- `frontend/lib/auth.ts` — INTERNAL_API_URL をランタイムガード付き IIFE に変換
+- `frontend/env.d.ts` — INTERNAL_API_URL?, AUTH_SECRET? 型宣言追加
+- `docs/08_deploy-guide.md` — INTERNAL_API_URL を Required: Yes に変更
 
 ### 次回アクション
-- なし（全タスク完了、PR #73 マージ・デプロイ済み）
+- Vercel プロジェクト設定に `INTERNAL_API_URL` が設定されていることを確認
+- CI 環境にも `NEXT_PUBLIC_API_URL` と `INTERNAL_API_URL` が設定されていることを確認
 
 ### 本番リリースチェックリスト
 

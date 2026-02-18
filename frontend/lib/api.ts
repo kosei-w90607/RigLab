@@ -1,5 +1,5 @@
-// Client-side: use relative URL (proxied by Next.js rewrites)
-// Server-side: use full URL (for SSR/API routes)
+// クライアントサイド: 相対URL を使用（Next.js rewrites でプロキシ）
+// サーバーサイド: 完全URL を使用（SSR/APIルート用）
 const API_BASE_URL = typeof window === 'undefined'
   ? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1')
   : '/api/v1'

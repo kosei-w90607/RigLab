@@ -9,6 +9,7 @@ import { Input } from '@/app/components/ui/Input'
 import { Select } from '@/app/components/ui/Select'
 import { useToast } from '@/app/components/ui/Toast'
 import { api, ApiResponse } from '@/lib/api'
+import { calculateRecommendedPsuWattage } from '@/lib/psu-calculator'
 
 // 予算帯
 const BUDGET_OPTIONS = [
@@ -250,8 +251,7 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
     // 電源容量チェック（警告のみ）
     if (cpu && psu && cpu.tdp && psu.wattage) {
       const gpuTdp = gpu?.tdp || 0
-      const totalTdp = cpu.tdp + gpuTdp
-      const recommendedWattage = totalTdp * 1.5 + 100
+      const recommendedWattage = calculateRecommendedPsuWattage(cpu.tdp, gpuTdp)
 
       if (psu.wattage < recommendedWattage) {
         warnings.push({
@@ -353,7 +353,7 @@ export function PresetForm({ initialData, isEdit = false }: PresetFormProps) {
   const selectedCpuForPsu = partsOptions.cpu?.find(p => p.id === formData.cpuId)
   const selectedGpuForPsu = partsOptions.gpu?.find(p => p.id === formData.gpuId)
   const recommendedWattage = canSelectPsu && selectedCpuForPsu?.tdp && selectedGpuForPsu?.tdp
-    ? Math.ceil((selectedCpuForPsu.tdp + selectedGpuForPsu.tdp) * 1.5 + 100)
+    ? calculateRecommendedPsuWattage(selectedCpuForPsu.tdp, selectedGpuForPsu.tdp)
     : null
 
   // 推奨W以上のPSUのみ表示

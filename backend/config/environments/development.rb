@@ -71,7 +71,7 @@ Rails.application.configure do
   # Raise error when a before_action's only/except options reference missing actions
   config.action_controller.raise_on_missing_callback_actions = true
 
-  # Allow requests from Docker service names
+  # Dockerサービス名からのリクエストを許可
   config.hosts << 'back'
   config.hosts << 'localhost'
 end
