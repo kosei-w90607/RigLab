@@ -86,5 +86,14 @@ Rails.application.configure do
     ENV.fetch('RENDER_EXTERNAL_HOSTNAME', 'localhost'),
     /.*\.onrender\.com/
   ]
-  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  ENV.fetch('ALLOWED_HOSTS', '').split(',').map(&:strip).reject(&:empty?).each do |host|
+    config.hosts << host
+  end
+
+  config.host_authorization = {
+    exclude: ->(request) {
+      request.path == "/up" || request.path.start_with?("/api/")
+    }
+  }
 end

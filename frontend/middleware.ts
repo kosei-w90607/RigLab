@@ -22,11 +22,11 @@ export default auth((req) => {
 
   const csp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${isDev ? " 'unsafe-eval'" : ''}`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' https: data:",
     "font-src 'self'",
-    "connect-src 'self' https://*.sentry.io",
+    `connect-src 'self' https://*.ingest.sentry.io https://*.sentry.io`,
     "frame-ancestors 'none'",
     "object-src 'none'",
     "base-uri 'self'",
@@ -49,6 +49,12 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    {
+      source: '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+      missing: [
+        { type: 'header', key: 'next-router-prefetch' },
+        { type: 'header', key: 'purpose', value: 'prefetch' },
+      ],
+    },
   ],
 }
