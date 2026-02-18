@@ -1,15 +1,27 @@
 import type { NextConfig } from 'next'
 import { withSentryConfig } from '@sentry/nextjs'
 
-// Backend API URL for server-side rewrites (use Docker service name in container)
-// INTERNAL_API_URL is for server-side, NEXT_PUBLIC_API_URL is for client-side
-const BACKEND_URL = process.env.INTERNAL_API_URL?.replace('/api/v1', '') || 'http://localhost:3001'
+// サーバーサイドリライト用のバックエンドAPI URL（コンテナ内ではDockerサービス名を使用）
+// INTERNAL_API_URL はサーバーサイド用、NEXT_PUBLIC_API_URL はクライアントサイド用
+const BACKEND_URL = (() => {
+  const url = process.env.INTERNAL_API_URL
+  if (!url && process.env.NODE_ENV === 'production') {
+    throw new Error('INTERNAL_API_URL must be set in production')
+  }
+  return url?.replace('/api/v1', '') || 'http://localhost:3001'
+})()
+
+// NEXT_PUBLIC_API_URL はビルド時にバンドルへインライン化される
+// 本番ビルドで未設定の場合、全 API 呼び出しが localhost にフォールバックするため即停止
+if (process.env.NODE_ENV === 'production' && !process.env.NEXT_PUBLIC_API_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL must be set in production')
+}
 
 const nextConfig: NextConfig = {
-  // Strict Mode for development
+  // 開発用の Strict Mode
   reactStrictMode: true,
 
-  // Security headers (CSP is handled by middleware for nonce support)
+  // セキュリティヘッダー（CSP は nonce 対応のため middleware で処理）
   async headers() {
     return [
       {
@@ -29,8 +41,8 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // API proxy to backend (Rails)
-  // Note: /api/auth/* routes are handled by NextAuth, not proxied
+  // バックエンド（Rails）へのAPIプロキシ
+  // 注意: /api/auth/* ルートは NextAuth が処理し、プロキシしない
   async rewrites() {
     return [
       {
@@ -40,7 +52,7 @@ const nextConfig: NextConfig = {
     ]
   },
 
-  // Image optimization settings
+  // 画像最適化設定
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'thumbnail.image.rakuten.co.jp' },
@@ -48,12 +60,12 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Webpack config for Docker file watching (fixes HMR issues)
+  // Docker ファイル監視用の Webpack 設定（HMR の問題を修正）
   webpack: (config, { dev }) => {
     if (dev) {
       config.watchOptions = {
-        poll: 1000,        // Check for changes every second
-        aggregateTimeout: 300,  // Delay before rebuilding
+        poll: 1000,        // 毎秒変更をチェック
+        aggregateTimeout: 300,  // リビルド前の遅延
       }
     }
     return config

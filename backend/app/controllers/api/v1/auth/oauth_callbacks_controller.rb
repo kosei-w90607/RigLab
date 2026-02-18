@@ -11,22 +11,22 @@ module Api
             return render json: { error: "email_not_verified" }, status: :unprocessable_entity
           end
 
-          # Existing social account → return user (idempotent)
+          # 既存のソーシャルアカウント → ユーザーを返す（冪等）
           existing_social = SocialAccount.find_by(provider: params[:provider], uid: params[:uid])
           if existing_social
             return render_user(existing_social.user, created: false)
           end
 
-          # Find or create user by email
+          # メールアドレスでユーザーを検索または作成
           user = User.find_by(email: params[:email]&.downcase)
           created = false
 
           ActiveRecord::Base.transaction do
             if user
-              # Link social account to existing user
+              # 既存ユーザーにソーシャルアカウントを紐付け
               user.confirm! unless user.confirmed?
             else
-              # Create new user (no password)
+              # 新規ユーザーを作成（パスワードなし）
               user = User.new(
                 email: params[:email].downcase,
                 name: params[:name],
@@ -50,7 +50,7 @@ module Api
 
           render_user(user, created: created)
         rescue ActiveRecord::RecordNotUnique
-          # Race condition: social account already created by concurrent request
+          # 競合状態: 並行リクエストによりソーシャルアカウントが既に作成済み
           social = SocialAccount.find_by!(provider: params[:provider], uid: params[:uid])
           render_user(social.user, created: false)
         end

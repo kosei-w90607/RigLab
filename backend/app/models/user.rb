@@ -4,7 +4,7 @@ class User < ApplicationRecord
 
   ROLES = %w[user admin].freeze
 
-  # Validations
+  # バリデーション
   validates :email, presence: true, uniqueness: true,
                     format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :role, presence: true, inclusion: { in: ROLES }
@@ -13,19 +13,19 @@ class User < ApplicationRecord
                                  message: 'は英字と数字を両方含めてください' },
                        if: -> { password.present? }
 
-  # Callbacks
+  # コールバック
   before_save :encrypt_password, if: -> { password.present? }
   before_create :set_default_provider_and_uid
 
-  # Virtual attribute for password
+  # パスワード仮想属性
   attr_accessor :password
 
   def admin?
     role == 'admin'
   end
 
-  # Authenticate user with email and password
-  # Returns user if authentication succeeds, nil otherwise
+  # メールアドレスとパスワードでユーザーを認証する
+  # 認証成功時はユーザーを返し、失敗時はnilを返す
   def self.authenticate(email, password)
     user = find_by(email: email.downcase)
     return nil unless user
@@ -34,7 +34,7 @@ class User < ApplicationRecord
     user.authenticate_password(password) ? user : nil
   end
 
-  # Check if password matches
+  # パスワードが一致するか検証する
   def authenticate_password(plain_password)
     return false if encrypted_password.blank?
 
@@ -43,19 +43,19 @@ class User < ApplicationRecord
     false
   end
 
-  # Check if user is confirmed (email verified)
+  # ユーザーがメール確認済みか判定する
   def confirmed?
     confirmed_at.present?
   end
 
-  # Confirm user
+  # ユーザーのメールを確認済みにする
   def confirm!
     update!(confirmed_at: Time.current)
   end
 
-  # Generate a password reset token
-  # Returns the raw token (to be sent via email)
-  # Stores SHA256 hash in DB (secure: DB leak doesn't expose token)
+  # パスワードリセットトークンを生成する
+  # 生トークンを返す（メールで送信用）
+  # DBにはSHA256ハッシュを保存（DB漏洩時にトークンが露出しない）
   def generate_reset_password_token!
     raw_token = SecureRandom.urlsafe_base64(32)
     update!(
@@ -65,7 +65,7 @@ class User < ApplicationRecord
     raw_token
   end
 
-  # Find user by raw reset token (within 2-hour expiry)
+  # 生リセットトークンでユーザーを検索する（有効期限2時間）
   def self.find_by_reset_token(raw_token)
     return nil if raw_token.blank?
 
@@ -77,14 +77,14 @@ class User < ApplicationRecord
     user
   end
 
-  # Clear reset password token after successful reset
+  # パスワードリセット成功後にトークンをクリアする
   def clear_reset_password_token!
     update!(reset_password_token: nil, reset_password_sent_at: nil)
   end
 
-  # Generate an email confirmation token
-  # Returns the raw token (to be sent via email)
-  # Stores SHA256 hash in DB (same pattern as password reset)
+  # メール確認トークンを生成する
+  # 生トークンを返す（メールで送信用）
+  # DBにはSHA256ハッシュを保存（パスワードリセットと同じパターン）
   def generate_confirmation_token!
     raw_token = SecureRandom.urlsafe_base64(32)
     update!(
@@ -94,7 +94,7 @@ class User < ApplicationRecord
     raw_token
   end
 
-  # Find user by raw confirmation token (within 24-hour expiry)
+  # 生確認トークンでユーザーを検索する（有効期限24時間）
   def self.find_by_confirmation_token(raw_token)
     return nil if raw_token.blank?
 
@@ -106,7 +106,7 @@ class User < ApplicationRecord
     user
   end
 
-  # Clear confirmation token after successful verification
+  # メール確認成功後にトークンをクリアする
   def clear_confirmation_token!
     update!(confirmation_token: nil, confirmation_sent_at: nil)
   end

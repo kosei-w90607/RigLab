@@ -99,18 +99,18 @@ module Api
             :socket, :tdp, :memory_type,
             # GPU
             :length_mm,
-            # Memory (memory_type is already included)
-            # Storage
+            # メモリ（memory_typeは上で既に含む）
+            # ストレージ
             :capacity_gb, :interface, :storage_type,
             # OS
             :version, :edition,
-            # Motherboard (socket, memory_type already included)
+            # マザーボード（socket, memory_typeは上で既に含む）
             :form_factor,
-            # PSU (form_factor already included)
+            # 電源（form_factorは上で既に含む）
             :wattage,
-            # Case (form_factor already included)
+            # ケース（form_factorは上で既に含む）
             :max_gpu_length_mm,
-            # specs as JSON
+            # specsはJSON
             specs: {}
           )
 

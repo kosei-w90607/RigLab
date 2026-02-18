@@ -235,7 +235,7 @@ export default function BuilderResultPage() {
       try {
         const params = new URLSearchParams()
         if (budget && budget !== 'any') {
-          // Convert frontend budget key to backend format (entry/middle/high)
+          // フロントエンドの予算キーをバックエンド形式（entry/middle/high）に変換
           const budgetMap: Record<string, string> = {
             under100k: 'entry',
             '100k-300k': 'middle',
@@ -244,7 +244,7 @@ export default function BuilderResultPage() {
           params.set('budget', budgetMap[budget] || budget)
         }
         if (usages.length > 0) {
-          params.set('use_case', usages[0]) // API accepts single use_case for now
+          params.set('use_case', usages[0]) // APIは現在単一のuse_caseのみ受付
         }
 
         const endpoint = `/presets?${params.toString()}`

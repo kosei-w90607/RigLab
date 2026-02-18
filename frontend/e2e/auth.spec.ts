@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-// Generate unique email for each test run to avoid conflicts
+// テスト実行ごとにユニークなメールアドレスを生成（競合回避）
 const generateTestEmail = () => `test-${Date.now()}@example.com`
 
 test.describe('認証機能', () => {
@@ -89,7 +89,7 @@ test.describe('認証機能', () => {
       await expect(page.getByText('パスワードが一致しません')).toBeVisible()
     })
 
-    // バックエンドAPI連携が必要なテスト
+    // バックエンドAPI連携が必要なテスト（スキップ）
     test.skip('登録成功後にホームへリダイレクトされる', async ({ page }) => {
       const testEmail = generateTestEmail()
 

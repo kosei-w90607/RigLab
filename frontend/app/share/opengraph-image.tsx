@@ -66,7 +66,7 @@ export default async function Image({
       os = result.parts.os || null
       totalPrice = result.totalPrice
     } catch {
-      // Use default values
+      // デフォルト値を使用
     }
   }
 
@@ -84,7 +84,7 @@ export default async function Image({
           padding: '40px',
         }}
       >
-        {/* Header */}
+        {/* ヘッダー */}
         <div
           style={{
             display: 'flex',
@@ -103,7 +103,7 @@ export default async function Image({
           </span>
         </div>
 
-        {/* Divider */}
+        {/* 区切り線 */}
         <div
           style={{
             width: '80%',
@@ -113,7 +113,7 @@ export default async function Image({
           }}
         />
 
-        {/* Title */}
+        {/* タイトル */}
         <div
           style={{
             fontSize: '36px',
@@ -125,7 +125,7 @@ export default async function Image({
           カスタムPC構成
         </div>
 
-        {/* Parts Table */}
+        {/* パーツテーブル */}
         <div
           style={{
             display: 'flex',
@@ -203,7 +203,7 @@ export default async function Image({
           )}
         </div>
 
-        {/* Divider */}
+        {/* 区切り線 */}
         <div
           style={{
             width: '80%',
@@ -214,7 +214,7 @@ export default async function Image({
           }}
         />
 
-        {/* Total Price */}
+        {/* 合計金額 */}
         <div
           style={{
             fontSize: '32px',

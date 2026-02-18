@@ -1,5 +1,5 @@
 // ============================================
-// User
+// ユーザー
 // ============================================
 export interface User {
   id: number
@@ -11,7 +11,7 @@ export interface User {
 }
 
 // ============================================
-// Parts - Base
+// パーツ - 共通
 // ============================================
 export interface BasePart {
   id: number
@@ -24,7 +24,7 @@ export interface BasePart {
 }
 
 // ============================================
-// Parts - CPU
+// パーツ - CPU
 // ============================================
 export type SocketType = 'LGA1700' | 'LGA1200' | 'AM5' | 'AM4'
 export type MemoryType = 'DDR4' | 'DDR5'
@@ -36,7 +36,7 @@ export interface PartsCpu extends BasePart {
 }
 
 // ============================================
-// Parts - GPU
+// パーツ - GPU
 // ============================================
 export interface PartsGpu extends BasePart {
   tdp: number
@@ -44,24 +44,24 @@ export interface PartsGpu extends BasePart {
 }
 
 // ============================================
-// Parts - Memory
+// パーツ - メモリ
 // ============================================
 export interface PartsMemory extends BasePart {
   memoryType: MemoryType
 }
 
 // ============================================
-// Parts - Storage
+// パーツ - ストレージ
 // ============================================
 export interface PartsStorage extends BasePart {}
 
 // ============================================
-// Parts - OS
+// パーツ - OS
 // ============================================
 export interface PartsOs extends BasePart {}
 
 // ============================================
-// Parts - Motherboard
+// パーツ - マザーボード
 // ============================================
 export type FormFactor = 'ATX' | 'mATX' | 'ITX'
 
@@ -72,7 +72,7 @@ export interface PartsMotherboard extends BasePart {
 }
 
 // ============================================
-// Parts - PSU
+// パーツ - 電源ユニット
 // ============================================
 export type PsuFormFactor = 'ATX' | 'SFX'
 
@@ -82,7 +82,7 @@ export interface PartsPsu extends BasePart {
 }
 
 // ============================================
-// Parts - Case
+// パーツ - ケース
 // ============================================
 export interface PartsCase extends BasePart {
   formFactor: FormFactor
@@ -90,7 +90,7 @@ export interface PartsCase extends BasePart {
 }
 
 // ============================================
-// Parts - Union Type
+// パーツ - ユニオン型
 // ============================================
 export type Part =
   | PartsCpu
@@ -113,7 +113,7 @@ export type PartType =
   | 'case'
 
 // ============================================
-// PC Entrust Set (Preset)
+// おまかせ構成（プリセット）
 // ============================================
 export type BudgetRange = 'under_100k' | '100k_300k' | 'over_300k' | 'any'
 export type UseCase = 'gaming' | 'creative' | 'office'
@@ -140,7 +140,7 @@ export interface PcEntrustSet {
 }
 
 // ============================================
-// PC Custom Set (Build)
+// カスタム構成（ビルド）
 // ============================================
 export interface PcCustomSet {
   id: number
@@ -163,7 +163,7 @@ export interface PcCustomSet {
 }
 
 // ============================================
-// API Request Types
+// APIリクエスト型
 // ============================================
 export interface CreateBuildRequest {
   name: string
@@ -184,7 +184,7 @@ export interface SearchPresetsParams {
 }
 
 // ============================================
-// Compatibility Check
+// 互換性チェック
 // ============================================
 export interface CompatibilityResult {
   compatible: boolean
@@ -198,7 +198,7 @@ export interface CompatibilityIssue {
 }
 
 // ============================================
-// Price History & Buy Advice
+// 価格履歴と購入アドバイス
 // ============================================
 export interface PriceHistory {
   price: number

@@ -15,7 +15,7 @@ import { createShareUrl } from '@/lib/share'
 import { ScrollToTopButton } from '@/app/components/ui/ScrollToTopButton'
 import { useToast } from '@/app/components/ui/Toast'
 
-// API response type (camelCase - api.tsで変換済み)
+// APIレスポンス型（camelCase - api.ts で変換済み）
 interface ApiBuildSummary {
   id: number
   name: string
@@ -25,7 +25,7 @@ interface ApiBuildSummary {
   updatedAt: string
 }
 
-// Transform API response to frontend type
+// APIレスポンスをフロントエンド型に変換
 function transformBuild(apiBuild: ApiBuildSummary): PcCustomSet {
   return {
     id: apiBuild.id,
@@ -233,14 +233,14 @@ export default function DashboardPage() {
     }
   }, [addToast])
 
-  // Redirect to signin if not authenticated
+  // 未認証の場合はサインインページにリダイレクト
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/signin?callbackUrl=/dashboard')
     }
   }, [status, router])
 
-  // Fetch user's builds
+  // ユーザーのビルド一覧を取得
   useEffect(() => {
     const fetchBuilds = async () => {
       if (!session?.accessToken) return
@@ -291,7 +291,7 @@ export default function DashboardPage() {
 
   const handleShare = async (build: PcCustomSet) => {
     try {
-      // ビルド詳細を取得してパーツIDを取得
+      // ビルド詳細を取得してパーツ ID を取得
       const response = await api.get<{ data: { parts: { category: string; part: { id: number } }[] } }>(
         `/builds/${build.id}`,
         session?.accessToken
@@ -308,7 +308,7 @@ export default function DashboardPage() {
         }
       }
 
-      // share_tokensでトークン生成してURL取得
+      // share_tokens でトークン生成して URL 取得
       const shareUrl = await createShareUrl(partIds)
 
       if (navigator.share) {
@@ -327,7 +327,7 @@ export default function DashboardPage() {
     }
   }
 
-  // Show loading while checking auth
+  // 認証チェック中はローディング表示
   if (status === 'loading') {
     return (
       <div className="flex-1 px-4 py-8 md:py-12">
@@ -340,7 +340,7 @@ export default function DashboardPage() {
     )
   }
 
-  // Don't render anything while redirecting
+  // リダイレクト中は何も描画しない
   if (status === 'unauthenticated') {
     return null
   }
@@ -348,7 +348,7 @@ export default function DashboardPage() {
   return (
     <div className="flex-1 px-4 py-8 md:py-12">
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
+        {/* ヘッダー */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -365,7 +365,7 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        {/* Error State */}
+        {/* エラー状態 */}
         {error && (
           <Card padding="lg" shadow="sm" className="text-center mb-6">
             <p className="text-red-600 mb-4">{error}</p>
@@ -375,7 +375,7 @@ export default function DashboardPage() {
           </Card>
         )}
 
-        {/* Loading State */}
+        {/* ローディング状態 */}
         {isLoading && !error && (
           <>
             <p className="text-gray-600 dark:text-gray-400 mb-4">保存した構成</p>
@@ -385,7 +385,7 @@ export default function DashboardPage() {
           </>
         )}
 
-        {/* Builds List */}
+        {/* ビルド一覧 */}
         {!isLoading && !error && (
           <>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
@@ -408,7 +408,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Delete Confirmation Dialog */}
+      {/* 削除確認ダイアログ */}
       <ConfirmDialog
         isOpen={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}
@@ -421,7 +421,7 @@ export default function DashboardPage() {
         isLoading={isDeleting}
       />
 
-      {/* Create Build Modal */}
+      {/* 構成作成モーダル */}
       <CreateBuildModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

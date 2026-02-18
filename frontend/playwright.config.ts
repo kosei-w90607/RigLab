@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test'
 
 /**
- * Playwright E2E Test Configuration
+ * Playwright E2Eテスト設定
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
@@ -24,7 +24,7 @@ export default defineConfig({
     },
   ],
 
-  /* Run local dev server before starting the tests */
+  /* テスト開始前にローカル開発サーバーを起動 */
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',

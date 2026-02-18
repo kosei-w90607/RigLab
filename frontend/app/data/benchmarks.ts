@@ -1,4 +1,4 @@
-// CPU Benchmark Data (Cinebench R23 + PassMark CPU Mark scores - public benchmark references)
+// CPU ベンチマークデータ（Cinebench R23 + PassMark CPU Mark スコア - 公開ベンチマーク参照）
 export interface CpuBenchmark {
   name: string
   multiScore: number
@@ -7,14 +7,14 @@ export interface CpuBenchmark {
 }
 
 export const CPU_BENCHMARKS: CpuBenchmark[] = [
-  // Intel 13th/14th Gen
+  // Intel 第13/14世代
   { name: 'Intel Core i5-13400F', multiScore: 14311, singleScore: 1796, passMarkScore: 25013 },
   { name: 'Intel Core i5-14400F', multiScore: 16124, singleScore: 1791, passMarkScore: 25618 },
   { name: 'Intel Core i7-13700F', multiScore: 25403, singleScore: 2026, passMarkScore: 38031 },
   { name: 'Intel Core i7-14700F', multiScore: 34805, singleScore: 2097, passMarkScore: 41463 },
   { name: 'Intel Core i9-14900K', multiScore: 38497, singleScore: 2358, passMarkScore: 58454 },
   { name: 'Intel Core i5-14400', multiScore: 16900, singleScore: 1790, passMarkScore: 25306 },
-  // Intel 15th Gen Arrow Lake
+  // Intel 第15世代 Arrow Lake
   { name: 'Intel Core Ultra 5 245K', multiScore: 25099, singleScore: 2118, passMarkScore: 43292 },
   { name: 'Intel Core Ultra 7 265K', multiScore: 37273, singleScore: 2303, passMarkScore: 58720 },
   { name: 'Intel Core Ultra 9 285K', multiScore: 41583, singleScore: 2318, passMarkScore: 67384 },
@@ -35,14 +35,14 @@ export const CPU_BENCHMARKS: CpuBenchmark[] = [
   { name: 'AMD Ryzen 9 9950X3D', multiScore: 42369, singleScore: 2240, passMarkScore: 70190 },
 ]
 
-// GPU Benchmark Data (3DMark Time Spy scores)
+// GPU ベンチマークデータ（3DMark Time Spy スコア）
 export interface GpuBenchmark {
   name: string
   timeSpyScore: number
 }
 
 export const GPU_BENCHMARKS: GpuBenchmark[] = [
-  // NVIDIA RTX 40 Series
+  // NVIDIA RTX 40 シリーズ
   { name: 'NVIDIA GeForce RTX 4060', timeSpyScore: 10615 },
   { name: 'NVIDIA GeForce RTX 4060 Ti', timeSpyScore: 13494 },
   { name: 'NVIDIA GeForce RTX 4060 Ti 16GB', timeSpyScore: 13494 },
@@ -51,7 +51,7 @@ export const GPU_BENCHMARKS: GpuBenchmark[] = [
   { name: 'NVIDIA GeForce RTX 4070 Ti Super', timeSpyScore: 24314 },
   { name: 'NVIDIA GeForce RTX 4080 Super', timeSpyScore: 28304 },
   { name: 'NVIDIA GeForce RTX 4090', timeSpyScore: 36328 },
-  // NVIDIA RTX 50 Series
+  // NVIDIA RTX 50 シリーズ
   { name: 'NVIDIA GeForce RTX 5070', timeSpyScore: 22544 },
   { name: 'NVIDIA GeForce RTX 5070 Ti', timeSpyScore: 27607 },
   { name: 'NVIDIA GeForce RTX 5080', timeSpyScore: 33116 },

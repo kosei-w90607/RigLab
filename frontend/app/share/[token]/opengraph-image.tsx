@@ -48,7 +48,7 @@ export default async function Image({ params }: { params: Promise<{ token: strin
       data = json.data
     }
   } catch {
-    // Use default values
+    // デフォルト値を使用
   }
 
   const getPartByCategory = (category: string): Part | undefined => {

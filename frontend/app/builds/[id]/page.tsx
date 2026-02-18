@@ -16,7 +16,7 @@ import { PriceInfoSection } from '@/app/components/price/PriceInfoSection'
 
 type BuildData = PcCustomSet | PcEntrustSet
 
-// API response types (snake_case from Rails)
+// APIレスポンス型（snake_case - Railsからの応答）
 interface ApiPart {
   id: number
   name: string
@@ -40,7 +40,7 @@ interface ApiBuildDetail {
   updatedAt: string
 }
 
-// Transform API part to frontend part type
+// APIパーツをフロントエンドのパーツ型に変換
 function transformPart(apiPart: ApiPart): BasePart {
   return {
     id: apiPart.id,
@@ -53,9 +53,9 @@ function transformPart(apiPart: ApiPart): BasePart {
   }
 }
 
-// Transform API response to frontend type
+// APIレスポンスをフロントエンド型に変換
 function transformBuildDetail(api: ApiBuildDetail): PcCustomSet {
-  // Build a map of parts by category
+  // カテゴリ別のパーツマップを構築
   const partsByCategory: Record<string, BasePart[]> = {}
 
   for (const entry of api.parts) {
@@ -65,13 +65,13 @@ function transformBuildDetail(api: ApiBuildDetail): PcCustomSet {
     partsByCategory[entry.category].push(transformPart(entry.part))
   }
 
-  // Get first part of category or create placeholder
+  // カテゴリの最初のパーツを取得、なければプレースホルダーを作成
   const getPart = (category: string, index = 0): BasePart => {
     const parts = partsByCategory[category] || []
     return parts[index] || { id: 0, name: '未選択', maker: '', price: 0, specs: {}, createdAt: '', updatedAt: '' }
   }
 
-  // Storage parts are all in 'storage' category as array
+  // ストレージパーツは'storage'カテゴリに配列として格納
   const storageParts = partsByCategory['storage'] || []
 
   return {
@@ -303,7 +303,7 @@ export default function BuildDetailPage() {
           <SkeletonDetail />
         ) : build ? (
           <>
-            {/* Header */}
+            {/* ヘッダー */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                 {build.name}
@@ -324,7 +324,7 @@ export default function BuildDetailPage() {
               </div>
             </div>
 
-            {/* Parts List */}
+            {/* パーツ一覧 */}
             <Card padding="lg" shadow="md" className="mb-6">
               <h2 className="text-lg font-bold text-gray-900 mb-4">選択パーツ</h2>
               <table className="w-full text-sm">
@@ -360,12 +360,12 @@ export default function BuildDetailPage() {
               </div>
             </Card>
 
-            {/* Meta Info */}
+            {/* メタ情報 */}
             <div className="text-sm text-gray-500 mb-6">
               作成日: {build.createdAt ? formatDate(build.createdAt) : '-'}
             </div>
 
-            {/* Delete Button */}
+            {/* 削除ボタン */}
             {isOwner && (
               <div className="text-center">
                 <Button
@@ -380,7 +380,7 @@ export default function BuildDetailPage() {
         ) : null}
       </div>
 
-      {/* Delete Confirmation Dialog */}
+      {/* 削除確認ダイアログ */}
       <ConfirmDialog
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}

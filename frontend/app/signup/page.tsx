@@ -66,7 +66,7 @@ export default function SignUpPage() {
     setIsLoading(true)
 
     try {
-      // Register user via new JWT API (uses Next.js rewrite proxy)
+      // 新しいJWT APIでユーザー登録（Next.jsのリライトプロキシを使用）
       const response = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

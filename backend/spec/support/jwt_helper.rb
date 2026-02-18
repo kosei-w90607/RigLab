@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
-# Helper module for JWT authentication in tests
-# Generates JWT tokens compatible with NextAuth.js
+# テスト用JWT認証ヘルパーモジュール
+# NextAuth.js互換のJWTトークンを生成する
 module JwtHelper
-  # Test secret - must match the value used in test environment
+  # テスト用シークレット - テスト環境で使用する値と一致させる必要がある
   TEST_JWT_SECRET = 'test-secret-for-rspec'
 
-  # Generate JWT auth headers for a user
-  # @param user [User] the user to authenticate
-  # @return [Hash] headers hash with Authorization Bearer token
+  # ユーザーのJWT認証ヘッダーを生成する
+  # @param user [User] 認証対象のユーザー
+  # @return [Hash] Authorization Bearerトークンを含むヘッダーハッシュ
   def jwt_auth_headers(user)
     token = generate_jwt_token(user)
     { 'Authorization' => "Bearer #{token}" }
   end
 
-  # Generate JWT token for a user
-  # @param user [User] the user to generate token for
-  # @return [String] JWT token
+  # ユーザーのJWTトークンを生成する
+  # @param user [User] トークン生成対象のユーザー
+  # @return [String] JWTトークン
   def generate_jwt_token(user)
     payload = {
       sub: user.id.to_s,
@@ -33,7 +33,7 @@ end
 RSpec.configure do |config|
   config.include JwtHelper, type: :request
 
-  # Set the NEXTAUTH_SECRET env var for tests
+  # テスト用にNEXTAUTH_SECRET環境変数を設定
   config.before(:suite) do
     ENV['NEXTAUTH_SECRET'] = JwtHelper::TEST_JWT_SECRET
   end
