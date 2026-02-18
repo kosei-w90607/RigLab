@@ -209,7 +209,7 @@ class RakutenApiClient
     end
 
     def allowed_website
-      ENV.fetch('RAKUTEN_ALLOWED_WEBSITE', ENV.fetch('FRONTEND_URL', 'http://localhost:3000'))
+      ENV['RAKUTEN_ALLOWED_WEBSITE'] || ENV.fetch('FRONTEND_URL')
     end
 
     def get_with_headers(url)

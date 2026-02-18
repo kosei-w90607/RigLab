@@ -122,12 +122,12 @@
   > **⚠️ INTERNAL_API_URL 必須**: `frontend/lib/auth.ts:6` と `frontend/next.config.ts:6` が参照。未設定時は `localhost:3001` にフォールバックし、**Vercel上でのSSR認証（サインイン）と next.config.ts の rewrites が全て失敗する**。Render公開URLの `/api/v1` パスまで含めて設定すること。
 
 - [x] 「Deploy」→ ビルドログ確認 → デプロイ成功
-- [x] Vercel発行URL をメモ（例: `https://rig-lab.vercel.app`）
+- [x] Vercel発行URL をメモ（例: `https://your-domain.com`）
 
 ### Step 6: CORS設定
 - [×] Render Dashboard → Environment で `CORS_ORIGINS` を設定:
   ```
-  CORS_ORIGINS=https://rig-lab.vercel.app
+  CORS_ORIGINS=https://your-domain.com
   ```
   ※ 独自ドメインも使う場合はカンマ区切りで追加
 - [×] Render再デプロイ → フロントエンドからAPI接続確認
@@ -179,7 +179,7 @@
   - 変更 = Render Dashboard で環境変数を更新 → 再デプロイ
 
 ### Step 9: 動作確認
-- [x] TOPページ表示（`https://rig-lab.vercel.app`）
+- [x] TOPページ表示（`https://your-domain.com`）
 - [x] 認証: サインアップ → サインイン → ログアウト
 - [x] おまかせ構成: builder → 予算・用途選択 → 結果表示 → 保存
 - [x] カスタム構成: configurator → パーツ選択 → 互換性フィルタ動作 → 保存
@@ -312,7 +312,7 @@ GitHub Actions (cron) → HTTP POST → CronController → PriceFetchAllJob.perf
 1. **AUTH_SECRET 値不一致問題（致命的）**: Vercel の `AUTH_SECRET` が Render の `NEXTAUTH_SECRET` と異なる値で設定されていた。`auth.ts:7` で `AUTH_SECRET` が `||` チェーンの最初にあるため優先され、Frontend が異なる鍵で JWT を署名 → Backend で `JWT::VerificationError` → 全認証API失敗。**必ず同一の値にすること**
 2. **INTERNAL_API_URL 未設定（致命的）**: Vercel に未設定だった。`auth.ts:6` と `next.config.ts:6` が `localhost:3001` にフォールバック → SSR認証・rewrites全失敗。**Render公開URL + `/api/v1` を設定すること**
 3. **NEXT_PUBLIC_APP_URL 未設定（推奨）**: `layout.tsx:19` の OG メタデータ URL が `riglab.example.com` になる。Vercel公開URLを設定推奨
-4. **RAKUTEN_ALLOWED_WEBSITE**: デフォルト `https://rig-lab.vercel.app`。Vercel URL がこれと異なる場合、楽天APIのリファラー制限で弾かれる可能性あり
+4. **RAKUTEN_ALLOWED_WEBSITE**: FRONTEND_URL 環境変数に依存。Vercel URL と異なる場合、楽天APIのリファラー制限で弾かれる可能性あり
 5. **PostgreSQL 期限**: Render Dashboard で実際の期限日を確認すること
 
 ---

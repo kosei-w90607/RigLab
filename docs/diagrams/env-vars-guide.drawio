@@ -1,0 +1,314 @@
+<mxfile host="65bd71144e">
+    <diagram id="qweW7vS8PqfFl5lToEII" name="ページ1">
+        <mxGraphModel dx="938" dy="432" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="2" value="&lt;font style=&quot;font-size: 24px;&quot;&gt;&lt;b&gt;RigLab 環境変数ガイド&lt;/b&gt;&lt;/font&gt;&lt;br&gt;開発環境 vs 本番環境" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;" vertex="1" parent="1">
+                    <mxGeometry x="550" y="20" width="500" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="3" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;arcSize=8;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="90" width="720" height="200" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;1. 環境変数とは？&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=top;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="100" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="&lt;b&gt;アプリケーション&lt;/b&gt;&lt;br&gt;(Rails / Next.js)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" vertex="1" parent="1">
+                    <mxGeometry x="340" y="150" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="&lt;b&gt;NEXTAUTH_SECRET&lt;/b&gt;&lt;br&gt;= abc123..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="80" y="140" width="200" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="&lt;b&gt;FRONTEND_URL&lt;/b&gt;&lt;br&gt;= http://localhost:3000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="80" y="190" width="200" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="&lt;b&gt;DATABASE_URL&lt;/b&gt;&lt;br&gt;= mysql://..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="80" y="240" width="200" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="6" target="5">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="7" target="5">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="8" target="5">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 12px;&quot;&gt;ENV.fetch(&quot;NEXTAUTH_SECRET&quot;)&lt;br&gt;ENV[&quot;FRONTEND_URL&quot;]&lt;br&gt;process.env.NEXT_PUBLIC_API_URL&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f0f0f0;strokeColor=#999;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="140" width="300" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" style="edgeStyle=orthogonalEdgeStyle;" edge="1" parent="1" source="5" target="12">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="&lt;i&gt;コードに秘密情報を書かず、&lt;br&gt;環境ごとに値を変えられる仕組み&lt;/i&gt;" style="text;html=1;align=left;fontSize=12;fillColor=none;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="220" width="250" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="15" value="&lt;b&gt;なぜ必要？&lt;/b&gt;&lt;br&gt;同じコードで開発/本番を切り替えたい&lt;br&gt;APIキーをGitHubに公開したくない" style="text;html=1;align=left;fontSize=11;fillColor=#e1d5e7;strokeColor=#9673a6;rounded=1;" vertex="1" parent="1">
+                    <mxGeometry x="340" y="225" width="200" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;2. 開発環境 vs 本番環境 — 値の供給経路&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="310" width="500" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#43a047;arcSize=5;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="350" width="720" height="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="&lt;font style=&quot;font-size: 15px;&quot; color=&quot;#2e7d32&quot;&gt;&lt;b&gt;開発環境 (Docker Compose)&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="355" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="&lt;b&gt;docker-compose.yml&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Git管理 ✅&lt;/font&gt;" style="shape=document;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#43a047;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="395" width="170" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 10px;&quot;&gt;&lt;b&gt;environment:&lt;/b&gt;&lt;br&gt;NEXTAUTH_SECRET: dev-key&lt;br&gt;FRONTEND_URL: http://localhost:3000&lt;br&gt;MAILER_FROM: noreply@example.com&lt;br&gt;RAILS_ENV: development&lt;br&gt;REDIS_URL: redis://redis:6379&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#43a047;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="280" y="390" width="270" height="90" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#43a047;" edge="1" parent="1" source="19" target="20">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="&lt;font color=&quot;#2e7d32&quot;&gt;公開OK値&lt;/font&gt;" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="235" y="400" width="60" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="23" value="&lt;b&gt;backend/.env.local&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Git除外 ❌&lt;/font&gt;" style="shape=document;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#e53935;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="500" width="170" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="24" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 10px;&quot;&gt;&lt;b&gt;env_file: ./backend/.env.local&lt;/b&gt;&lt;br&gt;RAKUTEN_APPLICATION_ID=xxxxx&lt;br&gt;RAKUTEN_ACCESS_KEY=xxxxx&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#e53935;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="280" y="505" width="270" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#e53935;" edge="1" parent="1" source="23" target="24">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="&lt;font color=&quot;#c62828&quot;&gt;秘密の値&lt;/font&gt;" style="text;html=1;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="235" y="520" width="60" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="&lt;b&gt;backend/.env.example&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Git管理 ✅ (テンプレート)&lt;/font&gt;" style="shape=document;whiteSpace=wrap;html=1;fillColor=#e0e0e0;strokeColor=#999;fontSize=12;dashed=1;" vertex="1" parent="1">
+                    <mxGeometry x="60" y="595" width="170" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="コピーして作る" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#999;" edge="1" parent="1" source="27" target="23">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="40" y="630"/>
+                            <mxPoint x="40" y="535"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="29" value="&lt;b&gt;back&lt;/b&gt;&lt;br&gt;Rails API&lt;br&gt;:3001" style="shape=mxgraph.aws3.ec2;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="390" width="70" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="30" value="&lt;b&gt;front&lt;/b&gt;&lt;br&gt;Next.js&lt;br&gt;:3000" style="shape=mxgraph.aws3.ec2;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="490" width="70" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="&lt;b&gt;db&lt;/b&gt;&lt;br&gt;MySQL&lt;br&gt;:3306" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;size=10;" vertex="1" parent="1">
+                    <mxGeometry x="600" y="580" width="70" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="ENV注入" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#43a047;fontStyle=1;fontSize=10;" edge="1" parent="1" source="20" target="29">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#e53935;" edge="1" parent="1" source="24" target="29">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="34" value="&lt;b&gt;dotenv gem なし&lt;/b&gt;&lt;br&gt;Railsは.envを自動読みしない&lt;br&gt;Docker Composeが注入するだけ" style="text;html=1;align=left;fontSize=11;fillColor=#fff9c4;strokeColor=#f9a825;rounded=1;" vertex="1" parent="1">
+                    <mxGeometry x="280" y="575" width="220" height="55" as="geometry"/>
+                </mxCell>
+                <mxCell id="35" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565c0;arcSize=5;" vertex="1" parent="1">
+                    <mxGeometry x="800" y="350" width="760" height="370" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" value="&lt;font style=&quot;font-size: 15px;&quot; color=&quot;#1565c0&quot;&gt;&lt;b&gt;本番環境 (Render + Vercel)&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="820" y="355" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="37" value="&lt;b&gt;Render ダッシュボード&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Web UI で手動入力&lt;/font&gt;" style="shape=mxgraph.azure.cloud;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="820" y="395" width="170" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="38" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 10px;&quot;&gt;NEXTAUTH_SECRET=本番の秘密鍵&lt;br&gt;FRONTEND_URL=https://riglab.vercel.app&lt;br&gt;MAILER_FROM=noreply@riglab.com&lt;br&gt;CORS_ORIGINS=https://riglab.vercel.app&lt;br&gt;RESEND_API_KEY=re_xxxxx&lt;br&gt;RAKUTEN_APPLICATION_ID=xxxxx&lt;br&gt;DATABASE_URL=(自動注入)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#1565c0;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="1040" y="390" width="270" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="39" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#1565c0;" edge="1" parent="1" source="37" target="38">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="40" value="&lt;b&gt;render.yaml&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;変数名のテンプレートのみ&lt;br&gt;sync: false = 値なし&lt;/font&gt;" style="shape=document;whiteSpace=wrap;html=1;fillColor=#e0e0e0;strokeColor=#999;fontSize=11;dashed=1;" vertex="1" parent="1">
+                    <mxGeometry x="820" y="510" width="170" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="41" value="テンプレ参照" style="edgeStyle=orthogonalEdgeStyle;dashed=1;strokeColor=#999;fontSize=10;" edge="1" parent="1" source="40" target="37">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="800" y="545"/>
+                            <mxPoint x="800" y="435"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="42" value="&lt;b&gt;Vercel ダッシュボード&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;Web UI で手動入力&lt;/font&gt;" style="shape=mxgraph.azure.cloud;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#43a047;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="820" y="600" width="170" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="43" value="&lt;font face=&quot;monospace&quot; style=&quot;font-size: 10px;&quot;&gt;NEXT_PUBLIC_API_URL=https://...&lt;br&gt;INTERNAL_API_URL=https://...&lt;br&gt;NEXTAUTH_SECRET=本番の秘密鍵&lt;br&gt;NEXTAUTH_URL=https://riglab.vercel.app&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;strokeColor=#43a047;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="1040" y="610" width="270" height="65" as="geometry"/>
+                </mxCell>
+                <mxCell id="44" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#43a047;" edge="1" parent="1" source="42" target="43">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="45" value="&lt;b&gt;Rails API&lt;/b&gt;&lt;br&gt;Render Web Service" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="1370" y="410" width="140" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="46" value="&lt;b&gt;Next.js&lt;/b&gt;&lt;br&gt;Vercel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#43a047;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="1370" y="615" width="140" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="47" value="&lt;b&gt;PostgreSQL&lt;/b&gt;&lt;br&gt;Render DB" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;size=10;" vertex="1" parent="1">
+                    <mxGeometry x="1400" y="490" width="80" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="48" value="ENV注入" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#1565c0;fontStyle=1;fontSize=10;" edge="1" parent="1" source="38" target="45">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="49" value="ビルド時に埋込" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#43a047;fontStyle=1;fontSize=10;" edge="1" parent="1" source="43" target="46">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="50" value="&lt;b&gt;required_env.rb&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;起動時に5変数を検証&lt;br&gt;未設定 → 起動失敗&lt;/font&gt;" style="shape=hexagon;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#e53935;fontSize=11;size=15;" vertex="1" parent="1">
+                    <mxGeometry x="1350" y="320" width="180" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="51" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#e53935;dashed=1;" edge="1" parent="1" source="50" target="45">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="52" value="&lt;b&gt;GitHub Actions&lt;/b&gt;&lt;br&gt;&lt;font style=&quot;font-size: 10px;&quot;&gt;GitHub Secrets から取得&lt;br&gt;RENDER_API_URL&lt;br&gt;CRON_SECRET&lt;/font&gt;" style="shape=mxgraph.azure.cloud;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="1090" y="510" width="170" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="53" value="毎日3:00 JST" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#9673a6;dashed=1;fontSize=10;" edge="1" parent="1" source="52" target="45">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="54" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;3. 同じ変数でも値が違う — 開発 vs 本番&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="740" width="500" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="55" value="&lt;b&gt;変数名&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#424242;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="780" width="220" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="56" value="&lt;b&gt;開発環境の値&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#2e7d32;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="260" y="780" width="300" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="57" value="&lt;b&gt;本番環境の値&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1565c0;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="780" width="300" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="58" value="&lt;b&gt;供給元&lt;/b&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#424242;fontColor=#ffffff;fontSize=12;" vertex="1" parent="1">
+                    <mxGeometry x="860" y="780" width="200" height="35" as="geometry"/>
+                </mxCell>
+                <mxCell id="59" value="NEXTAUTH_SECRET" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=11;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="815" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="60" value="development-secret-key-for-riglab" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8f5e9;fontSize=10;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="260" y="815" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="61" value="本番用の強力なランダム文字列" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3f2fd;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="815" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="62" value="docker-compose / Render+Vercel" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="860" y="815" width="200" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="63" value="FRONTEND_URL" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=11;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="845" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="64" value="http://localhost:3000" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8f5e9;fontSize=10;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="260" y="845" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="65" value="https://riglab.vercel.app" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3f2fd;fontSize=10;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="845" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="66" value="docker-compose / Render" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="860" y="845" width="200" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="67" value="DATABASE_URL" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=11;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="875" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="68" value="(database.ymlのMySQL設定を使用)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8f5e9;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="260" y="875" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="69" value="postgresql://user:pass@host/db (Render自動)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3f2fd;fontSize=10;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="875" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="70" value="(なし) / Render自動注入" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="860" y="875" width="200" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="71" value="NEXT_PUBLIC_API_URL" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=11;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="905" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="72" value="http://localhost:3001/api/v1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8f5e9;fontSize=10;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="260" y="905" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="73" value="https://riglab-api.onrender.com/api/v1" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3f2fd;fontSize=10;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="905" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="74" value="docker-compose / Vercel" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="860" y="905" width="200" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="75" value="RAKUTEN_APPLICATION_ID" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=11;fontFamily=monospace;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="935" width="220" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="76" value="(backend/.env.local に個人のキー)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffebee;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="260" y="935" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="77" value="(Render Dashboardに本番キー)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e3f2fd;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="560" y="935" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="78" value=".env.local / Render" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff;fontSize=10;" vertex="1" parent="1">
+                    <mxGeometry x="860" y="935" width="200" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="79" value="&lt;font style=&quot;font-size: 16px;&quot;&gt;&lt;b&gt;4. まとめ: 環境変数の旅&lt;/b&gt;&lt;/font&gt;" style="text;html=1;align=left;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="990" width="300" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="80" value="&lt;b&gt;1&lt;/b&gt;&lt;br&gt;.env.example&lt;br&gt;をコピー" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e0e0e0;strokeColor=#999;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="1040" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="81" value="&lt;b&gt;2&lt;/b&gt;&lt;br&gt;.env.local&lt;br&gt;に秘密情報記入" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#e53935;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="200" y="1040" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="82" value="&lt;b&gt;3&lt;/b&gt;&lt;br&gt;docker compose&lt;br&gt;up -d" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#c8e6c9;strokeColor=#43a047;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="370" y="1040" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="83" value="&lt;b&gt;4&lt;/b&gt;&lt;br&gt;Docker Compose が&lt;br&gt;ENV を注入" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="540" y="1040" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="84" value="&lt;b&gt;5&lt;/b&gt;&lt;br&gt;Rails / Next.js&lt;br&gt;が ENV を読む" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="720" y="1040" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="85" style="strokeColor=#666;" edge="1" parent="1" source="80" target="81">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="86" style="strokeColor=#666;" edge="1" parent="1" source="81" target="82">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="87" style="strokeColor=#666;" edge="1" parent="1" source="82" target="83">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="88" style="strokeColor=#666;" edge="1" parent="1" source="83" target="84">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="89" value="&lt;font color=&quot;#2e7d32&quot; style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;開発環境&lt;/b&gt;&lt;/font&gt;" style="text;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="1020" width="80" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="90" value="&lt;b&gt;1&lt;/b&gt;&lt;br&gt;Render/Vercel&lt;br&gt;Dashboard 開く" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="1140" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="91" value="&lt;b&gt;2&lt;/b&gt;&lt;br&gt;環境変数を&lt;br&gt;手動入力" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="210" y="1140" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="92" value="&lt;b&gt;3&lt;/b&gt;&lt;br&gt;デプロイ&lt;br&gt;(git push)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#bbdefb;strokeColor=#1565c0;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="380" y="1140" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="93" value="&lt;b&gt;4&lt;/b&gt;&lt;br&gt;required_env.rb&lt;br&gt;が5変数を検証" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffcdd2;strokeColor=#e53935;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="540" y="1140" width="140" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="94" value="&lt;b&gt;5&lt;/b&gt;&lt;br&gt;OK → 起動&lt;br&gt;NG → 起動失敗" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" vertex="1" parent="1">
+                    <mxGeometry x="720" y="1140" width="130" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="95" style="strokeColor=#1565c0;" edge="1" parent="1" source="90" target="91">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="96" style="strokeColor=#1565c0;" edge="1" parent="1" source="91" target="92">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="97" style="strokeColor=#1565c0;" edge="1" parent="1" source="92" target="93">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="98" style="strokeColor=#1565c0;" edge="1" parent="1" source="93" target="94">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="99" value="&lt;font color=&quot;#1565c0&quot; style=&quot;font-size: 12px;&quot;&gt;&lt;b&gt;本番環境&lt;/b&gt;&lt;/font&gt;" style="text;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="40" y="1120" width="80" height="20" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
