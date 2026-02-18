@@ -4,35 +4,35 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="Admin Panel" vertex="1">
-          <mxGeometry height="688" width="1078" x="262" y="8" as="geometry" />
+        <mxCell id="2" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="管理画面" vertex="1">
+          <mxGeometry height="760" width="1078" x="262" y="8" as="geometry" />
         </mxCell>
-        <mxCell id="3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="SignIn" vertex="1">
+        <mxCell id="3" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="ログイン" vertex="1">
           <mxGeometry height="54" width="105" x="8" y="393" as="geometry" />
         </mxCell>
-        <mxCell id="4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-01: Dashboard" vertex="1">
-          <mxGeometry height="54" width="181" x="292" y="393" as="geometry" />
+        <mxCell id="4" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-01: 管理ダッシュボード" vertex="1">
+          <mxGeometry height="54" width="200" x="292" y="393" as="geometry" />
         </mxCell>
-        <mxCell id="5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-02: PartsList" vertex="1">
+        <mxCell id="5" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-02: パーツ一覧" vertex="1">
           <mxGeometry height="54" width="165" x="620" y="125" as="geometry" />
         </mxCell>
-        <mxCell id="6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-06: PartsNew" vertex="1">
+        <mxCell id="6" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-06: パーツ新規登録" vertex="1">
           <mxGeometry height="54" width="172" x="977" y="58" as="geometry" />
         </mxCell>
-        <mxCell id="7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-03: PartsEdit" vertex="1">
+        <mxCell id="7" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-03: パーツ編集" vertex="1">
           <mxGeometry height="54" width="168" x="979" y="192" as="geometry" />
         </mxCell>
-        <mxCell id="8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-04: PresetsList" vertex="1">
+        <mxCell id="8" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-04: プリセット一覧" vertex="1">
           <mxGeometry height="54" width="182" x="612" y="393" as="geometry" />
         </mxCell>
-        <mxCell id="9" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-07: PresetsNew" vertex="1">
+        <mxCell id="9" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-07: プリセット新規登録" vertex="1">
           <mxGeometry height="54" width="189" x="968" y="326" as="geometry" />
         </mxCell>
-        <mxCell id="10" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-05: PresetsEdit" vertex="1">
+        <mxCell id="10" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-05: プリセット編集" vertex="1">
           <mxGeometry height="54" width="185" x="970" y="460" as="geometry" />
         </mxCell>
-        <mxCell id="11" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-08: UserManagement" vertex="1">
-          <mxGeometry height="54" width="230" x="588" y="592" as="geometry" />
+        <mxCell id="11" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-08: ユーザー管理" vertex="1">
+          <mxGeometry height="54" width="180" x="588" y="592" as="geometry" />
         </mxCell>
         <mxCell id="12" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
           <mxGeometry x="1063" y="594" as="geometry" />
@@ -40,80 +40,80 @@
         <mxCell id="13" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="" vertex="1">
           <mxGeometry x="1310" y="619" as="geometry" />
         </mxCell>
-        <mxCell id="14" edge="1" parent="1" source="3" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="4" value="Admin Login">
+        <mxCell id="14" edge="1" parent="1" source="3" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="4" value="管理者ログイン">
           <mxGeometry relative="1" as="geometry">
             <Array as="points" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="15" edge="1" parent="1" source="4" style="curved=1;startArrow=none;endArrow=block;exitX=0.58;exitY=0;entryX=0;entryY=0.5;" target="5" value="Parts">
+        <mxCell id="15" edge="1" parent="1" source="4" style="curved=1;startArrow=none;endArrow=block;exitX=0.58;exitY=0;entryX=0;entryY=0.5;" target="5" value="パーツ管理">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="530" y="152" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="16" edge="1" parent="1" source="4" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="8" value="Presets">
+        <mxCell id="16" edge="1" parent="1" source="4" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="8" value="プリセット管理">
           <mxGeometry relative="1" as="geometry">
             <Array as="points" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="17" edge="1" parent="1" source="4" style="curved=1;startArrow=none;endArrow=block;exitX=0.61;exitY=1;entryX=0;entryY=0.5;" target="11" value="Users">
+        <mxCell id="17" edge="1" parent="1" source="4" style="curved=1;startArrow=none;endArrow=block;exitX=0.61;exitY=1;entryX=0;entryY=0.5;" target="11" value="ユーザー管理">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="530" y="619" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="18" edge="1" parent="1" source="5" style="curved=1;startArrow=none;endArrow=block;exitX=0.85;exitY=0;entryX=0;entryY=0.29;" target="6" value="New">
+        <mxCell id="18" edge="1" parent="1" source="5" style="curved=1;startArrow=none;endArrow=block;exitX=0.85;exitY=0;entryX=0;entryY=0.29;" target="6" value="新規作成">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="893" y="63" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="19" edge="1" parent="1" source="5" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.68;entryX=0;entryY=0.09;" target="7" value="Edit">
+        <mxCell id="19" edge="1" parent="1" source="5" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.68;entryX=0;entryY=0.09;" target="7" value="編集">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="893" y="174" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="20" edge="1" parent="1" source="6" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.92;entryX=1;entryY=0.32;" target="5" value="Save/Cancel">
+        <mxCell id="20" edge="1" parent="1" source="6" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.92;entryX=1;entryY=0.32;" target="5" value="保存/キャンセル">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="893" y="130" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="21" edge="1" parent="1" source="7" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.91;entryX=0.78;entryY=1;" target="5" value="Save/Cancel">
+        <mxCell id="21" edge="1" parent="1" source="7" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.91;entryX=0.78;entryY=1;" target="5" value="保存/キャンセル">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="893" y="264" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="22" edge="1" parent="1" source="8" style="curved=1;startArrow=none;endArrow=block;exitX=0.75;exitY=0;entryX=0;entryY=0.04;" target="9" value="New">
+        <mxCell id="22" edge="1" parent="1" source="8" style="curved=1;startArrow=none;endArrow=block;exitX=0.75;exitY=0;entryX=0;entryY=0.04;" target="9" value="新規作成">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="893" y="308" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="23" edge="1" parent="1" source="8" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.69;entryX=0;entryY=0.05;" target="10" value="Edit">
+        <mxCell id="23" edge="1" parent="1" source="8" style="curved=1;startArrow=none;endArrow=block;exitX=1;exitY=0.69;entryX=0;entryY=0.05;" target="10" value="編集">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="893" y="442" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="24" edge="1" parent="1" source="9" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.96;entryX=1;entryY=0.31;" target="8" value="Save/Cancel">
+        <mxCell id="24" edge="1" parent="1" source="9" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.96;entryX=1;entryY=0.31;" target="8" value="保存/キャンセル">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="893" y="398" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="25" edge="1" parent="1" source="10" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.88;entryX=0.77;entryY=1;" target="8" value="Save/Cancel">
+        <mxCell id="25" edge="1" parent="1" source="10" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.88;entryX=0.77;entryY=1;" target="8" value="保存/キャンセル">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="893" y="525" />
@@ -127,7 +127,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="27" edge="1" parent="1" source="12" style="curved=1;startArrow=none;endArrow=none;exitX=-Infinity;exitY=Infinity;entryX=Infinity;entryY=Infinity;" target="13" value="Change Role">
+        <mxCell id="27" edge="1" parent="1" source="12" style="curved=1;startArrow=none;endArrow=none;exitX=-Infinity;exitY=Infinity;entryX=Infinity;entryY=Infinity;" target="13" value="権限変更">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1234" y="594" />
@@ -139,6 +139,21 @@
             <Array as="points">
               <mxPoint x="1234" y="648" />
               <mxPoint x="893" y="648" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="29" parent="1" style="whiteSpace=wrap;strokeWidth=2;" value="A-09: パーツインポート" vertex="1">
+          <mxGeometry height="54" width="180" x="620" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="30" edge="1" parent="1" source="5" style="curved=1;startArrow=none;endArrow=block;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="29" value="インポート">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="31" edge="1" parent="1" source="29" style="curved=1;startArrow=none;endArrow=block;exitX=0;exitY=0.5;entryX=0.5;entryY=1;" target="5" value="完了">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="530" y="277" />
             </Array>
           </mxGeometry>
         </mxCell>

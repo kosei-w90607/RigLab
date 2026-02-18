@@ -7,37 +7,37 @@
         <mxCell id="s0" parent="1" style="ellipse;fillColor=#000;strokeColor=#000;aspect=fixed;" value="" vertex="1">
           <mxGeometry height="24" width="24" x="30" y="120" as="geometry" />
         </mxCell>
-        <mxCell id="s1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=2;fontSize=14;fontStyle=1;" value="Guest" vertex="1">
+        <mxCell id="s1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#f5f5f5;strokeColor=#999999;strokeWidth=2;fontSize=14;fontStyle=1;" value="ゲスト" vertex="1">
           <mxGeometry height="50" width="140" x="120" y="107" as="geometry" />
         </mxCell>
-        <mxCell id="s1note" parent="1" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#666;whiteSpace=wrap;" value="&amp;bull; Browse builds&#xa;&amp;bull; Builder search&#xa;&amp;bull; Custom create (no save)&#xa;&amp;bull; Share (URL encode)" vertex="1">
+        <mxCell id="s1note" parent="1" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#666;whiteSpace=wrap;" value="&amp;bull; 構成を閲覧&#xa;&amp;bull; おまかせ構成&#xa;&amp;bull; カスタム構成（保存不可）&#xa;&amp;bull; 共有（URLエンコード）" vertex="1">
           <mxGeometry height="75" width="160" x="110" y="165" as="geometry" />
         </mxCell>
-        <mxCell id="s2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=14;fontStyle=1;" value="LoggingIn" vertex="1">
+        <mxCell id="s2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#fff2cc;strokeColor=#d6b656;strokeWidth=2;fontSize=14;fontStyle=1;" value="ログイン中" vertex="1">
           <mxGeometry height="50" width="140" x="380" y="107" as="geometry" />
         </mxCell>
-        <mxCell id="s3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=14;fontStyle=1;" value="User" vertex="1">
+        <mxCell id="s3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;fontSize=14;fontStyle=1;" value="ユーザー" vertex="1">
           <mxGeometry height="50" width="140" x="640" y="107" as="geometry" />
         </mxCell>
-        <mxCell id="s3note" parent="1" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#666;whiteSpace=wrap;" value="&amp;bull; Save builds&#xa;&amp;bull; Edit builds&#xa;&amp;bull; Delete builds&#xa;&amp;bull; Share builds" vertex="1">
+        <mxCell id="s3note" parent="1" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#666;whiteSpace=wrap;" value="&amp;bull; 構成を保存&#xa;&amp;bull; 構成を編集&#xa;&amp;bull; 構成を削除&#xa;&amp;bull; 構成を共有" vertex="1">
           <mxGeometry height="75" width="160" x="630" y="165" as="geometry" />
         </mxCell>
-        <mxCell id="s4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=14;fontStyle=1;" value="Admin" vertex="1">
+        <mxCell id="s4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#e1d5e7;strokeColor=#9673a6;strokeWidth=2;fontSize=14;fontStyle=1;" value="管理者" vertex="1">
           <mxGeometry height="50" width="140" x="900" y="107" as="geometry" />
         </mxCell>
-        <mxCell id="s4note" parent="1" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#666;whiteSpace=wrap;" value="&amp;bull; Manage parts&#xa;&amp;bull; Manage presets&#xa;&amp;bull; Manage users" vertex="1">
+        <mxCell id="s4note" parent="1" style="text;html=1;align=left;verticalAlign=top;fontSize=11;fontColor=#666;whiteSpace=wrap;" value="&amp;bull; パーツ管理&#xa;&amp;bull; プリセット管理&#xa;&amp;bull; ユーザー管理" vertex="1">
           <mxGeometry height="60" width="160" x="890" y="165" as="geometry" />
         </mxCell>
-        <mxCell id="t0" edge="1" parent="1" source="s0" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#333;strokeWidth=1.5;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="s1" value="Access">
+        <mxCell id="t0" edge="1" parent="1" source="s0" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#333;strokeWidth=1.5;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="s1" value="アクセス">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="t1" edge="1" parent="1" source="s1" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#333;strokeWidth=1.5;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="s2" value="Login attempt">
+        <mxCell id="t1" edge="1" parent="1" source="s1" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#333;strokeWidth=1.5;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="s2" value="ログイン試行">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="t2" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#82b366;strokeWidth=2;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="s3" value="Success">
+        <mxCell id="t2" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#82b366;strokeWidth=2;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="s3" value="成功">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="t3" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#b85450;strokeWidth=2;fontSize=11;exitX=0.5;exitY=0;entryX=0.5;entryY=0;" target="s1" value="Failure">
+        <mxCell id="t3" edge="1" parent="1" source="s2" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#b85450;strokeWidth=2;fontSize=11;exitX=0.5;exitY=0;entryX=0.5;entryY=0;" target="s1" value="失敗">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="450" y="60" />
@@ -45,10 +45,10 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="t4" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#333;strokeWidth=1.5;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="s4" value="Has admin role">
+        <mxCell id="t4" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#333;strokeWidth=1.5;fontSize=11;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="s4" value="管理者権限あり">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="t5" edge="1" parent="1" source="s4" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#333;strokeWidth=1.5;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=1;" target="s3" value="Leave admin">
+        <mxCell id="t5" edge="1" parent="1" source="s4" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#333;strokeWidth=1.5;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=1;" target="s3" value="管理画面を離れる">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="970" y="260" />
@@ -56,7 +56,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="t6" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=1;" target="s1" value="Logout">
+        <mxCell id="t6" edge="1" parent="1" source="s3" style="edgeStyle=orthogonalEdgeStyle;html=1;rounded=1;strokeColor=#b85450;strokeWidth=1.5;fontSize=11;exitX=0.5;exitY=1;entryX=0.5;entryY=1;" target="s1" value="ログアウト">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="710" y="300" />
@@ -64,7 +64,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#333;" value="Authentication State Diagram" vertex="1">
+        <mxCell id="title" parent="1" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#333;" value="認証状態遷移図" vertex="1">
           <mxGeometry height="30" width="300" x="380" y="10" as="geometry" />
         </mxCell>
       </root>
